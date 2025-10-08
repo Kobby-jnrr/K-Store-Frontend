@@ -1,0 +1,51 @@
+.pp{
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+}
+
+.product{
+    border: solid grey;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 5px;
+}
+
+.cart-wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.add-btn{
+    padding: 8px 12px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.counter{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+   justify-self: center;
+   margin-bottom: 15px;
+}
+
+.counter button{
+    padding: 6px 10px;
+    border: none;
+    background: #28a745;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+}
+
+.counter span{
+    font-size: 16px;
+    font-weight: bold;
+}

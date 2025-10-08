@@ -1,0 +1,16 @@
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* full viewport height */
+}
+
+.content {
+  display: flex;
+  flex: 1; /* take up remaining space */
+}
+
+.main {
+  flex: 1; /* stretch main content */
+  padding: 1rem;
+}
