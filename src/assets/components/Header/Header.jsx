@@ -6,7 +6,7 @@ import Cart from "./head-image/Cart.png";
 import Profile from "./head-image/user.png";
 import logo from "./head-image/Web-logo.png";
 import exit from "./head-image/logout.png";
-import allP from "./head-image/AllProducts.png";
+import allP from "./head-image/allProducts.png";
 import filter from "./head-image/filter.png";
 import { useState } from "react";
 
