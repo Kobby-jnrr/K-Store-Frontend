@@ -20,8 +20,11 @@ function LoginPage({ setUser }) {
 
     try {
       const data = await loginUser(form.email, form.password);
-      localStorage.setItem("token", data.accessToken);
-      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Store in sessionStorage instead of localStorage
+      sessionStorage.setItem("token", data.accessToken);
+      sessionStorage.setItem("user", JSON.stringify(data.user));
+
       setUser(data.user);
       navigate("/");
     } catch (err) {
@@ -55,21 +58,22 @@ function LoginPage({ setUser }) {
             />
 
             <div className="password-wrapper">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
-            <span
-              className="toggle-password"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? "👁️" : "👁️"}
-            </span>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+              <span
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "👁️" : "👁️"}
+              </span>
             </div>
+
             <button type="submit" disabled={loading}>
               {loading ? <span className="spinner"></span> : "Login"}
             </button>

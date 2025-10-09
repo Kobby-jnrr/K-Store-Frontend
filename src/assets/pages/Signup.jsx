@@ -16,18 +16,21 @@ function SignUp({ setUser }) {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Update form state on input change
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Handle registration submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
 
     if (form.password !== form.confirmpassword) {
       setError("Passwords do not match!");
+      setLoading(false);
       return;
     }
 
@@ -40,19 +43,19 @@ function SignUp({ setUser }) {
       };
 
       const data = await registerUser(userData);
+      console.log("Signup response:", data);
 
-      setSuccess("Account created! Redirecting...");
-      setError("");
-
-      // Optional: Automatically log in after registration
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("token", data.accessToken);
+      sessionStorage.setItem("token", data.accessToken);
+      sessionStorage.setItem("user", JSON.stringify(data.user));
       setUser(data.user);
 
-      setTimeout(() => navigate("/"), 2000); // Redirect to home
+      setSuccess("Account created! Redirecting...");
+      setTimeout(() => navigate("/"), 2000);
     } catch (err) {
-      setError(err.response?.data?.msg || "Signup failed. Try again.");
-      setSuccess("");
+      console.error("Signup error:", err);
+      setError(err.response?.data?.msg || err.message || "Signup failed. Try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -113,7 +116,14 @@ function SignUp({ setUser }) {
               <option value="customer">Customer</option>
               <option value="vendor">Vendor</option>
             </select>
-            <button type="submit">Create Account</button>
+
+            <button type="submit" disabled={loading} className="signup-button">
+              {loading ? (
+                <span className="spinner"></span>
+              ) : (
+                "Create Account"
+              )}
+            </button>
 
             {error && <p className="error">{error}</p>}
             {success && <p className="success">{success}</p>}

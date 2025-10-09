@@ -127,6 +127,30 @@ body {
 
 .signup-text a:hover { text-decoration: underline; }
 
+/* Spinner on button */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #fff;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 1s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.signup-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
 /* Responsive: hide left panel on small screens */
 @media (max-width: 1000px) {
   .signup-left { display: none; }
