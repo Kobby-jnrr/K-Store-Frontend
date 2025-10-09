@@ -1,16 +1,19 @@
-.main{
+.main {
     margin-left: 10px;
     margin-top: 65px;
     padding: 10px;
     transition: margin-left 0.3s ease;
+
+    min-height: 100vh;     /* ensure full viewport height */
+    overflow-y: auto;      /* allow vertical scroll */
 }
 
 /* Shift main content if sidebar is open */
 .sidebar.open ~ .main {
-  margin-left: 240px; /* same as sidebar width + margin */
+    margin-left: 240px; /* same as sidebar width + margin */
 }
 
-.promo{
+.promo {
     text-align: center;
     padding: 20px;
     background: linear-gradient(90deg, #8a6bcc, #130043);
@@ -18,66 +21,61 @@
     font-size: 30px;
     font-weight: bold;
     margin-top: 5px;
-    margin-bottom: -60px;
+    margin-bottom: 20px; /* remove negative margin */
 }
 
-.product-list{
+.product-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
 }
 
-.pp{
+.pp {
     width: 100%;
     max-height: 200px;
     object-fit: cover;
 }
 
-.product{
+.product {
     border: solid grey;
     border-radius: 10px;
     text-align: center;
     line-height: 5px;
 }
 
-section{
-     padding-top: 7vh;
+section {
+    padding-top: 7vh;
 }
 
-.go-cart{
+/* Fixed buttons can stay, but avoid bottom overlap */
+.go-cart, .addproduct {
     padding: 10px;
+    color: white;
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    position: fixed;
+    top: 90vh;  /* you can also adjust to be relative if preferred */
+}
+
+.go-cart {
     background: rgb(17, 194, 17);
-    color: white;
-    border: none;
-    border-radius: 9px;
-    cursor: pointer;
-    position: fixed;
-    top: 90vh;
     right: 20px;
-    bottom: 5vh;
 }
 
-.addproduct{
-    padding: 10px;
+.addproduct {
     background: rgb(67, 17, 194);
-    color: white;
-    border: none;
-    border-radius: 9px;
-    cursor: pointer;
-    position: fixed;
-    top: 90vh;
     right: 140px;
-    bottom: 5vh;
 }
 
-@media(max-width: 750px){
-    .main{
+@media(max-width: 750px) {
+    .main {
         margin-left: 160px;
     }
 }
 
-@media(max-width: 650px){
-    .main{
+@media(max-width: 650px) {
+    .main {
         margin-left: 0;
     }
 }

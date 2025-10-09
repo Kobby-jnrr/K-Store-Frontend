@@ -1,0 +1,6 @@
+.admin-content {
+  flex: 1;
+  padding: 20px;
+  margin-left: 220px; /* adjust when sidebar toggled */
+  transition: margin-left 0.3s ease;
+}

@@ -9,13 +9,10 @@ function LoginPage({ setUser }) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Update form state on input change
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  // Handle login submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -23,15 +20,9 @@ function LoginPage({ setUser }) {
 
     try {
       const data = await loginUser(form.email, form.password);
-
-      // Save token and user to localStorage
       localStorage.setItem("token", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
-
-      // Update app-level state
       setUser(data.user);
-
-      // Redirect to home page
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.msg || "Invalid credentials. Please try again.");
@@ -62,16 +53,25 @@ function LoginPage({ setUser }) {
               onChange={handleChange}
               required
             />
+
+            <div className="password-wrapper">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Password"
               value={form.password}
               onChange={handleChange}
               required
             />
+            <span
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "👁️" : "👁️"}
+            </span>
+            </div>
             <button type="submit" disabled={loading}>
-              {loading ? "Logging In..." : "Login"}
+              {loading ? <span className="spinner"></span> : "Login"}
             </button>
 
             {error && <p className="error">{error}</p>}

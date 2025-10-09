@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { Navigate } from "react-router-dom";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+// Store.jsx
+import React, { useState, useEffect } from "react";
+import { Navigate, BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+
 import Header from "./assets/components/Header/Header.jsx";
 import Sidebar from "./assets/components/Sidebar/Sidebar.jsx";
 import Main from "./assets/pages/Main-body.jsx";
@@ -11,23 +12,28 @@ import CartPage from "./assets/pages/CartPage.jsx";
 import UserProfile from "./assets/pages/UserProfile.jsx";
 import VendorAddProduct from "./assets/pages/AddProduct.jsx";
 import AllProducts from "./assets/pages/AllProducts.jsx";
+import AdminLayout from "./assets/pages/admin/AdminLayout.jsx";
+
 import "./K-Store.css";
 
 const devMode = false;
 
+/* ------------------------- APP LAYOUT (for users/vendors) ------------------------- */
 function AppLayout({ cart, setCart, totalItems, logout, user }) {
   const location = useLocation();
 
+  // Optional: Redirect admin from user layout (better than window.location.replace)
+  if (user?.role === "admin") {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
   return (
     <div className="app-layout">
-      {/* Header */}
       <Header totalItems={totalItems} logout={logout} user={user} />
 
       <div className="content">
-        {/* Sidebar only on certain pages */}
         {location.pathname !== "/cartPage" && <Sidebar />}
 
-        {/* Main routes */}
         <Routes>
           <Route path="/" element={<Main cart={cart} setCart={setCart} />} />
           <Route path="/cartPage" element={<CartPage cart={cart} setCart={setCart} />} />
@@ -37,33 +43,26 @@ function AppLayout({ cart, setCart, totalItems, logout, user }) {
         </Routes>
       </div>
 
-      {/* Footer */}
       <Footer />
     </div>
   );
 }
 
+/* ------------------------- MAIN STORE COMPONENT ------------------------- */
 function Store() {
-  // ✅ Load user from localStorage to persist login
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
   const [cart, setCart] = useState({});
+  const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
 
-  // Logout function
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
   };
-
-  // Count total items in cart
-  const totalItems = Object.values(cart).reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
 
   return (
     <Router>
@@ -72,7 +71,15 @@ function Store() {
         <Route path="/login" element={<LoginPage setUser={setUser} />} />
         <Route path="/signup" element={<SignUp setUser={setUser} />} />
 
-        {/* Protected routes */}
+        {/* Admin routes */}
+        <Route
+          path="/admin/*"
+          element={
+            user?.role === "admin" ? <AdminLayout user={user} /> : <Navigate to="/login" replace />
+          }
+        />
+
+        {/* Regular user/vendor routes */}
         <Route
           path="/*"
           element={

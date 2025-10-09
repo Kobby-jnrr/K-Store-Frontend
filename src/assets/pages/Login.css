@@ -27,14 +27,17 @@ body {
 /* Container */
 .login-container {
   display: flex;
-  width: 80vw;
-  height: 80vh;
-  margin: 5vh auto;
+  width: 90vw; /* wider */
+  min-width: 800px; /* optional max size */
+  min-height: 700px; /* minimum height */
+  height: auto; /* let content dictate height */
+  margin: 3vh auto; /* slightly less top/bottom margin */
   border-radius: 15px;
   overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0 10px 40px rgba(0,0,0,0.3);
 }
+
 
 /* Left panel */
 .login-left {
@@ -134,9 +137,56 @@ body {
 
 .signup-text a:hover { text-decoration: underline; }
 
+/* Spinner inside the login button */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid white;
+  border-top: 3px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 1s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Adjust button when disabled */
+.login-form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+
 /* Responsive: hide left panel on small screens, show top logo */
 @media (max-width: 800px) {
   .login-left { display: none; }
   .login-container { width: 90vw; height: auto; }
   .login-logo-top { display: block; }
 } 
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding: 1em;
+  padding-right: 40px; /* space for the eye icon */
+  box-sizing: border-box;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  font-size: 1.2em;
+  user-select: none;
+  color: #8a6bcc;
+}
