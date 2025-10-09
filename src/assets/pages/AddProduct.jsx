@@ -26,7 +26,7 @@ const VendorAddProduct = () => {
   ];
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = JSON.parse(sessionStorage.getItem("user")); // ✅ Use sessionStorage
     if (!user || user.role !== "vendor") {
       toast.error("❌ Access Denied! Only vendors can add products.");
       navigate("/"); 
@@ -61,16 +61,47 @@ const VendorAddProduct = () => {
       <h2 className="addhead">ADD A PRODUCT</h2>
       <div className="vendor-form-container">
         <form className="vendor-form" onSubmit={handleSubmit}>
-          <input name="title" placeholder="Product name" value={formData.title} onChange={handleChange} required />
-          <input name="price" type="number" placeholder="Price" value={formData.price} onChange={handleChange} required />
-          <select name="category" value={formData.category} onChange={handleChange} required>
+          <input
+            name="title"
+            placeholder="Product name"
+            value={formData.title}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="price"
+            type="number"
+            placeholder="Price"
+            value={formData.price}
+            onChange={handleChange}
+            required
+          />
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+          >
             <option value="">Select Category</option>
             {categories.map((cat) => (
-              <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+              <option key={cat} value={cat}>
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </option>
             ))}
           </select>
-          <input name="image" placeholder="Image URL" value={formData.image} onChange={handleChange} required />
-          <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} />
+          <input
+            name="image"
+            placeholder="Image URL"
+            value={formData.image}
+            onChange={handleChange}
+            required
+          />
+          <textarea
+            name="description"
+            placeholder="Description"
+            value={formData.description}
+            onChange={handleChange}
+          />
           <button type="submit">Add Product</button>
         </form>
       </div>

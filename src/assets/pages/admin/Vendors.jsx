@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; 
 import axios from "axios";
 import "./Vendors.css";
 
@@ -16,7 +16,7 @@ function Vendors() {
       "http://localhost:5000/api/admin/vendors",                // local fallback
     ];
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token"); // ✅ use sessionStorage
     let fetchedData = [];
 
     for (let url of urls) {
@@ -41,7 +41,7 @@ function Vendors() {
       "http://localhost:5000/api/admin/verify-vendor/",
     ];
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token"); // ✅ use sessionStorage
 
     for (let url of urls) {
       try {

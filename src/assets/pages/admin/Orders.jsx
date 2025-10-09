@@ -16,7 +16,7 @@ function Orders() {
       "http://localhost:5000/api/admin/orders",
     ];
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token"); // ✅ use sessionStorage
     let fetchedOrders = [];
 
     for (let url of urls) {
@@ -40,11 +40,15 @@ function Orders() {
       `https://k-store-backend.onrender.com/api/admin/orders/${orderId}`,
       `http://localhost:5000/api/admin/orders/${orderId}`,
     ];
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token"); // ✅ use sessionStorage
 
     for (let url of urls) {
       try {
-        await axios.put(url, { status: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
+        await axios.put(
+          url,
+          { status: newStatus },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         fetchOrders();
         break;
       } catch (err) {
@@ -60,7 +64,7 @@ function Orders() {
       `https://k-store-backend.onrender.com/api/admin/orders/${orderId}`,
       `http://localhost:5000/api/admin/orders/${orderId}`,
     ];
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token"); // ✅ use sessionStorage
 
     for (let url of urls) {
       try {
@@ -104,16 +108,16 @@ function Orders() {
                   <td>{order.customer?.username || "N/A"}</td>
                   <td>
                     {order.products?.map((p) => (
-                      <div key={p._id}>{p.title} x {p.quantity}</div>
+                      <div key={p._id}>
+                        {p.title} x {p.quantity}
+                      </div>
                     ))}
                   </td>
                   <td>${order.total}</td>
                   <td>{order.status}</td>
                   <td>
                     {order.status !== "delivered" && (
-                      <button
-                        onClick={() => updateStatus(order._id, "delivered")}
-                      >
+                      <button onClick={() => updateStatus(order._id, "delivered")}>
                         Mark Delivered
                       </button>
                     )}

@@ -18,7 +18,7 @@ function Users() {
       "http://localhost:5000/api/admin/users",
     ];
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token"); // ✅ use sessionStorage
     let fetchedData = [];
 
     for (let url of urls) {
@@ -42,7 +42,7 @@ function Users() {
       "https://k-store-backend.onrender.com/api/admin/users/",
       "http://localhost:5000/api/admin/users/",
     ];
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token"); // ✅ use sessionStorage
 
     for (let url of urls) {
       try {
@@ -116,48 +116,47 @@ function Users() {
         </div>
       </div>
 
-<div className="users-table-wrapper">
-  <table className="users-table">
-    <thead>
-      <tr>
-        <th>Username</th>
-        <th>Email</th>
-        <th>Role</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {filteredUsers.length === 0 ? (
-        <tr>
-          <td colSpan="5">No users found</td>
-        </tr>
-      ) : (
-        filteredUsers.map((user) => (
-          <tr key={user._id}>
-            <td>{user.username}</td>
-            <td>{user.email}</td>
-            <td>{user.role}</td>
-            <td>
-              <span className={`status ${user.active ? "active" : "inactive"}`}>
-                {user.active ? "Active" : "Inactive"}
-              </span>
-            </td>
-            <td>
-              <button
-                className={`toggle-btn ${user.active ? "deactivate" : "activate"}`}
-                onClick={() => toggleActive(user._id, user.active)}
-              >
-                {user.active ? "Deactivate" : "Activate"}
-              </button>
-            </td>
-          </tr>
-        ))
-      )}
-    </tbody>
-  </table>
-</div>
-
+      <div className="users-table-wrapper">
+        <table className="users-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredUsers.length === 0 ? (
+              <tr>
+                <td colSpan="5">No users found</td>
+              </tr>
+            ) : (
+              filteredUsers.map((user) => (
+                <tr key={user._id}>
+                  <td>{user.username}</td>
+                  <td>{user.email}</td>
+                  <td>{user.role}</td>
+                  <td>
+                    <span className={`status ${user.active ? "active" : "inactive"}`}>
+                      {user.active ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      className={`toggle-btn ${user.active ? "deactivate" : "activate"}`}
+                      onClick={() => toggleActive(user._id, user.active)}
+                    >
+                      {user.active ? "Deactivate" : "Activate"}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

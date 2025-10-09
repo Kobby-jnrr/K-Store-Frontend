@@ -21,7 +21,7 @@ function LoginPage({ setUser }) {
     try {
       const data = await loginUser(form.email, form.password);
 
-      // Store in sessionStorage instead of localStorage
+      // Store in sessionStorage
       sessionStorage.setItem("token", data.accessToken);
       sessionStorage.setItem("user", JSON.stringify(data.user));
 

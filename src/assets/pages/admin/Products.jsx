@@ -19,7 +19,7 @@ function Products() {
       "http://localhost:5000/api/admin/products",
     ];
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token"); // ✅ use sessionStorage
     let fetchedProducts = [];
 
     for (let url of urls) {
@@ -54,7 +54,7 @@ function Products() {
       `https://k-store-backend.onrender.com/api/admin/products/${id}`,
       `http://localhost:5000/api/admin/products/${id}`,
     ];
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token"); // ✅ use sessionStorage
 
     for (let url of urls) {
       try {
@@ -78,7 +78,7 @@ function Products() {
       `https://k-store-backend.onrender.com/api/admin/products/${id}`,
       `http://localhost:5000/api/admin/products/${id}`,
     ];
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token"); // ✅ use sessionStorage
 
     for (let url of urls) {
       try {
