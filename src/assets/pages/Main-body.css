@@ -59,8 +59,8 @@
 }
 
 .addproduct {
-    background: rgb(67, 17, 194);
-    right: 140px;
+    background: rgb(17, 194, 17);
+    right: 150px;
 }
 
 @media(max-width: 750px) {
@@ -73,4 +73,19 @@
     .main {
         margin-left: 0;
     }
+}
+.vendor-orders-btn {
+    padding: 10px;
+    color: white;
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    position: fixed;
+    top: 82vh;  /* position above other buttons */
+    right: 20px;
+    background: rgb(255, 140, 0); /* Orange */
+}
+
+.vendor-orders-btn:hover {
+    opacity: 0.9;
 }
