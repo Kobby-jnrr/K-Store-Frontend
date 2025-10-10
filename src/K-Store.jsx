@@ -36,19 +36,11 @@ function AppLayout({ cart, setCart, totalItems, logout, user }) {
 
         <Routes>
           <Route path="/" element={<Main cart={cart} setCart={setCart} />} />
-          <Route
-            path="/cartPage"
-            element={<CartPage cart={cart} setCart={setCart} />}
-          />
-          <Route
-            path="/allProducts"
-            element={<AllProducts cart={cart} setCart={setCart} />}
-          />
+          <Route path="/cartPage" element={<CartPage cart={cart} setCart={setCart} />}/>
+          <Route path="/allProducts" element={<AllProducts cart={cart} setCart={setCart} />}/>
           <Route path="/addProduct" element={<VendorAddProduct />} />
           <Route path="/userProfile" element={<UserProfile user={user} />} />
-          <Route
-            path="/checkout"
-            element={<CheckoutPage cart={cart} setCart={setCart} />}
+          <Route path="/checkout" element={<CheckoutPage cart={cart} setCart={setCart} />}
           />
         </Routes>
       </div>

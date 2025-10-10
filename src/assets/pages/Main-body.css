@@ -1,6 +1,6 @@
 .main {
     margin-left: 10px;
-    margin-top: 65px;
+    margin-top: 60px;
     padding: 10px;
     transition: margin-left 0.3s ease;
 
@@ -21,7 +21,7 @@
     font-size: 30px;
     font-weight: bold;
     margin-top: 5px;
-    margin-bottom: 20px; /* remove negative margin */
+    margin-bottom: 0px; 
 }
 
 .product-list {
@@ -43,11 +43,6 @@
     line-height: 5px;
 }
 
-section {
-    padding-top: 7vh;
-}
-
-/* Fixed buttons can stay, but avoid bottom overlap */
 .go-cart, .addproduct {
     padding: 10px;
     color: white;

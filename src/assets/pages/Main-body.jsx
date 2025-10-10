@@ -31,7 +31,7 @@ function Main({ cart, setCart }) {
 
       <Link to="/addProduct">
         {user?.role === "vendor" && (
-          <button className="addproduct">➕ ADD/EDIT PRODUCT</button>
+          <button className="addproduct">➕ ADD / EDIT PRODUCT</button>
         )}
       </Link>
 

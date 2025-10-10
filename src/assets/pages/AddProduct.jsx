@@ -24,13 +24,13 @@ const VendorProducts = () => {
     description: "",
     image: "",
   });
+  const [savingEdit, setSavingEdit] = useState(false); // 🌀 spinner state
 
   const categories = [
     "fashion", "electronics", "home", "grocery",
     "baby", "beauty", "sports", "gaming"
   ];
 
-  // ----------------------------- Load vendor -----------------------------
   useEffect(() => {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -44,7 +44,6 @@ const VendorProducts = () => {
     }
   }, [navigate]);
 
-  // ----------------------------- Fetch vendor products (with fallback) -----------------------------
   const fetchProducts = async (token) => {
     try {
       console.log("🌍 Trying Render backend...");
@@ -71,10 +70,8 @@ const VendorProducts = () => {
     }
   };
 
-  // ----------------------------- Add new product -----------------------------
   const handleAddProduct = async (e) => {
     e.preventDefault();
-
     if (!formData.title || !formData.price || !formData.category || !formData.image) {
       toast.error("Please fill in all required fields!");
       return;
@@ -114,7 +111,6 @@ const VendorProducts = () => {
     }
   };
 
-  // ----------------------------- Edit Product -----------------------------
   const openEdit = (product) => {
     setEditingProduct(product);
     setEditData({
@@ -126,7 +122,9 @@ const VendorProducts = () => {
     });
   };
 
+  // 🌀 Save Edit with Spinner
   const saveEdit = async () => {
+    setSavingEdit(true);
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
     try {
@@ -157,10 +155,11 @@ const VendorProducts = () => {
         console.error("Both update attempts failed:", err2.message);
         toast.error("Failed to update product.");
       }
+    } finally {
+      setSavingEdit(false);
     }
   };
 
-  // ----------------------------- Delete Product -----------------------------
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete this product?")) return;
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -187,7 +186,6 @@ const VendorProducts = () => {
     }
   };
 
-  // ----------------------------- Render UI -----------------------------
   if (!vendor) return <div className="loader">Loading...</div>;
 
   return (
@@ -278,24 +276,18 @@ const VendorProducts = () => {
               <input
                 name="title"
                 value={editData.title}
-                onChange={(e) =>
-                  setEditData({ ...editData, title: e.target.value })
-                }
+                onChange={(e) => setEditData({ ...editData, title: e.target.value })}
               />
               <input
                 name="price"
                 type="number"
                 value={editData.price}
-                onChange={(e) =>
-                  setEditData({ ...editData, price: e.target.value })
-                }
+                onChange={(e) => setEditData({ ...editData, price: e.target.value })}
               />
               <select
                 name="category"
                 value={editData.category}
-                onChange={(e) =>
-                  setEditData({ ...editData, category: e.target.value })
-                }
+                onChange={(e) => setEditData({ ...editData, category: e.target.value })}
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
@@ -306,9 +298,7 @@ const VendorProducts = () => {
               <input
                 name="image"
                 value={editData.image}
-                onChange={(e) =>
-                  setEditData({ ...editData, image: e.target.value })
-                }
+                onChange={(e) => setEditData({ ...editData, image: e.target.value })}
               />
               <textarea
                 name="description"
@@ -317,8 +307,21 @@ const VendorProducts = () => {
                   setEditData({ ...editData, description: e.target.value })
                 }
               />
-              <button onClick={saveEdit}>Save</button>
-              <button onClick={() => setEditingProduct(null)}>Cancel</button>
+
+              {/* 🌀 Spinner while saving */}
+              <button onClick={saveEdit} disabled={savingEdit}>
+                {savingEdit ? (
+                  <span className="spinner"></span>
+                ) : (
+                  "Save"
+                )}
+              </button>
+              <button
+                onClick={() => setEditingProduct(null)}
+                disabled={savingEdit}
+              >
+                Cancel
+              </button>
             </div>
           )}
         </div>
