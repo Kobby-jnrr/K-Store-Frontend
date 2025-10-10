@@ -13,35 +13,61 @@ function CheckoutPage({ cart, setCart }) {
     0
   );
 
-  const confirmOrder = () => {
-    // Validate payment info
-    if (paymentMethod === "card") {
-      if (!cardDetails.cardNumber || !cardDetails.expiry || !cardDetails.cvv) {
-        alert("Please fill in all card details!");
-        return;
-      }
-    } else if (paymentMethod === "momo") {
-      if (!momoNumber) {
-        alert("Please enter your Momo number!");
-        return;
-      }
-    }
+  const confirmOrder = async () => {
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  if (!token) {
+    alert("You must be logged in to place an order!");
+    navigate("/login");
+    return;
+  }
 
-    // Simulate saving order
-    const orderData = {
-      items: Object.values(cart),
-      total: subtotal + 20,
-      paymentMethod,
-      ...(paymentMethod === "card" ? { cardDetails } : {}),
-      ...(paymentMethod === "momo" ? { momoNumber } : {}),
-    };
+  if (paymentMethod === "card" && (!cardDetails.cardNumber || !cardDetails.expiry || !cardDetails.cvv)) {
+    alert("Please fill in all card details!");
+    return;
+  }
 
-    console.log("Order confirmed:", orderData);
+  if (paymentMethod === "momo" && !momoNumber) {
+    alert("Please enter your Momo number!");
+    return;
+  }
 
-    alert("Order confirmed! 🎉");
-    setCart({}); // Clear cart
-    navigate("/"); // Go home
+  const orderData = {
+    items: Object.values(cart).map((item) => ({
+      product: item._id,
+      quantity: item.quantity,
+      price: item.price,
+      vendor: item.vendor?._id || item.vendor,
+    })),
+    total: subtotal + 20,
+    paymentMethod,
+    ...(paymentMethod === "card" ? { cardDetails } : {}),
+    ...(paymentMethod === "momo" ? { momoNumber } : {}),
   };
+
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/orders`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderData),
+      }
+    );
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Order failed");
+
+    alert("✅ Order confirmed!");
+    setCart({});
+    navigate("/userProfile");
+  } catch (err) {
+    console.error("Order error:", err);
+    alert("❌ Failed to confirm order. Try again.");
+  }
+};
 
   return (
     <div className="checkout-container">

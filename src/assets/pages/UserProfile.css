@@ -1,246 +1,201 @@
-.profile-page {
-  flex: 1;
-  background: #f9fafb;
-  min-height: calc(100vh - 65px);
-  padding: 40px 20px;
+.profile-layout {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: flex-start;
-  margin-top: 50px;
+  padding: 30px;
+  gap: 20px;
+  background: #f9fafb;
+  min-height: 100vh;
   box-sizing: border-box;
 }
 
-.profile-card {
+/* Three columns */
+.profile-column {
   background: #fff;
-  border-radius: 16px;
-  padding: 2rem;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  flex: 1;
+  min-width: 300px;
+  overflow-y: auto;
+  max-height: 90vh;
 }
 
-.profile-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
+/* Left column (Profile) */
+.user-info {
+  flex: 0.8;
   text-align: center;
 }
 
 .profile-avatar {
-  width: 100px;
-  height: 100px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
-  object-fit: cover;
   border: 3px solid #2563eb;
+  object-fit: cover;
 }
 
-.profile-name {
-  font-size: 1.8rem;
-  color: #1e3a8a;
-  margin: 0;
-}
-
-.green-tick {
-  color: #16a34a;
-  margin-left: 0.3rem;
-  font-size: 1.2rem;
-}
-
-.vendor-badge {
-  padding: 0.4rem 0.8rem;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-top: 0.5rem;
-}
-
-.vendor-badge.verified {
-  background: #16a34a;
-  color: #fff;
-}
-
-.vendor-badge.pending {
-  background: #f59e0b;
-  color: #fff;
-}
-
-.profile-section {
-  border-top: 1px solid #eee;
-  padding-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.profile-section h3 {
-  color: #1e3a8a;
-  margin-bottom: 0.5rem;
-}
-
-.profile-section p {
-  color: #555;
-  font-size: 1rem;
-  margin: 0;
-}
-
-.profile-actions {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.edit-btn, .add-product-btn {
+.role-tag {
   background: #2563eb;
   color: #fff;
-  border: none;
-  padding: 0.6rem 1.2rem;
+  padding: 5px 10px;
   border-radius: 10px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: 0.3s ease;
+  font-size: 0.9rem;
 }
 
-.add-product-btn {
-  background: #16a34a;
+/* Middle (Products) */
+.user-products {
+  flex: 1.2;
 }
 
-.edit-btn:hover, .add-product-btn:hover {
-  opacity: 0.85;
-}
-
-.loader {
-  text-align: center;
-  margin-top: 5rem;
-  color: #1e3a8a;
-  font-weight: bold;
-}
 .vendor-product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .vendor-product-card {
   background: #f3f4f6;
-  border-radius: 12px;
-  padding: 0.5rem;
+  border-radius: 10px;
+  padding: 10px;
   text-align: center;
-  transition: transform 0.2s ease;
 }
 
-.vendor-product-card:hover {
-  transform: translateY(-3px);
-}
-
-.product-img {
+.vendor-product-card img {
   width: 100%;
-  height: 100px;
+  height: 90px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
-.product-title {
-  margin: 0.5rem 0 0 0;
-  font-size: 0.9rem;
-  color: #1e3a8a;
-}
-
-.product-price {
-  font-weight: bold;
-  color: #16a34a;
-  margin: 0.25rem 0 0 0;
-}
 .product-actions {
   display: flex;
   justify-content: space-between;
-  margin-top: 0.5rem;
+  margin-top: 5px;
 }
 
-.product-actions .edit-btn {
+.product-actions button {
   background: #2563eb;
   color: #fff;
   border: none;
-  padding: 0.3rem 0.6rem;
-  border-radius: 8px;
+  border-radius: 6px;
+  padding: 3px 6px;
   cursor: pointer;
   font-size: 0.8rem;
 }
 
-.product-actions .delete-btn {
+.product-actions button:last-child {
   background: #dc2626;
-  color: #fff;
-  border: none;
-  padding: 0.3rem 0.6rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.8rem;
 }
 
-.product-actions button:hover {
-  opacity: 0.85;
+/* Right (Orders) */
+.user-orders {
+  flex: 1.3;
 }
+
+.order-card {
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.order-items {
+  margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.order-item {
+  background: #fff;
+  padding: 5px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-item img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* Modal */
 .modal-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
+  inset: 0;
+  background: rgba(0,0,0,0.6);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
 }
 
 .edit-modal {
   background: #fff;
-  padding: 2rem;
-  border-radius: 12px;
+  padding: 20px;
+  border-radius: 10px;
   width: 90%;
-  max-width: 500px;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-.edit-modal input,
-.edit-modal textarea {
-  width: 100%;
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  gap: 10px;
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.5rem;
+  gap: 10px;
 }
 
-.save-btn {
+.modal-actions button {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.modal-actions button:first-child {
   background: #16a34a;
   color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
 }
 
-.cancel-btn {
+.modal-actions button:last-child {
   background: #dc2626;
   color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
 }
 
-.save-btn:hover,
-.cancel-btn:hover {
-  opacity: 0.85;
+/* Responsive */
+@media (max-width: 1000px) {
+  .profile-layout {
+    flex-direction: column;
+  }
+}
+/* --- Three-column layout --- */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 5rem;
+  width: 100%;
+  max-width: 1400px;
+  margin-left: 10px;
+  margin-top: 75px;
+}
+
+.side-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.middle-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }

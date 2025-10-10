@@ -6,7 +6,9 @@ import "./UserProfile.css";
 const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [loadingOrders, setLoadingOrders] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
@@ -16,7 +18,7 @@ const UserProfile = () => {
     description: "",
   });
 
-  // -------------------- Load user + products --------------------
+  // -------------------- Load user + data --------------------
   useEffect(() => {
     const sessionUser = JSON.parse(sessionStorage.getItem("user"));
     const token =
@@ -27,38 +29,59 @@ const UserProfile = () => {
       if (sessionUser.role === "vendor") {
         fetchVendorProducts(token);
       }
+      fetchUserOrders(token);
     } else {
       console.warn("⚠️ No user or token found in session/local storage");
     }
   }, []);
 
-  // -------------------- Fetch vendor products (with fallback) --------------------
+  // -------------------- Fetch vendor products --------------------
   const fetchVendorProducts = async (token) => {
     setLoadingProducts(true);
     try {
-      console.log("🌍 Trying Render backend...");
       const res = await axios.get(
         "https://k-store-backend.onrender.com/api/products/vendor",
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("✅ Products loaded from Render:", res.data);
       setProducts(res.data);
     } catch (err) {
-      console.warn("❌ Render backend failed:", err.message);
-      console.log("🔁 Trying localhost backend...");
+      console.warn("Render failed, trying localhost...");
       try {
         const localRes = await axios.get(
           "http://localhost:5000/api/products/vendor",
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        console.log("✅ Products loaded from localhost:", localRes.data);
         setProducts(localRes.data);
-      } catch (localErr) {
-        console.error("🔥 Both backends failed:", localErr.message);
+      } catch {
         toast.error("Failed to load your products.");
       }
     } finally {
       setLoadingProducts(false);
+    }
+  };
+
+  // -------------------- Fetch user orders --------------------
+  const fetchUserOrders = async (token) => {
+    setLoadingOrders(true);
+    try {
+      const res = await axios.get(
+        "https://k-store-backend.onrender.com/api/orders/my-orders",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setOrders(res.data);
+    } catch (err) {
+      console.warn("Render orders fetch failed:", err.message);
+      try {
+        const localRes = await axios.get(
+          "http://localhost:5000/api/orders/my-orders",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setOrders(localRes.data);
+      } catch {
+        toast.error("Failed to load your orders.");
+      }
+    } finally {
+      setLoadingOrders(false);
     }
   };
 
@@ -75,16 +98,14 @@ const UserProfile = () => {
       );
       setProducts(products.filter((p) => p._id !== id));
       toast.success("Product deleted successfully!");
-    } catch (err) {
-      console.warn("Render delete failed, trying localhost...");
+    } catch {
       try {
         await axios.delete("http://localhost:5000/api/products/" + id, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProducts(products.filter((p) => p._id !== id));
         toast.success("Product deleted successfully (local)!");
-      } catch (err2) {
-        console.error("Both delete attempts failed:", err2.message);
+      } catch {
         toast.error("Failed to delete product.");
       }
     }
@@ -121,9 +142,8 @@ const UserProfile = () => {
         )
       );
       closeEditModal();
-      toast.success("Product updated successfully!");
-    } catch (err) {
-      console.warn("Render update failed, trying localhost...");
+      toast.success("Product updated!");
+    } catch {
       try {
         const localRes = await axios.put(
           `http://localhost:5000/api/products/${editingProduct._id}`,
@@ -136,9 +156,8 @@ const UserProfile = () => {
           )
         );
         closeEditModal();
-        toast.success("Product updated successfully (local)!");
-      } catch (err2) {
-        console.error("Both update attempts failed:", err2.message);
+        toast.success("Product updated (local)!");
+      } catch {
         toast.error("Failed to update product.");
       }
     }
@@ -150,58 +169,91 @@ const UserProfile = () => {
   return (
     <div className="profile-page">
       <Toaster position="top-right" />
-      <div className="profile-card">
-        {/* --- Profile Header --- */}
-        <div className="profile-header">
-          <img src={"."} alt={user.username} className="profile-avatar" />
-          <h2 className="profile-name">
-            {user.username} {user.verified && <span>✔️</span>}
-          </h2>
-          {user.role === "vendor" && (
-            <span
-              className={`vendor-badge ${user.verified ? "verified" : "pending"}`}
-            >
-              {user.verified ? "Verified Vendor" : "Pending Verification"}
+
+      {/* --- 3 Columns Layout --- */}
+      <div className="profile-grid">
+
+        {/* --- Profile Info --- */}
+        <div className="profile-card side-card">
+          <div className="profile-header">
+            <img src={"."} alt={user.username} className="profile-avatar" />
+            <h2>{user.username}</h2>
+            <span className={`vendor-badge ${user.verified ? "verified" : "pending"}`}>
+              {user.verified ? "Verified Account" : "Pending Verification"}
             </span>
+          </div>
+          <div className="profile-section">
+            <h3>Account Info</h3>
+            <p><strong>Email:</strong> {user.email || "Not set"}</p>
+            <p><strong>Phone:</strong> {user.phone || "Not added yet"}</p>
+            <p><strong>Location:</strong> {user.location || "No location set"}</p>
+            <p><strong>Role:</strong> {user.role}</p>
+          </div>
+        </div>
+
+        {/* --- Products --- */}
+        <div className="profile-card middle-card">
+          <h3>Your Products</h3>
+          {loadingProducts ? (
+            <p>Loading products...</p>
+          ) : products.length === 0 ? (
+            <p>No products found.</p>
+          ) : (
+            <div className="vendor-product-grid">
+              {products.map((p) => (
+                <div key={p._id} className="vendor-product-card">
+                  <img src={p.image} alt={p.title} className="product-img" />
+                  <h4>{p.title}</h4>
+                  <p>GH₵{p.price}</p>
+                  <div className="product-actions">
+                    <button onClick={() => openEditModal(p)}>Edit</button>
+                    <button onClick={() => handleDelete(p._id)}>Delete</button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
-        {/* --- Account Info --- */}
-        <div className="profile-section">
-          <h3>Account Info</h3>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Role:</strong> {user.role}</p>
-        </div>
-
-        {/* --- Vendor Products --- */}
-        {user.role === "vendor" && (
-          <div className="profile-section">
-            <h3>Your Products</h3>
-            {loadingProducts ? (
-              <p>Loading products...</p>
-            ) : products.length === 0 ? (
-              <p>No products found.</p>
-            ) : (
-              <div className="vendor-product-grid">
-                {products.map((p) => (
-                  <div key={p._id} className="vendor-product-card">
-                    <img src={p.image} alt={p.title} className="product-img" />
-                    <h4>{p.title}</h4>
-                    <p>GH₵{p.price}</p>
-                    <p>
-                      Vendor: {p.vendorName}{" "}
-                      {p.vendorVerified && <span>✔️</span>}
-                    </p>
-                    <div className="product-actions">
-                      <button onClick={() => openEditModal(p)}>Edit</button>
-                      <button onClick={() => handleDelete(p._id)}>Delete</button>
-                    </div>
+        {/* --- Orders --- */}
+        <div className="profile-card side-card">
+          <h3>My Orders</h3>
+          {loadingOrders ? (
+            <p>Loading orders...</p>
+          ) : orders.length === 0 ? (
+            <p>No orders yet.</p>
+          ) : (
+            <div className="orders-list">
+              {orders.map((order) => (
+                <div key={order._id} className="order-card">
+                  <div className="order-header">
+                    <p><strong>Status:</strong> {order.status}</p>
+                    <p><strong>Total:</strong> GH₵{order.total}</p>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                  <p><strong>Payment:</strong> {order.paymentMethod.toUpperCase()}</p>
+                  <p className="order-date">
+                    {new Date(order.createdAt).toLocaleString()}
+                  </p>
+                  <div className="order-items">
+                    {order.items.map((item) => (
+                      <div key={item._id} className="order-item">
+                        <img src={item.product.image} alt={item.product.title} />
+                        <div>
+                          <p className="item-title">{item.product.title}</p>
+                          <p className="item-vendor">Vendor: {item.vendor.username}</p>
+                        </div>
+                        <div className="item-details">
+                          <p>Qty: {item.quantity}</p>
+                          <p>GH₵{item.price}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* --- Edit Modal --- */}
@@ -216,11 +268,7 @@ const UserProfile = () => {
               value={formData.price}
               onChange={handleChange}
             />
-            <input
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-            />
+            <input name="category" value={formData.category} onChange={handleChange} />
             <input name="image" value={formData.image} onChange={handleChange} />
             <textarea
               name="description"
