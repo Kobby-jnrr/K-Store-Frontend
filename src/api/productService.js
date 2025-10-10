@@ -1,46 +1,55 @@
 import API from "./axios.js";
-import axios from "axios";
+
+// ------------------ PRODUCTS ------------------
 
 // Add product (vendor)
 export const addProduct = async (productData) => {
-  try {
-    const res = await API.post("/products", productData);
-    return res.data;
-  } catch (err) {
-    const localRes = await axios.post("http://localhost:5000/api/products", productData);
-    return localRes.data;
-  }
+  const res = await API.fallbackRequest("post", "/products", productData);
+  return res.data;
 };
 
 // Admin: get all products
 export const getAllProductsAdmin = async () => {
-  try {
-    const res = await API.get("/admin/products");
-    return res.data;
-  } catch (err) {
-    const localRes = await axios.get("http://localhost:5000/api/admin/products");
-    return localRes.data;
-  }
+  const res = await API.fallbackRequest("get", "/admin/products");
+  return res.data;
 };
 
 // Update product (admin)
 export const updateProductAdmin = async (id, data) => {
-  try {
-    const res = await API.put(`/admin/products/${id}`, data);
-    return res.data;
-  } catch (err) {
-    const localRes = await axios.put(`http://localhost:5000/api/admin/products/${id}`, data);
-    return localRes.data;
-  }
+  const res = await API.fallbackRequest("put", `/admin/products/${id}`, data);
+  return res.data;
 };
 
 // Delete product (admin)
 export const deleteProductAdmin = async (id) => {
-  try {
-    const res = await API.delete(`/admin/products/${id}`);
-    return res.data;
-  } catch (err) {
-    const localRes = await axios.delete(`http://localhost:5000/api/admin/products/${id}`);
-    return localRes.data;
-  }
+  const res = await API.fallbackRequest("delete", `/admin/products/${id}`);
+  return res.data;
+};
+
+// ------------------ AUTH ------------------
+
+// Register user
+export const registerUser = async (userData) => {
+  const res = await API.fallbackRequest("post", "/auth/register", userData);
+  return res.data;
+};
+
+// Login user
+export const loginUser = async (email, password) => {
+  const res = await API.fallbackRequest("post", "/auth/login", { email, password });
+  return res.data;
+};
+
+// ------------------ ADMIN: Users Management ------------------
+
+// Get all users (excluding admins)
+export const getUsers = async () => {
+  const res = await API.fallbackRequest("get", "/admin/users");
+  return res.data;
+};
+
+// Update user role (customer <-> vendor)
+export const updateUserRole = async (userId, role) => {
+  const res = await API.fallbackRequest("put", `/admin/update-user-role/${userId}`, { role });
+  return res.data;
 };
