@@ -34,29 +34,31 @@ const VendorProducts = () => {
 
   // ----------------------------- Load vendor -----------------------------
   useEffect(() => {
-    const user = JSON.parse(sessionStorage.getItem("user"));
-    if (!user || user.role !== "vendor") {
-      toast.error("❌ Access Denied! Only vendors can manage products.");
-      navigate("/");
-    } else {
-      setVendor(user);
-      fetchProducts(user._id, user.token);
-    }
-  }, [navigate]);
+  const user = JSON.parse(sessionStorage.getItem("user"));
+  if (!user || user.role !== "vendor") {
+    toast.error("❌ Access Denied! Only vendors can manage products.");
+    navigate("/");
+  } else {
+    setVendor(user);
+    fetchProducts(user.token);
+  }
+}, [navigate]);
+
 
   // ----------------------------- Fetch vendor products -----------------------------
-  const fetchProducts = async (vendorId, token) => {
-    try {
-      const res = await axios.get("https://k-store-backend.onrender.com/api/products", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const vendorProducts = res.data.filter(p => p.vendor?._id === vendorId);
-      setProducts(vendorProducts);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load products.");
-    }
-  };
+const fetchProducts = async (token) => {
+  try {
+    const res = await axios.get(
+      "https://k-store-backend.onrender.com/api/products/vendor",
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setProducts(res.data);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to load products.");
+  }
+};
+
 
   // ----------------------------- Handlers -----------------------------
   const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });

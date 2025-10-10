@@ -7,7 +7,6 @@ const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
-
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
@@ -17,51 +16,81 @@ const UserProfile = () => {
     description: "",
   });
 
-  // ---------------- Load user from session ----------------
+  // -------------------- Load user + products --------------------
   useEffect(() => {
     const sessionUser = JSON.parse(sessionStorage.getItem("user"));
-    if (sessionUser) {
-      setUser(sessionUser);
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+
+    if (sessionUser && token) {
+      setUser({ ...sessionUser, token });
       if (sessionUser.role === "vendor") {
-        fetchVendorProducts(sessionUser._id, sessionUser.token);
+        fetchVendorProducts(token);
       }
+    } else {
+      console.warn("⚠️ No user or token found in session/local storage");
     }
   }, []);
 
-  // ---------------- Fetch vendor products ----------------
-  const fetchVendorProducts = async (vendorId, token) => {
+  // -------------------- Fetch vendor products (with fallback) --------------------
+  const fetchVendorProducts = async (token) => {
     setLoadingProducts(true);
     try {
+      console.log("🌍 Trying Render backend...");
       const res = await axios.get(
-        `https://k-store-backend.onrender.com/api/products`,
+        "https://k-store-backend.onrender.com/api/products/vendor",
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const vendorProducts = res.data.filter(p => p.vendor?._id === vendorId);
-      setProducts(vendorProducts);
+      console.log("✅ Products loaded from Render:", res.data);
+      setProducts(res.data);
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to load your products.");
+      console.warn("❌ Render backend failed:", err.message);
+      console.log("🔁 Trying localhost backend...");
+      try {
+        const localRes = await axios.get(
+          "http://localhost:5000/api/products/vendor",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        console.log("✅ Products loaded from localhost:", localRes.data);
+        setProducts(localRes.data);
+      } catch (localErr) {
+        console.error("🔥 Both backends failed:", localErr.message);
+        toast.error("Failed to load your products.");
+      }
     } finally {
       setLoadingProducts(false);
     }
   };
 
-  // ---------------- Product CRUD ----------------
+  // -------------------- Delete product --------------------
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+
     try {
       await axios.delete(
-        `https://k-store-backend.onrender.com/api/products/${id}`,
-        { headers: { Authorization: `Bearer ${user.token}` } }
+        "https://k-store-backend.onrender.com/api/products/" + id,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setProducts(products.filter(p => p._id !== id));
+      setProducts(products.filter((p) => p._id !== id));
       toast.success("Product deleted successfully!");
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete product.");
+      console.warn("Render delete failed, trying localhost...");
+      try {
+        await axios.delete("http://localhost:5000/api/products/" + id, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setProducts(products.filter((p) => p._id !== id));
+        toast.success("Product deleted successfully (local)!");
+      } catch (err2) {
+        console.error("Both delete attempts failed:", err2.message);
+        toast.error("Failed to delete product.");
+      }
     }
   };
 
+  // -------------------- Edit modal --------------------
   const openEditModal = (product) => {
     setEditingProduct(product);
     setFormData({
@@ -74,41 +103,64 @@ const UserProfile = () => {
   };
 
   const closeEditModal = () => setEditingProduct(null);
-
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const saveEdit = async () => {
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
     try {
       const res = await axios.put(
         `https://k-store-backend.onrender.com/api/products/${editingProduct._id}`,
         formData,
-        { headers: { Authorization: `Bearer ${user.token}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setProducts(products.map(p => (p._id === editingProduct._id ? res.data.product : p)));
+      setProducts(
+        products.map((p) =>
+          p._id === editingProduct._id ? res.data.product : p
+        )
+      );
       closeEditModal();
       toast.success("Product updated successfully!");
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to update product.");
+      console.warn("Render update failed, trying localhost...");
+      try {
+        const localRes = await axios.put(
+          `http://localhost:5000/api/products/${editingProduct._id}`,
+          formData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setProducts(
+          products.map((p) =>
+            p._id === editingProduct._id ? localRes.data.product : p
+          )
+        );
+        closeEditModal();
+        toast.success("Product updated successfully (local)!");
+      } catch (err2) {
+        console.error("Both update attempts failed:", err2.message);
+        toast.error("Failed to update product.");
+      }
     }
   };
 
-  // ---------------- Render ----------------
+  // -------------------- UI --------------------
   if (!user) return <div className="loader">Loading profile...</div>;
 
   return (
     <div className="profile-page">
       <Toaster position="top-right" />
       <div className="profile-card">
-
         {/* --- Profile Header --- */}
         <div className="profile-header">
           <img src={"."} alt={user.username} className="profile-avatar" />
           <h2 className="profile-name">
-            {user.username} {user.verified && <span className="green-tick">✔️</span>}
+            {user.username} {user.verified && <span>✔️</span>}
           </h2>
           {user.role === "vendor" && (
-            <span className={`vendor-badge ${user.verified ? "verified" : "pending"}`}>
+            <span
+              className={`vendor-badge ${user.verified ? "verified" : "pending"}`}
+            >
               {user.verified ? "Verified Vendor" : "Pending Verification"}
             </span>
           )}
@@ -118,7 +170,7 @@ const UserProfile = () => {
         <div className="profile-section">
           <h3>Account Info</h3>
           <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Role:</strong> {user.role.charAt(0).toUpperCase() + user.role.slice(1)}</p>
+          <p><strong>Role:</strong> {user.role}</p>
         </div>
 
         {/* --- Vendor Products --- */}
@@ -128,20 +180,21 @@ const UserProfile = () => {
             {loadingProducts ? (
               <p>Loading products...</p>
             ) : products.length === 0 ? (
-              <p>No products added yet.</p>
+              <p>No products found.</p>
             ) : (
               <div className="vendor-product-grid">
-                {products.map(p => (
+                {products.map((p) => (
                   <div key={p._id} className="vendor-product-card">
                     <img src={p.image} alt={p.title} className="product-img" />
-                    <h4 className="product-title">{p.title}</h4>
-                    <p className="product-price">GH₵{p.price}</p>
+                    <h4>{p.title}</h4>
+                    <p>GH₵{p.price}</p>
                     <p>
-                      Vendor: {p.vendorName} {p.vendorVerified && <span className="green-tick">✔️</span>}
+                      Vendor: {p.vendorName}{" "}
+                      {p.vendorVerified && <span>✔️</span>}
                     </p>
                     <div className="product-actions">
-                      <button className="edit-btn" onClick={() => openEditModal(p)}>Edit</button>
-                      <button className="delete-btn" onClick={() => handleDelete(p._id)}>Delete</button>
+                      <button onClick={() => openEditModal(p)}>Edit</button>
+                      <button onClick={() => handleDelete(p._id)}>Delete</button>
                     </div>
                   </div>
                 ))}
@@ -149,12 +202,6 @@ const UserProfile = () => {
             )}
           </div>
         )}
-
-        {/* --- Action Buttons --- */}
-        <div className="profile-actions">
-          <button className="edit-btn">Edit Profile</button>
-          {user.role === "vendor" && <button className="add-product-btn">Add Product</button>}
-        </div>
       </div>
 
       {/* --- Edit Modal --- */}
@@ -162,40 +209,27 @@ const UserProfile = () => {
         <div className="modal-backdrop">
           <div className="edit-modal">
             <h3>Edit Product</h3>
-            <input 
-            name="title" 
-            value={formData.title} 
-            onChange={handleChange} 
-            placeholder="Product Name" 
+            <input name="title" value={formData.title} onChange={handleChange} />
+            <input
+              name="price"
+              type="number"
+              value={formData.price}
+              onChange={handleChange}
             />
-            <input 
-            name="price" 
-            type="number" 
-            value={formData.price} 
-            onChange={handleChange} 
-            placeholder="Price" 
+            <input
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
             />
-            <input 
-            name="category" 
-            value={formData.category} 
-            onChange={handleChange} 
-            placeholder="Category" 
-            />
-            <input 
-            name="image" 
-            value={formData.image} 
-            onChange={handleChange} 
-            placeholder="Image URL" 
-            />
-            <textarea 
-            name="description" 
-            value={formData.description} 
-            onChange={handleChange} 
-            placeholder="Description" 
+            <input name="image" value={formData.image} onChange={handleChange} />
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
             />
             <div className="modal-actions">
-              <button className="save-btn" onClick={saveEdit}>Save</button>
-              <button className="cancel-btn" onClick={closeEditModal}>Cancel</button>
+              <button onClick={saveEdit}>Save</button>
+              <button onClick={closeEditModal}>Cancel</button>
             </div>
           </div>
         </div>
