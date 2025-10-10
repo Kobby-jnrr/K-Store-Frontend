@@ -102,7 +102,7 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
           <p>GH₵{item.price}</p>
           {item.vendor && (
             <p className="vendor-name">
-              Vendor: {item.vendor.username} {item.vendor.verified && "✅"}
+              Vendor: {item.vendor.username}
             </p>
           )}
           {!cart[item._id] ? (

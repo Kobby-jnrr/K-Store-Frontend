@@ -4,71 +4,80 @@ import "./CheckoutPage.css";
 
 function CheckoutPage({ cart, setCart }) {
   const navigate = useNavigate();
-  const [paymentMethod, setPaymentMethod] = useState("cod"); // default COD
+  const [paymentMethod, setPaymentMethod] = useState("cod");
   const [cardDetails, setCardDetails] = useState({ cardNumber: "", expiry: "", cvv: "" });
   const [momoNumber, setMomoNumber] = useState("");
 
+  // -----------------------------
+  // Totals
+  // -----------------------------
   const subtotal = Object.values(cart).reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
+  // -----------------------------
+  // Confirm Order
+  // -----------------------------
   const confirmOrder = async () => {
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-  if (!token) {
-    alert("You must be logged in to place an order!");
-    navigate("/login");
-    return;
-  }
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to place an order!");
+      navigate("/login");
+      return;
+    }
 
-  if (paymentMethod === "card" && (!cardDetails.cardNumber || !cardDetails.expiry || !cardDetails.cvv)) {
-    alert("Please fill in all card details!");
-    return;
-  }
+    if (paymentMethod === "card" && (!cardDetails.cardNumber || !cardDetails.expiry || !cardDetails.cvv)) {
+      alert("Please fill in all card details!");
+      return;
+    }
 
-  if (paymentMethod === "momo" && !momoNumber) {
-    alert("Please enter your Momo number!");
-    return;
-  }
+    if (paymentMethod === "momo" && !momoNumber) {
+      alert("Please enter your Momo number!");
+      return;
+    }
 
-  const orderData = {
-    items: Object.values(cart).map((item) => ({
-      product: item._id,
-      quantity: item.quantity,
-      price: item.price,
-      vendor: item.vendor?._id || item.vendor,
-    })),
-    total: subtotal + 20,
-    paymentMethod,
-    ...(paymentMethod === "card" ? { cardDetails } : {}),
-    ...(paymentMethod === "momo" ? { momoNumber } : {}),
+    const orderData = {
+      items: Object.values(cart).map((item) => ({
+        product: item._id,
+        quantity: item.quantity,
+        price: item.price,
+        vendor: item.vendor?._id || item.vendor, // include vendor ID
+      })),
+      total: subtotal + 20,
+      paymentMethod,
+      ...(paymentMethod === "card" ? { cardDetails } : {}),
+      ...(paymentMethod === "momo" ? { momoNumber } : {}),
+    };
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/orders`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(orderData),
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Order failed");
+
+      alert("✅ Order confirmed!");
+      setCart({});
+      navigate("/userProfile");
+    } catch (err) {
+      console.error("Order error:", err);
+      alert("❌ Failed to confirm order. Try again.");
+    }
   };
 
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/orders`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(orderData),
-      }
-    );
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Order failed");
-
-    alert("✅ Order confirmed!");
-    setCart({});
-    navigate("/userProfile");
-  } catch (err) {
-    console.error("Order error:", err);
-    alert("❌ Failed to confirm order. Try again.");
-  }
-};
-
+  // -----------------------------
+  // Render Checkout
+  // -----------------------------
   return (
     <div className="checkout-container">
       {Object.values(cart).length === 0 ? (
@@ -80,14 +89,23 @@ function CheckoutPage({ cart, setCart }) {
         </div>
       ) : (
         <div className="checkout-content">
-          {/* Left: Cart Items */}
+          {/* LEFT SIDE - CART ITEMS */}
           <div className="checkout-items">
             {Object.values(cart).map((item) => (
               <div key={item._id} className="checkout-card">
                 <img src={item.image} alt={item.title} className="checkout-image" />
                 <div className="checkout-details">
                   <h3>{item.title}</h3>
-                  <p>Vendor: {item.username || "N/A"}</p>
+
+                  {/* ✅ Vendor Info */}
+                  {item.vendor ? (
+                    <p className="vendor-info">
+                      Vendor: {item.vendor.username}
+                    </p>
+                  ) : (
+                    <p className="vendor-info">Vendor: N/A</p>
+                  )}
+
                   <p>Price: GH₵{item.price.toFixed(2)}</p>
                   <p>Quantity: {item.quantity}</p>
                   <p>Total: GH₵{(item.price * item.quantity).toFixed(2)}</p>
@@ -96,7 +114,7 @@ function CheckoutPage({ cart, setCart }) {
             ))}
           </div>
 
-          {/* Right: Order Summary */}
+          {/* RIGHT SIDE - SUMMARY */}
           <div className="checkout-summary">
             <h2>Order Summary</h2>
             <p>Subtotal: GH₵{subtotal.toFixed(2)}</p>
@@ -104,9 +122,10 @@ function CheckoutPage({ cart, setCart }) {
             <hr />
             <h3>Total: GH₵{(subtotal + 20).toFixed(2)}</h3>
 
-            {/* Payment Options */}
+            {/* PAYMENT OPTIONS */}
             <div className="payment-section">
               <h3>Payment Method</h3>
+
               <label>
                 <input
                   type="radio"
@@ -117,6 +136,7 @@ function CheckoutPage({ cart, setCart }) {
                 />
                 Cash on Delivery
               </label>
+
               <label>
                 <input
                   type="radio"
@@ -127,6 +147,7 @@ function CheckoutPage({ cart, setCart }) {
                 />
                 Card
               </label>
+
               <label>
                 <input
                   type="radio"
@@ -138,7 +159,7 @@ function CheckoutPage({ cart, setCart }) {
                 Mobile Money
               </label>
 
-              {/* Conditional Inputs */}
+              {/* CONDITIONAL INPUTS */}
               {paymentMethod === "card" && (
                 <div className="card-details">
                   <input

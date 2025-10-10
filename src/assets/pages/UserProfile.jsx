@@ -5,6 +5,7 @@ import "./UserProfile.css";
 
 const UserProfile = () => {
   const [user, setUser] = useState(null);
+  const [verifiedStatus, setVerifiedStatus] = useState(null);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
@@ -18,7 +19,7 @@ const UserProfile = () => {
     description: "",
   });
 
-  // -------------------- Load user + data --------------------
+  /* -------------------- Load user and verification -------------------- */
   useEffect(() => {
     const sessionUser = JSON.parse(sessionStorage.getItem("user"));
     const token =
@@ -26,16 +27,35 @@ const UserProfile = () => {
 
     if (sessionUser && token) {
       setUser({ ...sessionUser, token });
-      if (sessionUser.role === "vendor") {
-        fetchVendorProducts(token);
-      }
+      fetchVerificationStatus(sessionUser._id || sessionUser.id, token);
+      if (sessionUser.role === "vendor") fetchVendorProducts(token);
       fetchUserOrders(token);
     } else {
-      console.warn("⚠️ No user or token found in session/local storage");
+      console.warn("⚠️ No user or token found in storage");
     }
   }, []);
 
-  // -------------------- Fetch vendor products --------------------
+  /* -------------------- Fetch user verification status -------------------- */
+  const fetchVerificationStatus = async (userId, token) => {
+    const urls = [
+      `https://k-store-backend.onrender.com/api/auth/status/${userId}`,
+      `http://localhost:5000/api/auth/status/${userId}`,
+    ];
+
+    for (let url of urls) {
+      try {
+        const res = await axios.get(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setVerifiedStatus(res.data.verified);
+        break;
+      } catch (err) {
+        console.warn("⚠️ Verification fetch failed from:", url);
+      }
+    }
+  };
+
+  /* -------------------- Fetch vendor products -------------------- */
   const fetchVendorProducts = async (token) => {
     setLoadingProducts(true);
     try {
@@ -44,8 +64,7 @@ const UserProfile = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setProducts(res.data);
-    } catch (err) {
-      console.warn("Render failed, trying localhost...");
+    } catch {
       try {
         const localRes = await axios.get(
           "http://localhost:5000/api/products/vendor",
@@ -60,7 +79,7 @@ const UserProfile = () => {
     }
   };
 
-  // -------------------- Fetch user orders --------------------
+  /* -------------------- Fetch user orders -------------------- */
   const fetchUserOrders = async (token) => {
     setLoadingOrders(true);
     try {
@@ -69,8 +88,7 @@ const UserProfile = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setOrders(res.data);
-    } catch (err) {
-      console.warn("Render orders fetch failed:", err.message);
+    } catch {
       try {
         const localRes = await axios.get(
           "http://localhost:5000/api/orders/my-orders",
@@ -85,7 +103,7 @@ const UserProfile = () => {
     }
   };
 
-  // -------------------- Delete product --------------------
+  /* -------------------- Delete product -------------------- */
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
     const token =
@@ -93,25 +111,25 @@ const UserProfile = () => {
 
     try {
       await axios.delete(
-        "https://k-store-backend.onrender.com/api/products/" + id,
+        `https://k-store-backend.onrender.com/api/products/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setProducts(products.filter((p) => p._id !== id));
-      toast.success("Product deleted successfully!");
+      toast.success("Product deleted!");
     } catch {
       try {
-        await axios.delete("http://localhost:5000/api/products/" + id, {
+        await axios.delete(`http://localhost:5000/api/products/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProducts(products.filter((p) => p._id !== id));
-        toast.success("Product deleted successfully (local)!");
+        toast.success("Product deleted (local)!");
       } catch {
         toast.error("Failed to delete product.");
       }
     }
   };
 
-  // -------------------- Edit modal --------------------
+  /* -------------------- Edit modal -------------------- */
   const openEditModal = (product) => {
     setEditingProduct(product);
     setFormData({
@@ -163,25 +181,30 @@ const UserProfile = () => {
     }
   };
 
-  // -------------------- UI --------------------
+  /* -------------------- Render -------------------- */
   if (!user) return <div className="loader">Loading profile...</div>;
+
+  const isVerified = verifiedStatus ?? user.verified ?? false;
 
   return (
     <div className="profile-page">
       <Toaster position="top-right" />
-
-      {/* --- 3 Columns Layout --- */}
       <div className="profile-grid">
-
         {/* --- Profile Info --- */}
         <div className="profile-card side-card">
           <div className="profile-header">
             <img src={"."} alt={user.username} className="profile-avatar" />
             <h2>{user.username}</h2>
-            <span className={`vendor-badge ${user.verified ? "verified" : "pending"}`}>
-              {user.verified ? "Verified Account" : "Pending Verification"}
+
+            <span
+              className={`vendor-badge ${
+                isVerified ? "verified" : "unverified"
+              }`}
+            >
+              {isVerified ? "✅ Verified Account" : "🔴 Unverified"}
             </span>
           </div>
+
           <div className="profile-section">
             <h3>Account Info</h3>
             <p><strong>Email:</strong> {user.email || "Not set"}</p>
@@ -237,10 +260,15 @@ const UserProfile = () => {
                   <div className="order-items">
                     {order.items.map((item) => (
                       <div key={item._id} className="order-item">
-                        <img src={item.product.image} alt={item.product.title} />
+                        <img
+                          src={item.product.image}
+                          alt={item.product.title}
+                        />
                         <div>
                           <p className="item-title">{item.product.title}</p>
-                          <p className="item-vendor">Vendor: {item.vendor.username}</p>
+                          <p className="item-vendor">
+                            Vendor: {item.vendor.username}
+                          </p>
                         </div>
                         <div className="item-details">
                           <p>Qty: {item.quantity}</p>

@@ -48,7 +48,7 @@ function CartPage({ cart, setCart }) {
                 <img src={item.image} alt={item.title} className="cart-image" />
                 <div className="cart-details">
                   <h3>{item.title}</h3>
-                  <p>Vendor: {item.username}</p>
+                  <p>Vendor: {item.vendor.username}</p>
                   <div className="quantity-controls">
                     <button onClick={() => decrease(item._id)}>-</button>
                     <input type="text" value={item.quantity} readOnly />

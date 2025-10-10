@@ -182,7 +182,7 @@
   gap: 5rem;
   width: 100%;
   max-width: 1400px;
-  margin-left: 10px;
+  margin-left: 30px;
   margin-top: 75px;
 }
 
@@ -198,4 +198,31 @@
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.verification-status {
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.verification-status.verified {
+  color: #16a34a; /* Green text */
+}
+
+.verification-status.unverified {
+  color: #dc2626; /* Red text */
+}
+
+.vendor-badge.verified {
+  color: green;
+  font-weight: bold;
+}
+
+.vendor-badge.unverified {
+  color: red;
+  font-weight: bold;
 }
