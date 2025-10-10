@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import API from "../../../api/axios"
+import axios from "axios";
 import "./ProductList.css";
 
 function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
@@ -10,16 +10,11 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
   // Fetch products from backend
   // -----------------------------
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const url = category ? `/products/${category}` : "/products";
-        const res = await API.fallbackRequest("get", url);
-        setProducts(res.data);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      }
-    };
-    fetchProducts();
+    const url = category ? `/products/${category}` : `/products`;
+    axios
+      .get(`http://localhost:5000/api${url}`) // use your local backend
+      .then((res) => setProducts(res.data))
+      .catch((err) => console.error("Error fetching products:", err));
   }, [category]);
 
   // -----------------------------
@@ -84,16 +79,22 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
 
       {filteredProducts.map((item) => (
         <div key={item._id} className="product">
+          {/* Product image */}
           <img src={item.image} alt={item.title} className="pp" />
+
+          {/* Product title and price */}
           <h4>{item.title}</h4>
           <p>GH₵{item.price}</p>
+
+          {/* Vendor name and verified tick */}
           {item.vendor && (
             <p className="vendor-name">
-              Vendor: {item.vendor.username}
+              Vendor:  {item.vendor.username}
               {item.vendor.verified && " ✅"}
             </p>
           )}
 
+          {/* Cart buttons */}
           {!cart[item._id] ? (
             <button className="add-btn" onClick={() => addToCart(item)}>
               Add to Cart
