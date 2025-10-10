@@ -1,8 +1,7 @@
 import API from "./axios.js";
 import axios from "axios";
 
-/* ------------------ VENDOR ------------------ */
-// Add product (vendor only)
+// Add product (vendor)
 export const addProduct = async (productData) => {
   try {
     const res = await API.post("/products", productData);
@@ -13,9 +12,7 @@ export const addProduct = async (productData) => {
   }
 };
 
-/* ------------------ ADMIN: Product Management ------------------ */
-
-// Get all products (admin)
+// Admin: get all products
 export const getAllProductsAdmin = async () => {
   try {
     const res = await API.get("/admin/products");
@@ -26,7 +23,7 @@ export const getAllProductsAdmin = async () => {
   }
 };
 
-// Update a product (admin)
+// Update product (admin)
 export const updateProductAdmin = async (id, data) => {
   try {
     const res = await API.put(`/admin/products/${id}`, data);
@@ -37,7 +34,7 @@ export const updateProductAdmin = async (id, data) => {
   }
 };
 
-// Delete a product (admin)
+// Delete product (admin)
 export const deleteProductAdmin = async (id) => {
   try {
     const res = await API.delete(`/admin/products/${id}`);

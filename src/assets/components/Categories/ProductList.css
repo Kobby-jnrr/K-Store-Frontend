@@ -49,3 +49,13 @@
     font-size: 16px;
     font-weight: bold;
 }
+
+.green-tick {
+  color: green;
+  margin-left: 5px;
+  font-weight: bold;
+}
+.vendor-name {
+  font-weight: 500;
+  margin: 5px 0;
+}

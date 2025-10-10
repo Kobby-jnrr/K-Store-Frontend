@@ -50,7 +50,7 @@ function SignUp({ setUser }) {
       setUser(data.user);
 
       setSuccess("Account created! Redirecting...");
-      setTimeout(() => navigate("/"), 2000);
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       console.error("Signup error:", err);
       setError(err.response?.data?.msg || err.message || "Signup failed. Try again.");

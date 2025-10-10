@@ -6,16 +6,20 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
 
-  // Fetch products (all or by category)
+  // -----------------------------
+  // Fetch products from backend
+  // -----------------------------
   useEffect(() => {
-    const url = category ? `/products/${category}` : `/products`; // all products if no category
+    const url = category ? `/products/${category}` : `/products`;
     axios
-      .get(`https://k-store-backend.onrender.com/api${url}`)
+      .get(`http://localhost:5000/api${url}`) // use your local backend
       .then((res) => setProducts(res.data))
       .catch((err) => console.error("Error fetching products:", err));
   }, [category]);
 
-  // Filter products by searchQuery and priceRange
+  // -----------------------------
+  // Filter products by search query and price range
+  // -----------------------------
   useEffect(() => {
     let filtered = [...products];
 
@@ -39,7 +43,9 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
     setFilteredProducts(filtered);
   }, [products, searchQuery, priceRange]);
 
-  // Cart handlers
+  // -----------------------------
+  // Cart management functions
+  // -----------------------------
   const addToCart = (product) => {
     setCart({ ...cart, [product._id]: { ...product, quantity: 1 } });
   };
@@ -64,15 +70,31 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
     }
   };
 
+  // -----------------------------
+  // Render products
+  // -----------------------------
   return (
     <div className="product-list">
       {filteredProducts.length === 0 && <p>No products found.</p>}
+
       {filteredProducts.map((item) => (
         <div key={item._id} className="product">
-          <img src={item.image} className="pp" alt={item.title} />
+          {/* Product image */}
+          <img src={item.image} alt={item.title} className="pp" />
+
+          {/* Product title and price */}
           <h4>{item.title}</h4>
           <p>GH₵{item.price}</p>
 
+          {/* Vendor name and verified tick */}
+          {item.vendor && (
+            <p className="vendor-name">
+              Vendor: {item.vendor.username}
+              {item.vendor.verified && " ✅"}
+            </p>
+          )}
+
+          {/* Cart buttons */}
           {!cart[item._id] ? (
             <button className="add-btn" onClick={() => addToCart(item)}>
               Add to Cart

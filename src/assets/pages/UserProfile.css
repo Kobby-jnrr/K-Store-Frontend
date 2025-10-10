@@ -1,25 +1,119 @@
-.login-container {
-  max-width: 400px;
-  margin: 40px auto;
-  padding: 20px;
+.profile-page {
+  flex: 1;
+  background: #f9fafb;
+  min-height: calc(100vh - 65px);
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  box-sizing: border-box;
+}
+
+.profile-card {
   background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.login-container form input,
-.login-container form textarea {
-  width: 100%;
-  margin: 10px 0;
-  padding: 10px;
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
 }
 
-.login-container button {
-  width: 100%;
-  padding: 10px;
-  background: #007bff;
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #2563eb;
+}
+
+.profile-name {
+  font-size: 1.8rem;
+  color: #1e3a8a;
+  margin: 0;
+}
+
+.green-tick {
+  color: #16a34a;
+  margin-left: 0.3rem;
+  font-size: 1.2rem;
+}
+
+.vendor-badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.vendor-badge.verified {
+  background: #16a34a;
+  color: #fff;
+}
+
+.vendor-badge.pending {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.profile-section {
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.profile-section h3 {
+  color: #1e3a8a;
+  margin-bottom: 0.5rem;
+}
+
+.profile-section p {
+  color: #555;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.profile-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.edit-btn, .add-product-btn {
+  background: #2563eb;
+  color: #fff;
   border: none;
-  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 500;
   cursor: pointer;
-  border-radius: 5px;
+  transition: 0.3s ease;
+}
+
+.add-product-btn {
+  background: #16a34a;
+}
+
+.edit-btn:hover, .add-product-btn:hover {
+  opacity: 0.85;
+}
+
+.loader {
+  text-align: center;
+  margin-top: 5rem;
+  color: #1e3a8a;
+  font-weight: bold;
 }
