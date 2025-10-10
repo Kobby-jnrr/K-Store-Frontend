@@ -1,57 +1,232 @@
-.addhead{
-  margin-top: 20vh;
-  margin-left: 75vh;
-  margin-bottom: -10px;
-}
-
-.vendor-form-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 500px;
-  margin-left: 60vh;
+.vendor-products-page {
   padding: 30px;
-  border-radius: 10px;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f6fa;
+  height: 100vh;
+  box-sizing: border-box;
 }
 
-.vendor-form-container h2 {
-  text-align: center;
+.addhead {
+  font-size: 1.8rem;
+  font-weight: 600;
   margin-bottom: 25px;
-  color: #333;
+  color: #222;
+}
+
+.products-container {
+  display: flex;
+  gap: 25px;
+  height: calc(100% - 80px);
+  overflow: hidden; 
+}
+
+.half-section {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.vendor-form h3 {
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  color: #0077ff;
 }
 
 .vendor-form input,
 .vendor-form select,
 .vendor-form textarea {
-  width: 900px;
-  margin: 10px 0;
+  width: 100%;
   padding: 10px 12px;
+  margin-bottom: 15px;
   border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-size: 1rem;
   box-sizing: border-box;
+  outline: none;
+  transition: 0.2s;
+}
+
+.vendor-form input:focus,
+.vendor-form select:focus,
+.vendor-form textarea:focus {
+  border-color: #0077ff;
 }
 
 .vendor-form textarea {
-  min-height: 80px;
   resize: vertical;
+  min-height: 80px;
 }
 
-.vendor-form button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 15px;
-  background-color: #007bff;
-  color: #fff;
-  font-size: 16px;
-  font-weight: bold;
+.add-product-button {
+  background-color: #0077ff;
+  color: white;
+  font-weight: 600;
   border: none;
-  border-radius: 5px;
+  padding: 12px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
-.vendor-form button:hover {
-  background-color: #0056b3;
+.add-product-button:hover {
+  background-color: #005fcc;
+}
+
+.edit-products h3 {
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  color: #0077ff;
+}
+
+.products-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px; 
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #fdfdfd;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #eee;
+  transition: 0.2s;
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.product-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.product-card h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.product-card p {
+  margin: 2px 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.product-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.product-actions button {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.product-actions button:first-child {
+  background-color: #ffc107;
+  color: #222;
+}
+
+.product-actions button:first-child:hover {
+  background-color: #e0a800;
+}
+
+.product-actions button:last-child {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.product-actions button:last-child:hover {
+  background-color: #c82333;
+}
+
+.edit-form {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border: 1px dashed #ccc;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-form input,
+.edit-form select,
+.edit-form textarea {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.edit-form button {
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+}
+
+.edit-form button:first-child {
+  background-color: #28a745;
+  color: white;
+}
+
+.edit-form button:first-child:hover {
+  background-color: #218838;
+}
+
+.edit-form button:last-child {
+  background-color: #6c757d;
+  color: white;
+}
+
+.edit-form button:last-child:hover {
+  background-color: #5a6268;
+}
+
+.products-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.products-list::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+.products-list::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+@media (max-width: 950px) {
+  .products-container {
+    flex-direction: column;
+    gap: 20px;
+    height: auto;
+  }
+  .half-section {
+    height: auto;
+  }
 }
