@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { addProduct } from "../../api/productService";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import "./AddProduct.css";
@@ -8,7 +7,6 @@ import "./AddProduct.css";
 const VendorProducts = () => {
   const navigate = useNavigate();
 
-  // ----------------------------- Product state -----------------------------
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -34,54 +32,89 @@ const VendorProducts = () => {
 
   // ----------------------------- Load vendor -----------------------------
   useEffect(() => {
-  const user = JSON.parse(sessionStorage.getItem("user"));
-  if (!user || user.role !== "vendor") {
-    toast.error("❌ Access Denied! Only vendors can manage products.");
-    navigate("/");
-  } else {
-    setVendor(user);
-    fetchProducts(user.token);
-  }
-}, [navigate]);
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
-
-  // ----------------------------- Fetch vendor products -----------------------------
-const fetchProducts = async (token) => {
-  try {
-    const res = await axios.get(
-      "https://k-store-backend.onrender.com/api/products/vendor",
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    setProducts(res.data);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to load products.");
-  }
-};
-
-
-  // ----------------------------- Handlers -----------------------------
-  const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
-  const handleEditChange = e => setEditData({ ...editData, [e.target.name]: e.target.value });
-
-  const handleAddProduct = async e => {
-    e.preventDefault();
-    if (!formData.title || !formData.price || !formData.category || !formData.image) {
-      toast.error("Fill all required fields!");
-      return;
+    if (!user || user.role !== "vendor") {
+      toast.error("❌ Access Denied! Only vendors can manage products.");
+      navigate("/");
+    } else {
+      setVendor({ ...user, token });
+      fetchProducts(token);
     }
+  }, [navigate]);
+
+  // ----------------------------- Fetch vendor products (with fallback) -----------------------------
+  const fetchProducts = async (token) => {
     try {
-      await addProduct({ ...formData, vendor: vendor._id, vendorName: vendor.username, vendorVerified: vendor.verified });
-      toast.success("✅ Product added!");
-      setFormData({ title: "", price: "", category: "", description: "", image: "" });
-      fetchProducts(vendor._id, vendor.token);
+      console.log("🌍 Trying Render backend...");
+      const res = await axios.get(
+        "https://k-store-backend.onrender.com/api/products/vendor",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log("✅ Products loaded from Render:", res.data);
+      setProducts(res.data);
     } catch (err) {
-      const message = err.response?.data?.message || "Error adding product";
-      toast.error(`❌ ${message}`);
-      console.error(err.response || err);
+      console.warn("❌ Render backend failed:", err.message);
+      console.log("🔁 Trying localhost backend...");
+      try {
+        const localRes = await axios.get(
+          "http://localhost:5000/api/products/vendor",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        console.log("✅ Products loaded from localhost:", localRes.data);
+        setProducts(localRes.data);
+      } catch (localErr) {
+        console.error("🔥 Both backends failed:", localErr.message);
+        toast.error("Failed to load your products.");
+      }
     }
   };
 
+  // ----------------------------- Add new product -----------------------------
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+
+    if (!formData.title || !formData.price || !formData.category || !formData.image) {
+      toast.error("Please fill in all required fields!");
+      return;
+    }
+
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const productData = {
+      ...formData,
+      vendorName: vendor.username,
+      vendorVerified: vendor.verified,
+    };
+
+    try {
+      await axios.post(
+        "https://k-store-backend.onrender.com/api/products",
+        productData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("✅ Product added!");
+      setFormData({ title: "", price: "", category: "", description: "", image: "" });
+      fetchProducts(token);
+    } catch (err) {
+      console.warn("Render add failed, trying localhost...");
+      try {
+        await axios.post(
+          "http://localhost:5000/api/products",
+          productData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        toast.success("✅ Product added (local)!");
+        setFormData({ title: "", price: "", category: "", description: "", image: "" });
+        fetchProducts(token);
+      } catch (err2) {
+        console.error("Both add attempts failed:", err2.message);
+        toast.error("Failed to add product.");
+      }
+    }
+  };
+
+  // ----------------------------- Edit Product -----------------------------
   const openEdit = (product) => {
     setEditingProduct(product);
     setEditData({
@@ -94,65 +127,136 @@ const fetchProducts = async (token) => {
   };
 
   const saveEdit = async () => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
     try {
       const res = await axios.put(
         `https://k-store-backend.onrender.com/api/products/${editingProduct._id}`,
         editData,
-        { headers: { Authorization: `Bearer ${vendor.token}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setProducts(products.map(p => p._id === editingProduct._id ? res.data.product : p));
+      setProducts(products.map((p) => (p._id === editingProduct._id ? res.data.product : p)));
       setEditingProduct(null);
       toast.success("✅ Product updated!");
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to update product.");
+      console.warn("Render update failed, trying localhost...");
+      try {
+        const localRes = await axios.put(
+          `http://localhost:5000/api/products/${editingProduct._id}`,
+          editData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setProducts(
+          products.map((p) =>
+            p._id === editingProduct._id ? localRes.data.product : p
+          )
+        );
+        setEditingProduct(null);
+        toast.success("✅ Product updated (local)!");
+      } catch (err2) {
+        console.error("Both update attempts failed:", err2.message);
+        toast.error("Failed to update product.");
+      }
     }
   };
 
+  // ----------------------------- Delete Product -----------------------------
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete this product?")) return;
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
     try {
-      await axios.delete(`https://k-store-backend.onrender.com/api/products/${id}`, { headers: { Authorization: `Bearer ${vendor.token}` } });
-      setProducts(products.filter(p => p._id !== id));
-      toast.success("Product deleted!");
+      await axios.delete(
+        `https://k-store-backend.onrender.com/api/products/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setProducts(products.filter((p) => p._id !== id));
+      toast.success("🗑️ Product deleted!");
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete product.");
+      console.warn("Render delete failed, trying localhost...");
+      try {
+        await axios.delete(`http://localhost:5000/api/products/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setProducts(products.filter((p) => p._id !== id));
+        toast.success("🗑️ Product deleted (local)!");
+      } catch (err2) {
+        console.error("Both delete attempts failed:", err2.message);
+        toast.error("Failed to delete product.");
+      }
     }
   };
 
-  // ----------------------------- Render -----------------------------
+  // ----------------------------- Render UI -----------------------------
   if (!vendor) return <div className="loader">Loading...</div>;
 
   return (
     <div className="vendor-products-page">
       <Toaster position="top-right" />
-
-      <h2 className="addhead">Manage Products &nbsp;by {vendor.username} {vendor.verified && "✅"}</h2>
+      <h2 className="addhead">
+        Manage Products by {vendor.username} {vendor.verified && "✅"}
+      </h2>
 
       <div className="products-container">
-        {/* ---------- Add Product Half ---------- */}
+        {/* ---------- Add Product Section ---------- */}
         <div className="half-section add-product">
           <form className="vendor-form" onSubmit={handleAddProduct}>
             <h3>Add Product</h3>
-            <input name="title" placeholder="Product Name" value={formData.title} onChange={handleChange} required />
-            <input name="price" type="number" placeholder="Price" value={formData.price} onChange={handleChange} required />
-            <select name="category" value={formData.category} onChange={handleChange} required>
+            <input
+              name="title"
+              placeholder="Product Name"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              required
+            />
+            <input
+              name="price"
+              type="number"
+              placeholder="Price"
+              value={formData.price}
+              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+              required
+            />
+            <select
+              name="category"
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              required
+            >
               <option value="">Select Category</option>
-              {categories.map(cat => <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>)}
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </option>
+              ))}
             </select>
-            <input name="image" placeholder="Image URL" value={formData.image} onChange={handleChange} required />
-            <textarea name="description" placeholder="Description (optional)" value={formData.description} onChange={handleChange} />
-            <button type="submit" className="add-product-button">Add Product</button>
+            <input
+              name="image"
+              placeholder="Image URL"
+              value={formData.image}
+              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+              required
+            />
+            <textarea
+              name="description"
+              placeholder="Description (optional)"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
+            <button type="submit" className="add-product-button">
+              Add Product
+            </button>
           </form>
         </div>
 
-        {/* ---------- Edit Products Half ---------- */}
+        {/* ---------- Product List Section ---------- */}
         <div className="half-section edit-products">
-          <h3>Edit Products</h3>
+          <h3>Your Products</h3>
           <div className="products-list">
-            {products.length === 0 ? <p>No products added yet.</p> :
-              products.map(p => (
+            {products.length === 0 ? (
+              <p>No products added yet.</p>
+            ) : (
+              products.map((p) => (
                 <div key={p._id} className="product-card">
                   <img src={p.image} alt={p.title} className="product-img" />
                   <h4>{p.title}</h4>
@@ -164,20 +268,55 @@ const fetchProducts = async (token) => {
                   </div>
                 </div>
               ))
-            }
+            )}
           </div>
 
-          {/* ---------- Edit Modal Inline ---------- */}
+          {/* ---------- Edit Modal ---------- */}
           {editingProduct && (
             <div className="edit-form">
               <h4>Editing: {editingProduct.title}</h4>
-              <input name="title" value={editData.title} onChange={handleEditChange} />
-              <input name="price" type="number" value={editData.price} onChange={handleEditChange} />
-              <select name="category" value={editData.category} onChange={handleEditChange}>
-                {categories.map(cat => <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>)}
+              <input
+                name="title"
+                value={editData.title}
+                onChange={(e) =>
+                  setEditData({ ...editData, title: e.target.value })
+                }
+              />
+              <input
+                name="price"
+                type="number"
+                value={editData.price}
+                onChange={(e) =>
+                  setEditData({ ...editData, price: e.target.value })
+                }
+              />
+              <select
+                name="category"
+                value={editData.category}
+                onChange={(e) =>
+                  setEditData({ ...editData, category: e.target.value })
+                }
+              >
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  </option>
+                ))}
               </select>
-              <input name="image" value={editData.image} onChange={handleEditChange} />
-              <textarea name="description" value={editData.description} onChange={handleEditChange} />
+              <input
+                name="image"
+                value={editData.image}
+                onChange={(e) =>
+                  setEditData({ ...editData, image: e.target.value })
+                }
+              />
+              <textarea
+                name="description"
+                value={editData.description}
+                onChange={(e) =>
+                  setEditData({ ...editData, description: e.target.value })
+                }
+              />
               <button onClick={saveEdit}>Save</button>
               <button onClick={() => setEditingProduct(null)}>Cancel</button>
             </div>
