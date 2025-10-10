@@ -25,58 +25,42 @@ import "./K-Store.css";
 function AppLayout({ cart, setCart, totalItems, logout, user }) {
   const location = useLocation();
 
-  if (user?.role === "admin") return <Navigate to="/admin/dashboard" replace />;
-
   return (
     <div className="app-layout">
       <Header totalItems={totalItems} logout={logout} user={user} />
-      <div className="content">
-        {location.pathname !== "/cartPage" &&
-          location.pathname !== "/checkout" && <Sidebar />}
 
-        <Routes>
-          <Route path="/" element={<Main cart={cart} setCart={setCart} />} />
-          <Route path="/cartPage" element={<CartPage cart={cart} setCart={setCart} />}/>
-          <Route path="/allProducts" element={<AllProducts cart={cart} setCart={setCart} />}/>
-          <Route path="/addProduct" element={<VendorAddProduct />} />
-          <Route path="/userProfile" element={<UserProfile user={user} />} />
-          <Route path="/checkout" element={<CheckoutPage cart={cart} setCart={setCart} />}
-          />
-        </Routes>
-      </div>
+      {/* Sidebar only on Main page */}
+      {location.pathname === "/" && <Sidebar />}
+
+      <Routes>
+        <Route path="/" element={<Main cart={cart} setCart={setCart} />} />
+        <Route path="/cartPage" element={<CartPage cart={cart} setCart={setCart} />} />
+        <Route path="/allProducts" element={<AllProducts cart={cart} setCart={setCart} />} />
+        <Route path="/addProduct" element={<VendorAddProduct />} />
+        <Route path="/userProfile" element={<UserProfile user={user} />} />
+        <Route path="/checkout" element={<CheckoutPage cart={cart} setCart={setCart} />} />
+        {/* Catch-all redirects to main */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+
       <Footer />
     </div>
   );
 }
 
-/* ------------------------- MAIN STORE COMPONENT ------------------------- */
 function Store() {
-  // Load user safely from sessionStorage
   const [user, setUser] = useState(() => {
-    try {
-      const storedUser = sessionStorage.getItem("user");
-      return storedUser ? JSON.parse(storedUser) : null;
-    } catch {
-      return null;
-    }
+    const storedUser = sessionStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  // Load cart from localStorage
   const [cart, setCart] = useState(() => {
-    try {
-      const savedCart = localStorage.getItem("cart");
-      return savedCart ? JSON.parse(savedCart) : {};
-    } catch {
-      return {};
-    }
+    const savedCart = localStorage.getItem("cart");
+    return savedCart ? JSON.parse(savedCart) : {};
   });
 
-  const totalItems = Object.values(cart).reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
+  const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
 
-  // ✅ Logout clears session and cart
   const logout = () => {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
@@ -85,59 +69,26 @@ function Store() {
     localStorage.removeItem("cart");
   };
 
-  // ✅ Persist cart updates
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // ✅ Auto logout after 30 mins of inactivity
-  useEffect(() => {
-    if (!user) return;
-
-    const timeout = 30 * 60 * 1000; // 30 minutes
-    let logoutTimer = setTimeout(() => {
-      alert("Session expired. You have been logged out.");
-      logout();
-    }, timeout);
-
-    const resetTimer = () => {
-      clearTimeout(logoutTimer);
-      logoutTimer = setTimeout(() => {
-        alert("Session expired. You have been logged out.");
-        logout();
-      }, timeout);
-    };
-
-    window.addEventListener("click", resetTimer);
-    window.addEventListener("keydown", resetTimer);
-
-    return () => {
-      clearTimeout(logoutTimer);
-      window.removeEventListener("click", resetTimer);
-      window.removeEventListener("keydown", resetTimer);
-    };
-  }, [user]);
-
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
+        {/* Public routes */}
         <Route path="/login" element={<LoginPage setUser={setUser} />} />
         <Route path="/signup" element={<SignUp setUser={setUser} />} />
 
-        {/* Admin Routes */}
+        {/* Admin routes */}
         <Route
           path="/admin/*"
           element={
-            user?.role === "admin" ? (
-              <AdminLayout user={user} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
+            user?.role === "admin" ? <AdminLayout user={user} /> : <Navigate to="/login" replace />
           }
         />
 
-        {/* Vendor/User Routes */}
+        {/* Authenticated user/vendor routes */}
         <Route
           path="/*"
           element={
@@ -158,5 +109,6 @@ function Store() {
     </Router>
   );
 }
+
 
 export default Store;
