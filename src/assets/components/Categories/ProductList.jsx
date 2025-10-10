@@ -1,24 +1,47 @@
 import React, { useState, useEffect } from "react";
+import API from "../../api/api";
 import axios from "axios";
 import "./ProductList.css";
 
 function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // -----------------------------
-  // Fetch products from backend
+  // Fetch products with fallback
   // -----------------------------
   useEffect(() => {
-    const url = category ? `/products/${category}` : `/products`;
-    axios
-      .get(`http://localhost:5000/api${url}`) // use your local backend
-      .then((res) => setProducts(res.data))
-      .catch((err) => console.error("Error fetching products:", err));
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError("");
+      const url = category ? `/products/${category}` : "/products";
+
+      try {
+        // Try deployed backend first
+        const res = await API.fallbackRequest("get", url);
+        setProducts(res.data);
+      } catch (err) {
+        console.warn("Deployed backend failed, trying localhost...", err);
+        try {
+          // Fallback to localhost
+          const localRes = await axios.get(`http://localhost:5000/api${url}`);
+          setProducts(localRes.data);
+        } catch (err) {
+          console.error("All backend requests failed:", err);
+          setError("Failed to load products. Please try again later.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, [category]);
 
   // -----------------------------
-  // Filter products by search query and price range
+  // Filter products by search & price
   // -----------------------------
   useEffect(() => {
     let filtered = [...products];
@@ -44,25 +67,17 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
   }, [products, searchQuery, priceRange]);
 
   // -----------------------------
-  // Cart management functions
+  // Cart management
   // -----------------------------
-  const addToCart = (product) => {
+  const addToCart = (product) =>
     setCart({ ...cart, [product._id]: { ...product, quantity: 1 } });
-  };
 
-  const increase = (id) => {
-    setCart({
-      ...cart,
-      [id]: { ...cart[id], quantity: cart[id].quantity + 1 },
-    });
-  };
+  const increase = (id) =>
+    setCart({ ...cart, [id]: { ...cart[id], quantity: cart[id].quantity + 1 } });
 
   const decrease = (id) => {
     if (cart[id].quantity > 1) {
-      setCart({
-        ...cart,
-        [id]: { ...cart[id], quantity: cart[id].quantity - 1 },
-      });
+      setCart({ ...cart, [id]: { ...cart[id], quantity: cart[id].quantity - 1 } });
     } else {
       const newCart = { ...cart };
       delete newCart[id];
@@ -73,28 +88,23 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
   // -----------------------------
   // Render products
   // -----------------------------
+  if (loading) return <p>Loading products...</p>;
+  if (error) return <p className="error">{error}</p>;
+
   return (
     <div className="product-list">
       {filteredProducts.length === 0 && <p>No products found.</p>}
 
       {filteredProducts.map((item) => (
         <div key={item._id} className="product">
-          {/* Product image */}
           <img src={item.image} alt={item.title} className="pp" />
-
-          {/* Product title and price */}
           <h4>{item.title}</h4>
           <p>GH₵{item.price}</p>
-
-          {/* Vendor name and verified tick */}
           {item.vendor && (
             <p className="vendor-name">
-              Vendor:  {item.vendor.username}
-              {item.vendor.verified && " ✅"}
+              Vendor: {item.vendor.username} {item.vendor.verified && "✅"}
             </p>
           )}
-
-          {/* Cart buttons */}
           {!cart[item._id] ? (
             <button className="add-btn" onClick={() => addToCart(item)}>
               Add to Cart
