@@ -32,26 +32,36 @@ const UserProfile = () => {
       fetchUserOrders(token);
     } else {
       console.warn("⚠️ No user or token found in storage");
+      // Mock local dev user
+      const mockUser = {
+        username: "TestUser",
+        email: "test@example.com",
+        role: "vendor",
+        verified: false,
+        phone: "",
+        location: "",
+        token: "mock-token",
+      };
+      setUser(mockUser);
+      setProducts([]);
+      setOrders([]);
+      setVerifiedStatus(false);
     }
   }, []);
 
   /* -------------------- Fetch user verification status -------------------- */
   const fetchVerificationStatus = async (userId, token) => {
-    const urls = [
-      `https://k-store-backend.onrender.com/api/auth/status/${userId}`,
-      `http://localhost:5000/api/auth/status/${userId}`,
-    ];
-
-    for (let url of urls) {
-      try {
-        const res = await axios.get(url, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setVerifiedStatus(res.data.verified);
-        break;
-      } catch (err) {
-        console.warn("⚠️ Verification fetch failed from:", url);
-      }
+    // Skip in local dev
+    if (!token) return setVerifiedStatus(false);
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/auth/status/${userId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setVerifiedStatus(res.data?.verified ?? false);
+    } catch {
+      setVerifiedStatus(false);
+      console.warn("⚠️ Verification fetch failed");
     }
   };
 
@@ -60,20 +70,13 @@ const UserProfile = () => {
     setLoadingProducts(true);
     try {
       const res = await axios.get(
-        "https://k-store-backend.onrender.com/api/products/vendor",
+        "http://localhost:5000/api/products/vendor",
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setProducts(res.data);
+      setProducts(res.data || []);
     } catch {
-      try {
-        const localRes = await axios.get(
-          "http://localhost:5000/api/products/vendor",
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setProducts(localRes.data);
-      } catch {
-        toast.error("Failed to load your products.");
-      }
+      setProducts([]);
+      console.warn("⚠️ Failed to fetch products (local dev fallback)");
     } finally {
       setLoadingProducts(false);
     }
@@ -83,21 +86,13 @@ const UserProfile = () => {
   const fetchUserOrders = async (token) => {
     setLoadingOrders(true);
     try {
-      const res = await axios.get(
-        "https://k-store-backend.onrender.com/api/orders/my-orders",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setOrders(res.data);
+      const res = await axios.get("http://localhost:5000/api/orders/my-orders", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setOrders(res.data || []);
     } catch {
-      try {
-        const localRes = await axios.get(
-          "http://localhost:5000/api/orders/my-orders",
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setOrders(localRes.data);
-      } catch {
-        toast.error("Failed to load your orders.");
-      }
+      setOrders([]);
+      console.warn("⚠️ Failed to fetch orders (local dev fallback)");
     } finally {
       setLoadingOrders(false);
     }
@@ -106,38 +101,19 @@ const UserProfile = () => {
   /* -------------------- Delete product -------------------- */
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-
-    try {
-      await axios.delete(
-        `https://k-store-backend.onrender.com/api/products/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setProducts(products.filter((p) => p._id !== id));
-      toast.success("Product deleted!");
-    } catch {
-      try {
-        await axios.delete(`http://localhost:5000/api/products/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setProducts(products.filter((p) => p._id !== id));
-        toast.success("Product deleted (local)!");
-      } catch {
-        toast.error("Failed to delete product.");
-      }
-    }
+    setProducts((prev) => prev.filter((p) => p._id !== id));
+    toast.success("Product deleted (local dev)!");
   };
 
   /* -------------------- Edit modal -------------------- */
   const openEditModal = (product) => {
     setEditingProduct(product);
     setFormData({
-      title: product.title,
-      price: product.price,
-      category: product.category,
-      image: product.image,
-      description: product.description,
+      title: product.title || "",
+      price: product.price || "",
+      category: product.category || "",
+      image: product.image || "",
+      description: product.description || "",
     });
   };
 
@@ -145,40 +121,13 @@ const UserProfile = () => {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const saveEdit = async () => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    try {
-      const res = await axios.put(
-        `https://k-store-backend.onrender.com/api/products/${editingProduct._id}`,
-        formData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setProducts(
-        products.map((p) =>
-          p._id === editingProduct._id ? res.data.product : p
-        )
-      );
-      closeEditModal();
-      toast.success("Product updated!");
-    } catch {
-      try {
-        const localRes = await axios.put(
-          `http://localhost:5000/api/products/${editingProduct._id}`,
-          formData,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setProducts(
-          products.map((p) =>
-            p._id === editingProduct._id ? localRes.data.product : p
-          )
-        );
-        closeEditModal();
-        toast.success("Product updated (local)!");
-      } catch {
-        toast.error("Failed to update product.");
-      }
-    }
+  const saveEdit = () => {
+    if (!editingProduct) return;
+    setProducts((prev) =>
+      prev.map((p) => (p._id === editingProduct._id ? { ...p, ...formData } : p))
+    );
+    closeEditModal();
+    toast.success("Product updated (local dev)!");
   };
 
   /* -------------------- Render -------------------- */
@@ -193,9 +142,12 @@ const UserProfile = () => {
         {/* --- Profile Info --- */}
         <div className="profile-card side-card">
           <div className="profile-header">
-            <img src={"."} alt={user.username} className="profile-avatar" />
+            <img
+              src={user.avatar || "/avatar-placeholder.png"}
+              alt={user.username}
+              className="profile-avatar"
+            />
             <h2>{user.username}</h2>
-
             <span
               className={`vendor-badge ${
                 isVerified ? "verified" : "unverified"
@@ -207,10 +159,18 @@ const UserProfile = () => {
 
           <div className="profile-section">
             <h3>Account Info</h3>
-            <p><strong>Email:</strong> {user.email || "Not set"}</p>
-            <p><strong>Phone:</strong> {user.phone || "Not added yet"}</p>
-            <p><strong>Location:</strong> {user.location || "No location set"}</p>
-            <p><strong>Role:</strong> {user.role}</p>
+            <p>
+              <strong>Email:</strong> {user.email || "Not set"}
+            </p>
+            <p>
+              <strong>Phone:</strong> {user.phone || "Not added yet"}
+            </p>
+            <p>
+              <strong>Location:</strong> {user.location || "No location set"}
+            </p>
+            <p>
+              <strong>Role:</strong> {user.role}
+            </p>
           </div>
         </div>
 
@@ -224,10 +184,14 @@ const UserProfile = () => {
           ) : (
             <div className="vendor-product-grid">
               {products.map((p) => (
-                <div key={p._id} className="vendor-product-card">
-                  <img src={p.image} alt={p.title} className="product-img" />
-                  <h4>{p.title}</h4>
-                  <p>GH₵{p.price}</p>
+                <div key={p._id || Math.random()} className="vendor-product-card">
+                  <img
+                    src={p.image || "/placeholder.png"}
+                    alt={p.title || "Product"}
+                    className="product-img"
+                  />
+                  <h4>{p.title || "Untitled"}</h4>
+                  <p>GH₵{p.price || 0}</p>
                   <div className="product-actions">
                     <button onClick={() => openEditModal(p)}>Edit</button>
                     <button onClick={() => handleDelete(p._id)}>Delete</button>
@@ -248,31 +212,45 @@ const UserProfile = () => {
           ) : (
             <div className="orders-list">
               {orders.map((order) => (
-                <div key={order._id} className="order-card">
+                <div key={order._id || Math.random()} className="order-card">
                   <div className="order-header">
-                    <p><strong>Status:</strong> {order.status}</p>
-                    <p><strong>Total:</strong> GH₵{order.total}</p>
+                    <p>
+                      <strong>Status:</strong> {order.status || "Pending"}
+                    </p>
+                    <p>
+                      <strong>Total:</strong> GH₵{order.total || 0}
+                    </p>
                   </div>
-                  <p><strong>Payment:</strong> {order.paymentMethod.toUpperCase()}</p>
+                  <p>
+                    <strong>Payment:</strong>{" "}
+                    {order.paymentMethod?.toUpperCase() || "N/A"}
+                  </p>
                   <p className="order-date">
-                    {new Date(order.createdAt).toLocaleString()}
+                    {order.createdAt
+                      ? new Date(order.createdAt).toLocaleString()
+                      : "N/A"}
                   </p>
                   <div className="order-items">
-                    {order.items.map((item) => (
-                      <div key={item._id} className="order-item">
+                    {(order.items || []).map((item) => (
+                      <div
+                        key={item._id || Math.random()}
+                        className="order-item"
+                      >
                         <img
-                          src={item.product.image}
-                          alt={item.product.title}
+                          src={item.product?.image || "/placeholder.png"}
+                          alt={item.product?.title || "Product"}
                         />
                         <div>
-                          <p className="item-title">{item.product.title}</p>
+                          <p className="item-title">
+                            {item.product?.title || "Untitled"}
+                          </p>
                           <p className="item-vendor">
-                            Vendor: {item.vendor.username}
+                            Vendor: {item.vendor?.username || "Unknown"}
                           </p>
                         </div>
                         <div className="item-details">
-                          <p>Qty: {item.quantity}</p>
-                          <p>GH₵{item.price}</p>
+                          <p>Qty: {item.quantity || 0}</p>
+                          <p>GH₵{item.price || 0}</p>
                         </div>
                       </div>
                     ))}
@@ -289,15 +267,27 @@ const UserProfile = () => {
         <div className="modal-backdrop">
           <div className="edit-modal">
             <h3>Edit Product</h3>
-            <input name="title" value={formData.title} onChange={handleChange} />
+            <input
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+            />
             <input
               name="price"
               type="number"
               value={formData.price}
               onChange={handleChange}
             />
-            <input name="category" value={formData.category} onChange={handleChange} />
-            <input name="image" value={formData.image} onChange={handleChange} />
+            <input
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+            />
+            <input
+              name="image"
+              value={formData.image}
+              onChange={handleChange}
+            />
             <textarea
               name="description"
               value={formData.description}
