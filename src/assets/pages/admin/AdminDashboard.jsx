@@ -1,11 +1,11 @@
-// AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./AdminDashboard.css";
 
 function AdminDashboard() {
   const [stats, setStats] = useState({
-    users: 0,
+    totalUsers: 0,
+    customers: 0,
     vendors: 0,
     products: 0,
     orders: 0,
@@ -19,34 +19,44 @@ function AdminDashboard() {
 
   const fetchStats = async () => {
     const token = sessionStorage.getItem("token");
-    try {
-      const urls = {
-        users: "/api/admin/users",
-        vendors: "/api/admin/vendors",
-        products: "/api/admin/products",
-        orders: "/api/admin/orders",
-      };
+    const urls = [
+      { key: "users", urls: ["https://k-store-backend.onrender.com/api/admin/users", "http://localhost:5000/api/admin/users"] },
+      { key: "vendors", urls: ["https://k-store-backend.onrender.com/api/admin/vendors", "http://localhost:5000/api/admin/vendors"] },
+      { key: "products", urls: ["https://k-store-backend.onrender.com/api/admin/products", "http://localhost:5000/api/admin/products"] },
+      { key: "orders", urls: ["https://k-store-backend.onrender.com/api/admin/orders", "http://localhost:5000/api/admin/orders"] },
+    ];
 
-      const [usersRes, vendorsRes, productsRes, ordersRes] = await Promise.all(
-        Object.values(urls).map((url) =>
-          axios.get(url, { headers: { Authorization: `Bearer ${token}` } })
-        )
+    const fetchDataWithFallback = async (urls) => {
+      for (let url of urls) {
+        try {
+          const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+          if (Array.isArray(res.data)) return res.data;
+        } catch (err) {
+          console.warn(`Failed to fetch from ${url}:`, err.message);
+        }
+      }
+      return [];
+    };
+
+    try {
+      const [users, vendors, products, orders] = await Promise.all(
+        urls.map((u) => fetchDataWithFallback(u.urls))
       );
 
-      const orders = ordersRes.data;
-      const revenue = orders.reduce((sum, order) => sum + order.total, 0);
+      const totalUsers = users.length + vendors.length;
+      const revenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
 
       setStats({
-        users: usersRes.data.length,
-        vendors: vendorsRes.data.length,
-        products: productsRes.data.length,
+        totalUsers,
+        customers: users.length,
+        vendors: vendors.length,
+        products: products.length,
         orders: orders.length,
         revenue,
       });
-
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching dashboard stats:", error);
+    } catch (err) {
+      console.error("Error fetching dashboard stats:", err);
+    } finally {
       setLoading(false);
     }
   };
@@ -61,11 +71,8 @@ function AdminDashboard() {
       <div className="stats-cards">
         <div className="card">
           <h3>Total Users</h3>
-          <p>{stats.users}</p>
-        </div>
-        <div className="card">
-          <h3>Total Vendors</h3>
-          <p>{stats.vendors}</p>
+          <p>{stats.totalUsers}</p>
+          <small>Customers: {stats.customers} | Vendors: {stats.vendors}</small>
         </div>
         <div className="card">
           <h3>Total Products</h3>

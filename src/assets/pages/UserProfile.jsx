@@ -5,7 +5,7 @@ import "./UserProfile.css";
 
 const UserProfile = () => {
   const [user, setUser] = useState(null);
-  const [verifiedStatus, setVerifiedStatus] = useState(null);
+  const [verifiedStatus, setVerifiedStatus] = useState(false);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
@@ -19,11 +19,10 @@ const UserProfile = () => {
     description: "",
   });
 
-  /* -------------------- Load user and verification -------------------- */
+  /* -------------------- Load user -------------------- */
   useEffect(() => {
     const sessionUser = JSON.parse(sessionStorage.getItem("user"));
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
     if (sessionUser && token) {
       setUser({ ...sessionUser, token });
@@ -31,10 +30,9 @@ const UserProfile = () => {
       if (sessionUser.role === "vendor") fetchVendorProducts(token);
       fetchUserOrders(token);
     } else {
-      console.warn("⚠️ No user or token found in storage");
-      // Mock local dev user
+      // Local dev mock
       const mockUser = {
-        username: "TestUser",
+        username: "Test User",
         email: "test@example.com",
         role: "vendor",
         verified: false,
@@ -43,25 +41,23 @@ const UserProfile = () => {
         token: "mock-token",
       };
       setUser(mockUser);
+      setVerifiedStatus(false);
       setProducts([]);
       setOrders([]);
-      setVerifiedStatus(false);
     }
   }, []);
 
-  /* -------------------- Fetch user verification status -------------------- */
+  /* -------------------- Fetch verification -------------------- */
   const fetchVerificationStatus = async (userId, token) => {
-    // Skip in local dev
     if (!token) return setVerifiedStatus(false);
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/auth/status/${userId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await axios.get(`http://localhost:5000/api/auth/status/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setVerifiedStatus(res.data?.verified ?? false);
     } catch {
-      setVerifiedStatus(false);
       console.warn("⚠️ Verification fetch failed");
+      setVerifiedStatus(false);
     }
   };
 
@@ -69,14 +65,13 @@ const UserProfile = () => {
   const fetchVendorProducts = async (token) => {
     setLoadingProducts(true);
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/products/vendor",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await axios.get("http://localhost:5000/api/products/vendor", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setProducts(res.data || []);
     } catch {
+      console.warn("⚠️ Failed to fetch products");
       setProducts([]);
-      console.warn("⚠️ Failed to fetch products (local dev fallback)");
     } finally {
       setLoadingProducts(false);
     }
@@ -91,21 +86,20 @@ const UserProfile = () => {
       });
       setOrders(res.data || []);
     } catch {
+      console.warn("⚠️ Failed to fetch orders");
       setOrders([]);
-      console.warn("⚠️ Failed to fetch orders (local dev fallback)");
     } finally {
       setLoadingOrders(false);
     }
   };
 
-  /* -------------------- Delete product -------------------- */
-  const handleDelete = async (id) => {
+  /* -------------------- Product actions -------------------- */
+  const handleDelete = (id) => {
     if (!window.confirm("Delete this product?")) return;
     setProducts((prev) => prev.filter((p) => p._id !== id));
     toast.success("Product deleted (local dev)!");
   };
 
-  /* -------------------- Edit modal -------------------- */
   const openEditModal = (product) => {
     setEditingProduct(product);
     setFormData({
@@ -118,6 +112,7 @@ const UserProfile = () => {
   };
 
   const closeEditModal = () => setEditingProduct(null);
+
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -130,6 +125,21 @@ const UserProfile = () => {
     toast.success("Product updated (local dev)!");
   };
 
+  /* -------------------- Helpers -------------------- */
+  const getInitials = (name) => {
+    if (!name) return "";
+    const names = name.trim().split(" ");
+    return names.map((n) => n[0].toUpperCase()).slice(0, 2).join("");
+  };
+
+  const getAvatarColor = (name) => {
+    // Generate a consistent color based on name
+    const colors = ["#2563eb","#f97316","#16a34a","#eab308","#8b5cf6","#db2777"];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
+  };
+
   /* -------------------- Render -------------------- */
   if (!user) return <div className="loader">Loading profile...</div>;
 
@@ -139,38 +149,36 @@ const UserProfile = () => {
     <div className="profile-page">
       <Toaster position="top-right" />
       <div className="profile-grid">
+
         {/* --- Profile Info --- */}
         <div className="profile-card side-card">
           <div className="profile-header">
-            <img
-              src={user.avatar || "/avatar-placeholder.png"}
-              alt={user.username}
-              className="profile-avatar"
-            />
+            {user.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.username}
+                className="profile-avatar"
+              />
+            ) : (
+              <div
+                className="profile-avatar initials-avatar"
+                style={{ backgroundColor: getAvatarColor(user.username) }}
+              >
+                {getInitials(user.username)}
+              </div>
+            )}
             <h2>{user.username}</h2>
-            <span
-              className={`vendor-badge ${
-                isVerified ? "verified" : "unverified"
-              }`}
-            >
+            <span className={`vendor-badge ${isVerified ? "verified" : "unverified"}`}>
               {isVerified ? "✅ Verified Account" : "🔴 Unverified"}
             </span>
           </div>
 
           <div className="profile-section">
             <h3>Account Info</h3>
-            <p>
-              <strong>Email:</strong> {user.email || "Not set"}
-            </p>
-            <p>
-              <strong>Phone:</strong> {user.phone || "Not added yet"}
-            </p>
-            <p>
-              <strong>Location:</strong> {user.location || "No location set"}
-            </p>
-            <p>
-              <strong>Role:</strong> {user.role}
-            </p>
+            <p><strong>Email:</strong> {user.email || "Not set"}</p>
+            <p><strong>Phone:</strong> {user.phone || "Not added yet"}</p>
+            <p><strong>Location:</strong> {user.location || "No location set"}</p>
+            <p><strong>Role:</strong> {user.role}</p>
           </div>
         </div>
 
@@ -212,43 +220,45 @@ const UserProfile = () => {
           ) : (
             <div className="orders-list">
               {orders.map((order) => (
-                <div key={order._id || Math.random()} className="order-card">
-                  <div className="order-header">
-                    <p>
-                      <strong>Status:</strong> {order.status || "Pending"}
-                    </p>
-                    <p>
-                      <strong>Total:</strong> GH₵{order.total || 0}
-                    </p>
+                <div key={order._id || Math.random()} className="order-card-new">
+                  <div className="order-header-new">
+                    <span
+                      className={`order-status ${
+                        order.status?.toLowerCase() === "delivered"
+                          ? "delivered"
+                          : order.status?.toLowerCase() === "pending"
+                          ? "pending"
+                          : "processing"
+                      }`}
+                    >
+                      {order.status || "Pending"}
+                    </span>
+                    <span className="order-total">Total: GH₵{order.total || 0}</span>
+                    <span className="order-payment">
+                      Payment: {order.paymentMethod?.toUpperCase() || "N/A"}
+                    </span>
                   </div>
-                  <p>
-                    <strong>Payment:</strong>{" "}
-                    {order.paymentMethod?.toUpperCase() || "N/A"}
-                  </p>
-                  <p className="order-date">
-                    {order.createdAt
-                      ? new Date(order.createdAt).toLocaleString()
-                      : "N/A"}
-                  </p>
-                  <div className="order-items">
+
+                  <div className="order-date-new">
+                    <small>
+                      Ordered on: {order.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}
+                    </small>
+                  </div>
+
+                  <div className="order-items-new">
                     {(order.items || []).map((item) => (
-                      <div
-                        key={item._id || Math.random()}
-                        className="order-item"
-                      >
+                      <div key={item._id || Math.random()} className="order-item-new">
                         <img
                           src={item.product?.image || "/placeholder.png"}
                           alt={item.product?.title || "Product"}
                         />
-                        <div>
-                          <p className="item-title">
-                            {item.product?.title || "Untitled"}
-                          </p>
+                        <div className="item-info">
+                          <p className="item-title">{item.product?.title || "Untitled"}</p>
                           <p className="item-vendor">
                             Vendor: {item.vendor?.username || "Unknown"}
                           </p>
                         </div>
-                        <div className="item-details">
+                        <div className="item-details-new">
                           <p>Qty: {item.quantity || 0}</p>
                           <p>GH₵{item.price || 0}</p>
                         </div>
@@ -267,32 +277,11 @@ const UserProfile = () => {
         <div className="modal-backdrop">
           <div className="edit-modal">
             <h3>Edit Product</h3>
-            <input
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-            />
-            <input
-              name="price"
-              type="number"
-              value={formData.price}
-              onChange={handleChange}
-            />
-            <input
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-            />
-            <input
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-            />
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-            />
+            <input name="title" value={formData.title} onChange={handleChange} />
+            <input name="price" type="number" value={formData.price} onChange={handleChange} />
+            <input name="category" value={formData.category} onChange={handleChange} />
+            <input name="image" value={formData.image} onChange={handleChange} />
+            <textarea name="description" value={formData.description} onChange={handleChange} />
             <div className="modal-actions">
               <button onClick={saveEdit}>Save</button>
               <button onClick={closeEditModal}>Cancel</button>
