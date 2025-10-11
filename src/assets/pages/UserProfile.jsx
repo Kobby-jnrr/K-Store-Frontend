@@ -19,9 +19,16 @@ const UserProfile = () => {
     description: "",
   });
 
+  // ✅ fallback URLs centralized
+  const API_BASES = [
+    "http://localhost:5000/api",
+    "https://k-store-backend.onrender.com/api",
+  ];
+
   useEffect(() => {
     const sessionUser = JSON.parse(sessionStorage.getItem("user"));
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
 
     if (sessionUser && token) {
       setUser({ ...sessionUser, token });
@@ -45,56 +52,48 @@ const UserProfile = () => {
     }
   }, []);
 
-  const fetchVerificationStatus = async (userId, token) => {
-    if (!token) return setVerifiedStatus(false);
-    try {
-      const res = await axios.get(`http://localhost:5000/api/auth/status/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setVerifiedStatus(res.data?.verified ?? false);
-    } catch {
-      console.warn("⚠️ Verification fetch failed");
-      setVerifiedStatus(false);
-    }
-  };
-
-  const fetchVendorProducts = async (token) => {
-    setLoadingProducts(true);
-    try {
-      const res = await axios.get("http://localhost:5000/api/products/vendor", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProducts(res.data || []);
-    } catch {
-      console.warn("⚠️ Failed to fetch products");
-      setProducts([]);
-    } finally {
-      setLoadingProducts(false);
-    }
-  };
-
-  const fetchUserOrders = async (token) => {
-    setLoadingOrders(true);
-    const urls = [
-      "https://k-store-backend.onrender.com/api/orders/my-orders",
-      "http://localhost:5000/api/orders/my-orders",
-    ];
-    let fetchedOrders = [];
-    for (let url of urls) {
+  // ✅ Generic fallback request helper
+  const fetchWithFallback = async (endpoints, token) => {
+    for (let url of endpoints) {
       try {
-        const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
-        if (Array.isArray(res.data)) {
-          fetchedOrders = res.data;
-          break;
-        }
+        const res = await axios.get(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.data) return res.data;
       } catch (err) {
-        console.warn(`Failed to fetch orders from ${url}:`, err.message);
+        console.warn(`⚠️ Request failed for ${url}:`, err.message);
       }
     }
-    setOrders(fetchedOrders);
+    return null;
+  };
+
+  // ✅ Verification Status
+  const fetchVerificationStatus = async (userId, token) => {
+    if (!token || !userId) return setVerifiedStatus(false);
+    const endpoints = API_BASES.map((base) => `${base}/auth/status/${userId}`);
+    const data = await fetchWithFallback(endpoints, token);
+    setVerifiedStatus(data?.verified ?? false);
+  };
+
+  // ✅ Vendor Products
+  const fetchVendorProducts = async (token) => {
+    setLoadingProducts(true);
+    const endpoints = API_BASES.map((base) => `${base}/products/vendor`);
+    const data = await fetchWithFallback(endpoints, token);
+    setProducts(Array.isArray(data) ? data : []);
+    setLoadingProducts(false);
+  };
+
+  // ✅ Orders
+  const fetchUserOrders = async (token) => {
+    setLoadingOrders(true);
+    const endpoints = API_BASES.map((base) => `${base}/orders/my-orders`);
+    const data = await fetchWithFallback(endpoints, token);
+    setOrders(Array.isArray(data) ? data : []);
     setLoadingOrders(false);
   };
 
+  // ✅ Product edit + delete (local simulation)
   const handleDelete = (id) => {
     if (!window.confirm("Delete this product?")) return;
     setProducts((prev) => prev.filter((p) => p._id !== id));
@@ -113,11 +112,15 @@ const UserProfile = () => {
   };
 
   const closeEditModal = () => setEditingProduct(null);
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
   const saveEdit = () => {
     if (!editingProduct) return;
     setProducts((prev) =>
-      prev.map((p) => (p._id === editingProduct._id ? { ...p, ...formData } : p))
+      prev.map((p) =>
+        p._id === editingProduct._id ? { ...p, ...formData } : p
+      )
     );
     closeEditModal();
     toast.success("Product updated (local dev)!");
@@ -130,9 +133,17 @@ const UserProfile = () => {
   };
 
   const getAvatarColor = (name) => {
-    const colors = ["#2563eb","#f97316","#16a34a","#eab308","#8b5cf6","#db2777"];
+    const colors = [
+      "#2563eb",
+      "#f97316",
+      "#16a34a",
+      "#eab308",
+      "#8b5cf6",
+      "#db2777",
+    ];
     let hash = 0;
-    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    for (let i = 0; i < name.length; i++)
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
     return colors[Math.abs(hash) % colors.length];
   };
 
@@ -148,9 +159,16 @@ const UserProfile = () => {
         <div className="profile-card side-card">
           <div className="profile-header">
             {user.avatar ? (
-              <img src={user.avatar} alt={user.username} className="profile-avatar" />
+              <img
+                src={user.avatar}
+                alt={user.username}
+                className="profile-avatar"
+              />
             ) : (
-              <div className="profile-avatar initials-avatar" style={{ backgroundColor: getAvatarColor(user.username) }}>
+              <div
+                className="profile-avatar initials-avatar"
+                style={{ backgroundColor: getAvatarColor(user.username) }}
+              >
                 {getInitials(user.username)}
               </div>
             )}
@@ -161,10 +179,18 @@ const UserProfile = () => {
           </div>
           <div className="profile-section">
             <h3>Account Info</h3>
-            <p><strong>Email:</strong> {user.email || "Not set"}</p>
-            <p><strong>Phone:</strong> {user.phone || "Not added yet"}</p>
-            <p><strong>Location:</strong> {user.location || "No location set"}</p>
-            <p><strong>Role:</strong> {user.role}</p>
+            <p>
+              <strong>Email:</strong> {user.email || "Not set"}
+            </p>
+            <p>
+              <strong>Phone:</strong> {user.phone || "Not added yet"}
+            </p>
+            <p>
+              <strong>Location:</strong> {user.location || "No location set"}
+            </p>
+            <p>
+              <strong>Role:</strong> {user.role}
+            </p>
           </div>
         </div>
 
@@ -172,12 +198,19 @@ const UserProfile = () => {
         {isVendor && (
           <div className="profile-card middle-card scrollable-column">
             <h3>Your Products</h3>
-            {loadingProducts ? <p>Loading products...</p> :
-              products.length === 0 ? <p>No products found.</p> :
+            {loadingProducts ? (
+              <p>Loading products...</p>
+            ) : products.length === 0 ? (
+              <p>No products found.</p>
+            ) : (
               <div className="vendor-product-grid">
                 {products.map((p) => (
                   <div key={p._id || Math.random()} className="vendor-product-card">
-                    <img src={p.image || "/placeholder.png"} alt={p.title || "Product"} className="product-img" />
+                    <img
+                      src={p.image || "/placeholder.png"}
+                      alt={p.title || "Product"}
+                      className="product-img"
+                    />
                     <h4>{p.title || "Untitled"}</h4>
                     <p>GH₵{p.price || 0}</p>
                     <div className="product-actions">
@@ -187,50 +220,81 @@ const UserProfile = () => {
                   </div>
                 ))}
               </div>
-            }
+            )}
           </div>
         )}
 
         {/* Orders */}
         <div className={`profile-card side-card scrollable-column`}>
           <h3>My Orders</h3>
-          {loadingOrders ? <p>Loading orders...</p> :
-            orders.length === 0 ? <p>No orders yet.</p> :
+          {loadingOrders ? (
+            <p>Loading orders...</p>
+          ) : orders.length === 0 ? (
+            <p>No orders yet.</p>
+          ) : (
             <div className="orders-list">
               {orders.map((order) => (
                 <div key={order._id || Math.random()} className="order-card-new">
                   <div className="order-header-new">
                     <span className={`order-status ${order.status?.toLowerCase()}`}>
-                      {order.status?.toLowerCase() === "rejected" ? "Cannot be delivered" : order.status || "Pending"}
+                      {order.status?.toLowerCase() === "rejected"
+                        ? "Cannot be delivered"
+                        : order.status || "Pending"}
                     </span>
-                    <span className="order-total">Total: GH₵{order.total || 0}</span>
+                    <span className="order-total">
+                      Total: GH₵{order.total || 0}
+                    </span>
                     <span className="order-payment">
                       Payment: {order.paymentMethod?.toUpperCase() || "N/A"}
                     </span>
                   </div>
                   <div className="order-date-new">
-                    <small>Ordered on: {order.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}</small>
+                    <small>
+                      Ordered on:{" "}
+                      {order.createdAt
+                        ? new Date(order.createdAt).toLocaleString()
+                        : "N/A"}
+                    </small>
                   </div>
                   <div className="order-items-new">
                     {(order.items || []).map((item) => {
                       let statusText = "Pending";
                       let statusClass = "pending";
                       switch ((item.status || "").toLowerCase()) {
-                        case "delivered": statusText = "Delivered"; statusClass = "delivered"; break;
-                        case "pending": statusText = "Pending"; statusClass = "pending"; break;
+                        case "delivered":
+                          statusText = "Delivered";
+                          statusClass = "delivered";
+                          break;
+                        case "pending":
+                          statusText = "Pending";
+                          statusClass = "pending";
+                          break;
                         case "processing":
                         case "accepted":
                         case "preparing":
-                        case "ready": statusText = "Processing"; statusClass = "processing"; break;
-                        case "rejected": statusText = "Cannot be delivered"; statusClass = "rejected"; break;
-                        default: statusText = item.status || "Pending"; statusClass = "pending";
+                        case "ready":
+                          statusText = "Processing";
+                          statusClass = "processing";
+                          break;
+                        case "rejected":
+                          statusText = "Cannot be delivered";
+                          statusClass = "rejected";
+                          break;
+                        default:
+                          statusText = item.status || "Pending";
+                          statusClass = "pending";
                       }
                       return (
                         <div key={item._id || Math.random()} className="order-item-new">
-                          <img src={item.product?.image || "/placeholder.png"} alt={item.product?.title || "Product"} />
+                          <img
+                            src={item.product?.image || "/placeholder.png"}
+                            alt={item.product?.title || "Product"}
+                          />
                           <div className="item-info">
                             <p className="item-title">{item.product?.title || "Untitled"}</p>
-                            <p className="item-vendor">Vendor: {item.vendor?.username || "Unknown"}</p>
+                            <p className="item-vendor">
+                              Vendor: {item.vendor?.username || "Unknown"}
+                            </p>
                           </div>
                           <div className="item-details-new">
                             <p>Qty: {item.quantity || 0}</p>
@@ -244,7 +308,7 @@ const UserProfile = () => {
                 </div>
               ))}
             </div>
-          }
+          )}
         </div>
       </div>
 
@@ -254,7 +318,12 @@ const UserProfile = () => {
           <div className="edit-modal">
             <h3>Edit Product</h3>
             <input name="title" value={formData.title} onChange={handleChange} />
-            <input name="price" type="number" value={formData.price} onChange={handleChange} />
+            <input
+              name="price"
+              type="number"
+              value={formData.price}
+              onChange={handleChange}
+            />
             <input name="category" value={formData.category} onChange={handleChange} />
             <input name="image" value={formData.image} onChange={handleChange} />
             <textarea name="description" value={formData.description} onChange={handleChange} />
