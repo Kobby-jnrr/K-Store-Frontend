@@ -10,7 +10,7 @@
   background: linear-gradient(180deg, #8a6bcc, #1e3a8a);
   box-shadow: 0 5px 20px rgba(0,0,0,0.3);
   color: white;
-  z-index: 100; /* increase to be above main content */
+  z-index: 100;
   transition: left 0.3s ease, background 0.3s ease;
 }
 
@@ -49,7 +49,6 @@
   background-color: #ffd93d;
 }
 
-/* Arrow inside toggle */
 .arrow {
   display: inline-block;
   font-weight: bold;
@@ -60,7 +59,6 @@
   transform: rotate(180deg);
 }
 
-/* Sidebar header */
 .head-container {
   display: flex;
   align-items: center;
@@ -71,7 +69,6 @@
   border-bottom: 1px solid rgba(255,255,255,0.3);
 }
 
-/* Category items */
 .container {
   display: flex;
   align-items: center;
@@ -88,7 +85,7 @@
 
 .side {
   width: 25px;
-  filter: brightness(0) invert(1); /* white icons */
+  filter: brightness(0) invert(1);
 }
 
 a {
@@ -101,53 +98,13 @@ a:hover {
   text-decoration: underline;
 }
 
-/* Hide sidebar on small screens */
-@media(max-width: 650px){
+/* ------------------- MOBILE & TABLET ------------------- */
+@media(max-width: 1024px) {
   .sidebar {
-    left: -220px;
-  }
-}
-/* === EXISTING STYLES (keep yours) === */
-/* Add this at the bottom of Sidebar.css */
-
-@media (max-width: 768px) {
-  .sidebar {
-    width: 200px;
-    left: -200px;
-    top: 0;
-    height: 100vh;
-    z-index: 1000;
-    background: linear-gradient(180deg, #8a6bcc, #1e3a8a);
-    transition: left 0.3s ease;
-  }
-
-  .sidebar.open {
-    left: 0;
+    display: none !important; /* completely hide sidebar */
   }
 
   .sidebar-toggle {
-    top: 15px;
-    left: 10px;
-    width: 35px;
-    height: 35px;
-    font-size: 18px;
-    border-radius: 50%;
-    z-index: 1100;
-  }
-
-  body.sidebar-open::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 900;
-  }
-
-  .head-container {
-    font-size: 18px;
-  }
-
-  .container {
-    padding: 10px;
+    display: none !important; /* hide toggle button */
   }
 }

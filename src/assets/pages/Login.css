@@ -27,14 +27,14 @@ body {
 /* Container */
 .login-container {
   display: flex;
-  width: 90vw;
-  min-width: 800px;
-  min-height: 700px;
-  margin: 3vh auto;
+  width: 80vw;
+  height: 80vh;
+  margin: 5vh auto;
   border-radius: 15px;
   overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.85);
   box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  position: relative;
 }
 
 /* Left panel */
@@ -74,18 +74,8 @@ body {
   justify-content: center;
   align-items: center;
   padding: 3%;
-  position: relative;
 }
 
-/* Mobile / Tablet logo on top */
-.login-logo-top {
-  display: none;
-  width: 30%;
-  max-width: 150px;
-  margin-bottom: 2vh;
-}
-
-/* Form */
 .login-form {
   width: 80%;
   max-width: 400px;
@@ -139,8 +129,8 @@ body {
 .spinner {
   width: 20px;
   height: 20px;
-  border: 3px solid white;
-  border-top: 3px solid rgba(255, 255, 255, 0.5);
+  border: 3px solid #fff;
+  border-top: 3px solid #3498db;
   border-radius: 50%;
   display: inline-block;
   animation: spin 1s linear infinite;
@@ -150,11 +140,6 @@ body {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-.login-form button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
 }
 
 /* Password field */
@@ -181,11 +166,14 @@ body {
   color: #8a6bcc;
 }
 
+/* Logo on top for tablet/mobile */
+.login-logo-top {
+  display: none;
+}
+
 /* -------- TABLET (hide left panel, logo on top) -------- */
 @media (max-width: 1024px) {
-  .login-left {
-    display: none;
-  }
+  .login-left { display: none; }
 
   .login-container {
     width: 100vw;
@@ -205,7 +193,8 @@ body {
     display: block;
     width: 35%;
     max-width: 160px;
-    margin-bottom: 3vh;
+    border-radius: 10px;
+    margin-bottom: -100px;
   }
 
   .login-right {
@@ -229,9 +218,7 @@ body {
     font-size: 0.9em;
   }
 
-  .login-bg {
-    filter: blur(30px);
-  }
+  .login-bg { filter: blur(30px); }
 }
 
 /* -------- MOBILE (smaller font/padding) -------- */

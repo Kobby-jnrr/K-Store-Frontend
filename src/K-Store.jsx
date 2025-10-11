@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { Menu } from "lucide-react"; // hamburger icon
 
 import Header from "./assets/components/Header/Header.jsx";
 import Sidebar from "./assets/components/Sidebar/Sidebar.jsx";
@@ -17,47 +16,15 @@ import AdminLayout from "./assets/pages/admin/AdminLayout.jsx";
 import VendorOrders from "./assets/pages/Body/VendorOrders.jsx";
 
 function AppLayout({ cart, setCart, totalItems, logout, user }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-
-  // Show sidebar only on main page
-  const showSidebar = location.pathname === "/";
-
-  useEffect(() => {
-    if (sidebarOpen) document.body.classList.add("sidebar-open");
-    else document.body.classList.remove("sidebar-open");
-  }, [sidebarOpen]);
+  const showSidebar = location.pathname === "/"; // Only show on main page
 
   return (
     <div className="app-layout">
       <Header totalItems={totalItems} logout={logout} user={user} />
 
-      {/* Hamburger icon - visible only on mobile */}
-      {showSidebar && (
-        <button
-          className="sidebar-toggle"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          style={{
-            position: "fixed",
-            top: "15px",
-            left: "15px",
-            zIndex: "1200",
-            background: "#1e3a8a",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            padding: "6px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Menu size={22} />
-        </button>
-      )}
-
-      {/* Sidebar (only shows on main page) */}
-      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />}
+      {/* Sidebar always visible on desktop, hidden on mobile/tablet via CSS */}
+      {showSidebar && <Sidebar />}
 
       <Routes>
         <Route path="/" element={<Main cart={cart} setCart={setCart} />} />
@@ -76,12 +43,12 @@ function AppLayout({ cart, setCart, totalItems, logout, user }) {
 }
 
 function Store() {
-  const [user, setUser] = useState(() => {
+  const [user, setUser] = React.useState(() => {
     const storedUser = sessionStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  const [cart, setCart] = useState(() => {
+  const [cart, setCart] = React.useState(() => {
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : {};
   });
@@ -96,7 +63,7 @@ function Store() {
     setCart({});
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 

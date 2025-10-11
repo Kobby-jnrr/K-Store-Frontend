@@ -225,12 +225,20 @@ header {
   } 
 }
 
+/* Responsive adjustments for tablets and mobiles */
 @media (max-width: 768px) {
   header {
-    flex-wrap: wrap;
+    flex-direction: column; /* Stack vertically */
+    align-items: center;
     height: auto;
-    padding: 10px;
-    justify-content: space-between;
+    padding: 6px;
+  }
+
+  .left {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 3px;
   }
 
   .left .logo {
@@ -238,46 +246,57 @@ header {
   }
 
   .middle {
-    width: 100%;
-    margin-top: 10px;
+    width: 90%;
+    margin-bottom: 10px;
+    display: flex;
     justify-content: center;
   }
 
   .search {
-    width: 75%;
-    max-width: none;
-    border-radius: 25px;
-    margin-right: 5px;
+    width: 60%; 
+    max-width: 300px;
+    border-radius: 20px;
+    padding: 8px 10px;
+    font-size: 0.8rem;
   }
 
   .search-button {
-    border-radius: 25px;
-  }
-
-  .filter-button {
-    display: none;
+    border-radius: 20px;
+    width: 40px;
+    height: 32px;
+    margin-left: -40px;
   }
 
   .right {
     width: 100%;
     justify-content: center;
-    gap: 8px;
-    margin-top: 10px;
+    gap: 20px;
     flex-wrap: wrap;
   }
 
   .right button {
-    padding: 4px 6px;
+    padding: 5px 8px;
+    font-size: 0.85rem;
+    width: 25px;
+    height: 25px;
   }
 
   .cart-button p {
-    top: -10px;
-    right: -5px;
+    top: -18px;
+    right: -10px;
+    font-size: 8px;
+    width: 15px;
+  }
+
+  /* Hide filter button on mobile */
+  .filter-button {
+    display: none;
   }
 
   .filter-dropdown {
     position: static;
-    margin-top: 10px;
     width: 100%;
+    margin-top: 5px;
   }
 }
+
