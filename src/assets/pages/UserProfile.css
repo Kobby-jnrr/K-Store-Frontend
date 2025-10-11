@@ -1,3 +1,4 @@
+/* -------------------- Page -------------------- */
 .profile-page {
   width: 100%;
   padding: 20px;
@@ -6,16 +7,17 @@
   margin-top: 85px;
 }
 
+/* -------------------- Grid Layout -------------------- */
 .profile-grid {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
   gap: 3rem;
   max-width: 1400px;
   margin: 0 auto;
-  align-items: stretch;
+  align-items: start;
 }
 
-/* --- Card --- */
+/* -------------------- Cards -------------------- */
 .profile-card {
   background: #fff;
   border-radius: 16px;
@@ -23,10 +25,25 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
-  height: 100%; /* make card fill grid row */
+  height: 100%;
 }
 
-/* --- Profile --- */
+/* -------------------- Scrollable Columns -------------------- */
+.scrollable-column {
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.scrollable-column::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollable-column::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+/* -------------------- Profile Header -------------------- */
 .profile-header {
   text-align: center;
   margin-bottom: 1rem;
@@ -42,7 +59,7 @@
   margin: 0 auto;
 }
 
-/* For initials avatar fallback */
+/* Initials avatar fallback */
 .initials-avatar {
   width: 120px;
   height: 120px;
@@ -56,7 +73,6 @@
   margin: 0 auto;
   text-transform: uppercase;
 }
-
 
 .vendor-badge {
   font-weight: bold;
@@ -73,21 +89,20 @@
 }
 
 .profile-section {
-  flex: 1; /* allow section to take remaining height */
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* spread out content vertically */
+  justify-content: space-between;
 }
 
-/* --- Products --- */
+/* -------------------- Products -------------------- */
 .vendor-product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 10px;
-  flex: 1; /* take full height */
+  flex: 1;
 }
 
-/* Product cards inside middle column */
 .vendor-product-card {
   background: #f3f4f6;
   border-radius: 10px;
@@ -95,7 +110,7 @@
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* evenly distribute content */
+  justify-content: space-between;
 }
 
 .vendor-product-card img {
@@ -129,7 +144,7 @@
   color: #fff;
 }
 
-/* --- Orders --- */
+/* -------------------- Orders -------------------- */
 .order-card-new {
   background: #ffffff;
   border-radius: 12px;
@@ -139,7 +154,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  flex: 1; /* take full height */
+  flex: 1;
 }
 
 .order-header-new {
@@ -174,7 +189,13 @@
   color: #0369a1;
 }
 
-.order-total, .order-payment {
+.order-status.rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.order-total,
+.order-payment {
   font-weight: 500;
   font-size: 0.9rem;
 }
@@ -189,7 +210,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1; /* make order items take remaining space */
+  flex: 1;
 }
 
 .order-item-new {
@@ -230,7 +251,7 @@
   min-width: 60px;
 }
 
-/* --- Modal --- */
+/* -------------------- Modal -------------------- */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -267,10 +288,18 @@
   color: #fff;
 }
 
-/* --- Responsive --- */
+/* -------------------- Responsive -------------------- */
 @media (max-width: 1000px) {
   .profile-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
+}
+/* Vendor: 3 columns | Customer: 2 columns */
+.vendor-grid {
+  grid-template-columns: 1fr 2fr 1fr;
+}
+
+.customer-grid {
+  grid-template-columns: 1fr 2fr;
 }

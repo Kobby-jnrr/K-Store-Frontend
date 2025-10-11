@@ -4,34 +4,76 @@ import "./Vendors.css";
 
 function Vendors() {
   const [vendors, setVendors] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // For search & filter
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+
   useEffect(() => {
-    fetchVendors();
+    fetchData();
   }, []);
 
-  const fetchVendors = async () => {
-    const urls = [
-      "https://k-store-backend.onrender.com/api/admin/vendors", // deployed
-      "http://localhost:5000/api/admin/vendors",                // local fallback
+  const fetchData = async () => {
+    const token = sessionStorage.getItem("token");
+
+    // Fetch vendors
+    const vendorUrls = [
+      "https://k-store-backend.onrender.com/api/admin/vendors",
+      "http://localhost:5000/api/admin/vendors",
     ];
 
-    const token = sessionStorage.getItem("token"); // ✅ use sessionStorage
-    let fetchedData = [];
+    // Fetch orders
+    const orderUrls = [
+      "https://k-store-backend.onrender.com/api/admin/orders",
+      "http://localhost:5000/api/admin/orders",
+    ];
 
-    for (let url of urls) {
+    let fetchedVendors = [];
+    let fetchedOrders = [];
+
+    for (let url of vendorUrls) {
       try {
-        const res = await axios.get(url, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        fetchedData = Array.isArray(res.data) ? res.data : [];
+        const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+        fetchedVendors = Array.isArray(res.data) ? res.data : [];
         break;
       } catch (err) {
-        console.warn(`Failed to fetch from ${url}:`, err.message);
+        console.warn(`Failed to fetch vendors from ${url}:`, err.message);
       }
     }
 
-    setVendors(fetchedData);
+    for (let url of orderUrls) {
+      try {
+        const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+        fetchedOrders = Array.isArray(res.data) ? res.data : [];
+        break;
+      } catch (err) {
+        console.warn(`Failed to fetch orders from ${url}:`, err.message);
+      }
+    }
+
+    setOrders(fetchedOrders);
+
+    // Compute revenue per vendor
+    const revenueMap = {};
+    fetchedOrders.forEach(order => {
+      order.items.forEach(item => {
+        const vendorId = item.vendor?._id;
+        if (!vendorId) return;
+        if (!revenueMap[vendorId]) revenueMap[vendorId] = 0;
+        revenueMap[vendorId] += item.total || (item.quantity * (item.product?.price || 0));
+      });
+    });
+
+    const vendorsWithRevenue = fetchedVendors
+      .map(v => ({
+        ...v,
+        totalRevenue: revenueMap[v._id] || 0
+      }))
+      .sort((a, b) => b.totalRevenue - a.totalRevenue);
+
+    setVendors(vendorsWithRevenue);
     setLoading(false);
   };
 
@@ -41,7 +83,7 @@ function Vendors() {
       "http://localhost:5000/api/admin/verify-vendor/",
     ];
 
-    const token = sessionStorage.getItem("token"); // ✅ use sessionStorage
+    const token = sessionStorage.getItem("token");
 
     for (let url of urls) {
       try {
@@ -51,10 +93,8 @@ function Vendors() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        setVendors((prev) =>
-          prev.map((vendor) =>
-            vendor._id === id ? { ...vendor, verified: !currentStatus } : vendor
-          )
+        setVendors(prev =>
+          prev.map(v => (v._id === id ? { ...v, verified: !currentStatus } : v))
         );
 
         alert(res.data.message || "Vendor status updated");
@@ -67,10 +107,40 @@ function Vendors() {
 
   if (loading) return <div className="loader">Loading vendors...</div>;
 
+  // Apply search and filter
+  const filteredVendors = vendors.filter(vendor => {
+    const matchesSearch =
+      vendor.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vendor.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "All" ||
+      (statusFilter === "Verified" && vendor.verified) ||
+      (statusFilter === "Pending" && !vendor.verified);
+
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div className="vendors-page">
       <h1>Vendors Management 🏪</h1>
       <p>View all vendor accounts and manage verification status.</p>
+
+      {/* Search & Filter */}
+      <div className="filters">
+        <input
+          type="text"
+          placeholder="Search by username or email"
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+        />
+
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+          <option value="All">All</option>
+          <option value="Verified">Verified</option>
+          <option value="Pending">Pending</option>
+        </select>
+      </div>
 
       <div className="vendors-table">
         <table>
@@ -78,34 +148,30 @@ function Vendors() {
             <tr>
               <th>Username</th>
               <th>Email</th>
+              <th>Total Revenue</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {vendors.length === 0 ? (
+            {filteredVendors.length === 0 ? (
               <tr>
-                <td colSpan="4">No vendors found</td>
+                <td colSpan="5">No vendors found</td>
               </tr>
             ) : (
-              vendors.map((vendor) => (
+              filteredVendors.map(vendor => (
                 <tr key={vendor._id}>
                   <td>{vendor.username}</td>
                   <td>{vendor.email}</td>
+                  <td>GH₵{vendor.totalRevenue.toFixed(2)}</td>
                   <td>
-                    <span
-                      className={`status ${
-                        vendor.verified ? "verified" : "unverified"
-                      }`}
-                    >
+                    <span className={`status ${vendor.verified ? "verified" : "unverified"}`}>
                       {vendor.verified ? "Verified" : "Pending"}
                     </span>
                   </td>
                   <td>
                     <button
-                      className={`verify-btn ${
-                        vendor.verified ? "unverify" : "verify"
-                      }`}
+                      className={`verify-btn ${vendor.verified ? "unverify" : "verify"}`}
                       onClick={() => toggleVerify(vendor._id, vendor.verified)}
                     >
                       {vendor.verified ? "Unverify" : "Verify"}

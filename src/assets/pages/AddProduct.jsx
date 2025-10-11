@@ -9,7 +9,7 @@ const VendorProducts = () => {
   const [vendor, setVendor] = useState(null);
   const [products, setProducts] = useState([]);
 
-  // ---------- Add Product States ----------
+  // Add Product States
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -18,8 +18,10 @@ const VendorProducts = () => {
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  // ---------- Edit Product States ----------
+  // Edit Product States
   const [editingProduct, setEditingProduct] = useState(null);
   const [editData, setEditData] = useState({
     title: "",
@@ -36,7 +38,7 @@ const VendorProducts = () => {
     "baby", "beauty", "sports", "gaming"
   ];
 
-  // ---------- Load vendor & products ----------
+  // Load vendor & products
   useEffect(() => {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -63,7 +65,6 @@ const VendorProducts = () => {
     }
   };
 
-  // ---------- File Selection ----------
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -78,11 +79,10 @@ const VendorProducts = () => {
     setEditPreview(URL.createObjectURL(file));
   };
 
-  // ---------- Upload to Cloudinary ----------
   const uploadToCloudinary = async (file) => {
     const formDataCloud = new FormData();
     formDataCloud.append("file", file);
-    formDataCloud.append("upload_preset", "K-Store"); // your preset
+    formDataCloud.append("upload_preset", "K-Store");
     const res = await fetch("https://api.cloudinary.com/v1_1/dydefhhcd/image/upload", {
       method: "POST",
       body: formDataCloud,
@@ -91,7 +91,7 @@ const VendorProducts = () => {
     return data.secure_url;
   };
 
-  // ---------- Add Product ----------
+  // Add Product
   const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.price || !formData.category || !selectedFile) {
@@ -99,26 +99,28 @@ const VendorProducts = () => {
       return;
     }
 
+    setAdding(true);
     try {
       const imageUrl = await uploadToCloudinary(selectedFile);
-
       await axios.post(
         "https://k-store-backend.onrender.com/api/products",
         { ...formData, image: imageUrl },
         { headers: { Authorization: `Bearer ${vendor.token}` } }
       );
 
-      toast.success("✅ Product added!");
       setFormData({ title: "", price: "", category: "", description: "" });
       setSelectedFile(null);
       setPreviewUrl("");
       fetchProducts(vendor.token);
+      setShowSuccessModal(true);
     } catch {
       toast.error("Failed to add product.");
+    } finally {
+      setAdding(false);
     }
   };
 
-  // ---------- Edit Product ----------
+  // Edit Product
   const openEdit = (product) => {
     setEditingProduct(product);
     setEditData({
@@ -155,7 +157,6 @@ const VendorProducts = () => {
     }
   };
 
-  // ---------- Delete Product ----------
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete this product?")) return;
     try {
@@ -180,8 +181,6 @@ const VendorProducts = () => {
       </h2>
 
       <div className="products-container">
-
-        {/* ---------- Add Product ---------- */}
         <div className="half-section add-product">
           <form className="vendor-form" onSubmit={handleAddProduct}>
             <h3>Add Product</h3>
@@ -191,17 +190,16 @@ const VendorProducts = () => {
               <option value="">Select Category</option>
               {categories.map(cat => <option key={cat} value={cat}>{cat.charAt(0).toUpperCase()+cat.slice(1)}</option>)}
             </select>
-
             {previewUrl && <img src={previewUrl} alt="Preview" className="image-preview" />}
             <input type="file" accept="image/*" onChange={handleFileSelect} required />
-
             <textarea placeholder="Description (optional)" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
 
-            <button type="submit" className="add-product-button">Add Product</button>
+            <button type="submit" className="add-product-button">
+              {adding ? <span className="spinner"></span> : "Add Product"}
+            </button>
           </form>
         </div>
 
-        {/* ---------- Product List ---------- */}
         <div className="half-section edit-products">
           <h3>Your Products</h3>
           <div className="products-list">
@@ -221,7 +219,6 @@ const VendorProducts = () => {
             }
           </div>
 
-          {/* ---------- Edit Modal ---------- */}
           {editingProduct && (
             <div className="edit-form">
               <h4>Editing: {editingProduct.title}</h4>
@@ -230,21 +227,27 @@ const VendorProducts = () => {
               <select value={editData.category} onChange={e => setEditData({...editData, category: e.target.value})}>
                 {categories.map(cat => <option key={cat} value={cat}>{cat.charAt(0).toUpperCase()+cat.slice(1)}</option>)}
               </select>
-
               {editPreview && <img src={editPreview} alt="Preview" className="image-preview" />}
               <input type="file" accept="image/*" onChange={handleEditFileSelect} />
-
               <textarea value={editData.description} onChange={e => setEditData({...editData, description: e.target.value})} />
-
-              <button onClick={saveEdit} disabled={savingEdit}>
-                {savingEdit ? "Saving..." : "Save"}
-              </button>
+              <button onClick={saveEdit} disabled={savingEdit}>{savingEdit ? "Saving..." : "Save"}</button>
               <button onClick={() => setEditingProduct(null)} disabled={savingEdit}>Cancel</button>
             </div>
           )}
 
         </div>
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="success-modal-backdrop">
+          <div className="success-modal">
+            <h2>✅ Product Added!</h2>
+            <p>Your product has been added successfully.</p>
+            <button onClick={() => setShowSuccessModal(false)}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

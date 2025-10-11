@@ -28,20 +28,9 @@ function Main({ cart, setCart }) {
           <ProductList category={cat} cart={cart} setCart={setCart} />
         </section>
       ))}
-      <Link to="/vendor-orders">
-        {user?.role === "vendor" && (
-          <button className="vendor-orders-btn">📦 VIEW MY ORDERS</button>
-        )}
-      </Link>
-
-      <Link to="/addProduct">
-        {user?.role === "vendor" && (
-          <button className="addproduct">➕ ADD / EDIT PRODUCT</button>
-        )}
-      </Link>
 
       <Link to="/cartPage">
-        <button className="go-cart"> GO TO CART</button>
+        <button className="go-cart">GO TO CART</button>
       </Link>
     </main>
   );

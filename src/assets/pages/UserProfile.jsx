@@ -19,7 +19,6 @@ const UserProfile = () => {
     description: "",
   });
 
-  /* -------------------- Load user -------------------- */
   useEffect(() => {
     const sessionUser = JSON.parse(sessionStorage.getItem("user"));
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -30,7 +29,6 @@ const UserProfile = () => {
       if (sessionUser.role === "vendor") fetchVendorProducts(token);
       fetchUserOrders(token);
     } else {
-      // Local dev mock
       const mockUser = {
         username: "Test User",
         email: "test@example.com",
@@ -47,7 +45,6 @@ const UserProfile = () => {
     }
   }, []);
 
-  /* -------------------- Fetch verification -------------------- */
   const fetchVerificationStatus = async (userId, token) => {
     if (!token) return setVerifiedStatus(false);
     try {
@@ -61,7 +58,6 @@ const UserProfile = () => {
     }
   };
 
-  /* -------------------- Fetch vendor products -------------------- */
   const fetchVendorProducts = async (token) => {
     setLoadingProducts(true);
     try {
@@ -77,23 +73,28 @@ const UserProfile = () => {
     }
   };
 
-  /* -------------------- Fetch user orders -------------------- */
   const fetchUserOrders = async (token) => {
     setLoadingOrders(true);
-    try {
-      const res = await axios.get("http://localhost:5000/api/orders/my-orders", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setOrders(res.data || []);
-    } catch {
-      console.warn("⚠️ Failed to fetch orders");
-      setOrders([]);
-    } finally {
-      setLoadingOrders(false);
+    const urls = [
+      "https://k-store-backend.onrender.com/api/orders/my-orders",
+      "http://localhost:5000/api/orders/my-orders",
+    ];
+    let fetchedOrders = [];
+    for (let url of urls) {
+      try {
+        const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+        if (Array.isArray(res.data)) {
+          fetchedOrders = res.data;
+          break;
+        }
+      } catch (err) {
+        console.warn(`Failed to fetch orders from ${url}:`, err.message);
+      }
     }
+    setOrders(fetchedOrders);
+    setLoadingOrders(false);
   };
 
-  /* -------------------- Product actions -------------------- */
   const handleDelete = (id) => {
     if (!window.confirm("Delete this product?")) return;
     setProducts((prev) => prev.filter((p) => p._id !== id));
@@ -112,10 +113,7 @@ const UserProfile = () => {
   };
 
   const closeEditModal = () => setEditingProduct(null);
-
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const saveEdit = () => {
     if (!editingProduct) return;
     setProducts((prev) =>
@@ -125,7 +123,6 @@ const UserProfile = () => {
     toast.success("Product updated (local dev)!");
   };
 
-  /* -------------------- Helpers -------------------- */
   const getInitials = (name) => {
     if (!name) return "";
     const names = name.trim().split(" ");
@@ -133,37 +130,27 @@ const UserProfile = () => {
   };
 
   const getAvatarColor = (name) => {
-    // Generate a consistent color based on name
     const colors = ["#2563eb","#f97316","#16a34a","#eab308","#8b5cf6","#db2777"];
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
     return colors[Math.abs(hash) % colors.length];
   };
 
-  /* -------------------- Render -------------------- */
   if (!user) return <div className="loader">Loading profile...</div>;
-
   const isVerified = verifiedStatus ?? user.verified ?? false;
+  const isVendor = user.role === "vendor";
 
   return (
     <div className="profile-page">
       <Toaster position="top-right" />
-      <div className="profile-grid">
-
-        {/* --- Profile Info --- */}
+      <div className={`profile-grid ${isVendor ? "vendor-grid" : "customer-grid"}`}>
+        {/* Profile Info */}
         <div className="profile-card side-card">
           <div className="profile-header">
             {user.avatar ? (
-              <img
-                src={user.avatar}
-                alt={user.username}
-                className="profile-avatar"
-              />
+              <img src={user.avatar} alt={user.username} className="profile-avatar" />
             ) : (
-              <div
-                className="profile-avatar initials-avatar"
-                style={{ backgroundColor: getAvatarColor(user.username) }}
-              >
+              <div className="profile-avatar initials-avatar" style={{ backgroundColor: getAvatarColor(user.username) }}>
                 {getInitials(user.username)}
               </div>
             )}
@@ -172,7 +159,6 @@ const UserProfile = () => {
               {isVerified ? "✅ Verified Account" : "🔴 Unverified"}
             </span>
           </div>
-
           <div className="profile-section">
             <h3>Account Info</h3>
             <p><strong>Email:</strong> {user.email || "Not set"}</p>
@@ -182,97 +168,87 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* --- Products --- */}
-        <div className="profile-card middle-card">
-          <h3>Your Products</h3>
-          {loadingProducts ? (
-            <p>Loading products...</p>
-          ) : products.length === 0 ? (
-            <p>No products found.</p>
-          ) : (
-            <div className="vendor-product-grid">
-              {products.map((p) => (
-                <div key={p._id || Math.random()} className="vendor-product-card">
-                  <img
-                    src={p.image || "/placeholder.png"}
-                    alt={p.title || "Product"}
-                    className="product-img"
-                  />
-                  <h4>{p.title || "Untitled"}</h4>
-                  <p>GH₵{p.price || 0}</p>
-                  <div className="product-actions">
-                    <button onClick={() => openEditModal(p)}>Edit</button>
-                    <button onClick={() => handleDelete(p._id)}>Delete</button>
+        {/* Vendor Products */}
+        {isVendor && (
+          <div className="profile-card middle-card scrollable-column">
+            <h3>Your Products</h3>
+            {loadingProducts ? <p>Loading products...</p> :
+              products.length === 0 ? <p>No products found.</p> :
+              <div className="vendor-product-grid">
+                {products.map((p) => (
+                  <div key={p._id || Math.random()} className="vendor-product-card">
+                    <img src={p.image || "/placeholder.png"} alt={p.title || "Product"} className="product-img" />
+                    <h4>{p.title || "Untitled"}</h4>
+                    <p>GH₵{p.price || 0}</p>
+                    <div className="product-actions">
+                      <button onClick={() => openEditModal(p)}>Edit</button>
+                      <button onClick={() => handleDelete(p._id)}>Delete</button>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            }
+          </div>
+        )}
 
-        {/* --- Orders --- */}
-        <div className="profile-card side-card">
+        {/* Orders */}
+        <div className={`profile-card side-card scrollable-column`}>
           <h3>My Orders</h3>
-          {loadingOrders ? (
-            <p>Loading orders...</p>
-          ) : orders.length === 0 ? (
-            <p>No orders yet.</p>
-          ) : (
+          {loadingOrders ? <p>Loading orders...</p> :
+            orders.length === 0 ? <p>No orders yet.</p> :
             <div className="orders-list">
               {orders.map((order) => (
                 <div key={order._id || Math.random()} className="order-card-new">
                   <div className="order-header-new">
-                    <span
-                      className={`order-status ${
-                        order.status?.toLowerCase() === "delivered"
-                          ? "delivered"
-                          : order.status?.toLowerCase() === "pending"
-                          ? "pending"
-                          : "processing"
-                      }`}
-                    >
-                      {order.status || "Pending"}
+                    <span className={`order-status ${order.status?.toLowerCase()}`}>
+                      {order.status?.toLowerCase() === "rejected" ? "Cannot be delivered" : order.status || "Pending"}
                     </span>
                     <span className="order-total">Total: GH₵{order.total || 0}</span>
                     <span className="order-payment">
                       Payment: {order.paymentMethod?.toUpperCase() || "N/A"}
                     </span>
                   </div>
-
                   <div className="order-date-new">
-                    <small>
-                      Ordered on: {order.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}
-                    </small>
+                    <small>Ordered on: {order.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}</small>
                   </div>
-
                   <div className="order-items-new">
-                    {(order.items || []).map((item) => (
-                      <div key={item._id || Math.random()} className="order-item-new">
-                        <img
-                          src={item.product?.image || "/placeholder.png"}
-                          alt={item.product?.title || "Product"}
-                        />
-                        <div className="item-info">
-                          <p className="item-title">{item.product?.title || "Untitled"}</p>
-                          <p className="item-vendor">
-                            Vendor: {item.vendor?.username || "Unknown"}
-                          </p>
+                    {(order.items || []).map((item) => {
+                      let statusText = "Pending";
+                      let statusClass = "pending";
+                      switch ((item.status || "").toLowerCase()) {
+                        case "delivered": statusText = "Delivered"; statusClass = "delivered"; break;
+                        case "pending": statusText = "Pending"; statusClass = "pending"; break;
+                        case "processing":
+                        case "accepted":
+                        case "preparing":
+                        case "ready": statusText = "Processing"; statusClass = "processing"; break;
+                        case "rejected": statusText = "Cannot be delivered"; statusClass = "rejected"; break;
+                        default: statusText = item.status || "Pending"; statusClass = "pending";
+                      }
+                      return (
+                        <div key={item._id || Math.random()} className="order-item-new">
+                          <img src={item.product?.image || "/placeholder.png"} alt={item.product?.title || "Product"} />
+                          <div className="item-info">
+                            <p className="item-title">{item.product?.title || "Untitled"}</p>
+                            <p className="item-vendor">Vendor: {item.vendor?.username || "Unknown"}</p>
+                          </div>
+                          <div className="item-details-new">
+                            <p>Qty: {item.quantity || 0}</p>
+                            <p>GH₵{item.price || 0}</p>
+                            <span className={`order-status ${statusClass}`}>{statusText}</span>
+                          </div>
                         </div>
-                        <div className="item-details-new">
-                          <p>Qty: {item.quantity || 0}</p>
-                          <p>GH₵{item.price || 0}</p>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ))}
             </div>
-          )}
+          }
         </div>
       </div>
 
-      {/* --- Edit Modal --- */}
+      {/* Edit Modal */}
       {editingProduct && (
         <div className="modal-backdrop">
           <div className="edit-modal">

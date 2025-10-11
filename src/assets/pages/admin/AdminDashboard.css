@@ -1,5 +1,4 @@
 /* AdminDashboard.css */
-
 .admin-dashboard {
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -18,6 +17,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .card {
@@ -54,9 +54,45 @@
   margin-top: 2px;
 }
 
+.charts-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.chart {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
 .loader {
   text-align: center;
   padding: 3rem;
   font-size: 1.2rem;
   color: #333;
+}
+.recent-orders {
+  margin-top: 2rem;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.recent-orders table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.recent-orders th, .recent-orders td {
+  padding: 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.recent-orders th {
+  background-color: #f8f9fa;
 }

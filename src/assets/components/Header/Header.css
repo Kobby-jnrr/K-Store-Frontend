@@ -137,10 +137,22 @@ header {
 /* Right section: wishlist, cart, profile, logout */
 .right {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  width: 220px;
+  justify-content: space-between;
+  width: 300px;
 }
+
+
+/* Optional: make buttons uniform in size */
+.right button {
+  padding: 6px 10px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.3s;
+}
+
 
 .wishlist-button, .cart-button, .profile-button, .exit-button, .allP-button {
   background: linear-gradient(135deg, #8a6bcc, #1e3a8a);

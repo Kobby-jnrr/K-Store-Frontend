@@ -136,3 +136,54 @@
   opacity: 0.85;
   transform: translateY(-1px);
 }
+.order-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  font-weight: bold;
+  color: white;
+  font-size: 0.85rem;
+}
+
+.badge-pending {
+  background-color: #f59e0b; /* amber */
+}
+
+.badge-completed {
+  background-color: #16a34a; /* green */
+}
+
+.badge-rejected {
+  background-color: #dc2626; /* red */
+}
+.auto-pass-btn {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  margin-bottom: 1rem;
+  transition: all 0.3s;
+}
+
+.auto-pass-btn.on {
+  background-color: #16a34a; /* green */
+  color: white;
+}
+
+.auto-pass-btn.off {
+  background-color: #dc2626; /* red */
+  color: white;
+}
+
+.popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #111;
+  color: white;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  opacity: 0.9;
+  z-index: 1000;
+  font-weight: 500;
+}

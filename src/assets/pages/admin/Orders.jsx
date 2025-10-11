@@ -6,10 +6,21 @@ function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrders, setExpandedOrders] = useState({});
+  const [autoPass, setAutoPass] = useState(false);
+  const [popup, setPopup] = useState("");
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+    const interval = setInterval(fetchOrders, 5000); // Auto-refresh every 5 seconds
+    return () => clearInterval(interval);
+  }, [autoPass]);
+
+  const toggleAutoPass = () => {
+    const newValue = !autoPass;
+    setAutoPass(newValue);
+    setPopup(newValue ? "Auto Pass is ON" : "Manual Pass is ON");
+    setTimeout(() => setPopup(""), 2000);
+  };
 
   const fetchOrders = async () => {
     const urls = [
@@ -29,11 +40,22 @@ function Orders() {
       }
     }
 
+    if (autoPass) {
+      for (let order of fetchedOrders) {
+        for (let item of order.items) {
+          if (item.status === "pending") {
+            await updateItemStatus(order._id, item._id, "accepted", false);
+            item.status = "accepted";
+          }
+        }
+      }
+    }
+
     setOrders(fetchedOrders);
     setLoading(false);
   };
 
-  const updateItemStatus = async (orderId, itemId, status) => {
+  const updateItemStatus = async (orderId, itemId, status, refetch = true) => {
     const urls = [
       `https://k-store-backend.onrender.com/api/admin/orders/${orderId}/item/${itemId}`,
       `http://localhost:5000/api/admin/orders/${orderId}/item/${itemId}`,
@@ -43,12 +65,31 @@ function Orders() {
     for (let url of urls) {
       try {
         await axios.put(url, { status }, { headers: { Authorization: `Bearer ${token}` } });
-        fetchOrders();
+        if (refetch) fetchOrders();
         break;
       } catch (err) {
         console.warn(`Failed to update item at ${url}:`, err.message);
       }
     }
+  };
+
+  const passOrder = async (orderId) => {
+    const order = orders.find(o => o._id === orderId);
+    if (!order) return;
+
+    for (let item of order.items) {
+      if (item.status === "pending") {
+        await updateItemStatus(orderId, item._id, "accepted", false);
+        item.status = "accepted";
+      }
+    }
+
+    setOrders(prev =>
+      prev.map(o => (o._id === orderId ? { ...o, _passed: true } : o))
+    );
+
+    setPopup("Order Passed ✅");
+    setTimeout(() => setPopup(""), 2000);
   };
 
   const deleteOrder = async (orderId) => {
@@ -70,6 +111,34 @@ function Orders() {
     }
   };
 
+  const deleteCompletedOrders = async () => {
+    if (!window.confirm("Are you sure you want to delete all completed/rejected orders?")) return;
+
+    const completedOrders = orders.filter(order => getOrderStatus(order) !== "Pending");
+    const token = sessionStorage.getItem("token");
+
+    await Promise.all(
+      completedOrders.map(async (order) => {
+        const urls = [
+          `https://k-store-backend.onrender.com/api/admin/orders/${order._id}`,
+          `http://localhost:5000/api/admin/orders/${order._id}`,
+        ];
+        for (let url of urls) {
+          try {
+            await axios.delete(url, { headers: { Authorization: `Bearer ${token}` } });
+            break;
+          } catch (err) {
+            console.warn(`Failed to delete order ${order._id} at ${url}:`, err.message);
+          }
+        }
+      })
+    );
+
+    fetchOrders();
+    setPopup("All completed/rejected orders deleted ✅");
+    setTimeout(() => setPopup(""), 2000);
+  };
+
   const toggleVendor = (orderId, vendorId) => {
     setExpandedOrders(prev => ({
       ...prev,
@@ -80,11 +149,11 @@ function Orders() {
     }));
   };
 
-  if (loading) return <div className="loader">Loading orders...</div>;
-
-  // Separate orders
-  const pendingOrders = orders.filter(order => !order.items.every(p => p.status === "delivered"));
-  const completedOrders = orders.filter(order => order.items.every(p => p.status === "delivered"));
+  const getOrderStatus = (order) => {
+    const allRejected = order.items.every(item => item.status === "rejected");
+    const allCompleted = order.items.every(item => ["delivered", "rejected"].includes(item.status));
+    return allRejected ? "Rejected" : allCompleted ? "Completed" : "Pending";
+  };
 
   const renderOrders = (ordersList) =>
     ordersList.map(order => {
@@ -95,17 +164,25 @@ function Orders() {
         return acc;
       }, {});
 
+      const orderStatus = getOrderStatus(order);
+      const hasPending = order.items.some(item => item.status === "pending");
+
       return (
         <div key={order._id} className="order-card">
           <div className="order-header">
-            <strong>Order:</strong> {order._id.slice(0, 6)}...{order._id.slice(-4)} | 
+            <strong>Order:</strong> {order._id.slice(0, 6)}... | 
             <strong>Customer:</strong> {order.user.username} | 
             <strong>Total:</strong> GH₵{order.total} | 
-            <strong>Status:</strong>{" "}
-            {order.items.every(p => p.status === "delivered") ? "Delivered" :
-             order.items.some(p => p.status === "rejected") ? "Rejected" :
-             "Pending"}
+            <span className={`order-badge ${orderStatus === "Pending" ? "badge-pending" : orderStatus === "Completed" ? "badge-completed" : "badge-rejected"}`}>
+              {orderStatus}
+            </span>
           </div>
+
+          {!autoPass && hasPending && !order._passed && (
+            <div className="vendor-actions" style={{ padding: "10px 20px" }}>
+              <button className="pass-btn" onClick={() => passOrder(order._id)}>Pass Order</button>
+            </div>
+          )}
 
           <div className="vendors-list">
             {Object.values(itemsByVendor).map(group => {
@@ -130,21 +207,21 @@ function Orders() {
                       {group.products.map(p => (
                         <div key={p._id} className="vendor-product">
                           {p.product?.title} x {p.quantity} - Status: {p.status}
-
-                          {/* Workflow buttons */}
-                          {["accepted","preparing","ready"].includes(p.status) && (
-                            <div className="action-buttons">
-                              {p.status === "accepted" && (
-                                <button style={{ backgroundColor: "#4caf50" }} onClick={() => updateItemStatus(order._id, p._id, "preparing")}>Preparing</button>
-                              )}
-                              {p.status === "preparing" && (
-                                <button style={{ backgroundColor: "#4caf50" }} onClick={() => updateItemStatus(order._id, p._id, "ready")}>Ready</button>
-                              )}
-                              {p.status === "ready" && (
-                                <button style={{ backgroundColor: "#4caf50" }} onClick={() => updateItemStatus(order._id, p._id, "delivered")}>Delivered</button>
-                              )}
-                            </div>
-                          )}
+                          <div className="action-buttons">
+                            {["accepted","preparing","ready"].includes(p.status) && (
+                              <>
+                                {p.status === "accepted" && (
+                                  <button style={{ backgroundColor: "#4caf50" }} onClick={() => updateItemStatus(order._id, p._id, "preparing")}>Preparing</button>
+                                )}
+                                {p.status === "preparing" && (
+                                  <button style={{ backgroundColor: "#4caf50" }} onClick={() => updateItemStatus(order._id, p._id, "ready")}>Ready</button>
+                                )}
+                                {p.status === "ready" && (
+                                  <button style={{ backgroundColor: "#4caf50" }} onClick={() => updateItemStatus(order._id, p._id, "delivered")}>Delivered</button>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
                       ))}
                       <button className="delete-btn" onClick={() => deleteOrder(order._id)}>Delete Order</button>
@@ -158,15 +235,37 @@ function Orders() {
       );
     });
 
+  if (loading) return <div className="loader">Loading orders...</div>;
+
+  const pendingOrders = orders.filter(order => getOrderStatus(order) === "Pending");
+  const completedOrders = orders.filter(order => getOrderStatus(order) !== "Pending");
+
   return (
     <div className="orders-page">
       <h1>Orders Management 🛒</h1>
 
+      {/* Auto Pass Toggle */}
+      <div className="auto-pass-toggle" style={{ marginBottom: "1rem" }}>
+        <button className={`auto-pass-btn ${autoPass ? "on" : "off"}`} onClick={toggleAutoPass}>
+          {autoPass ? "Auto Pass" : "Manual Pass"}
+        </button>
+      </div>
+
+      {/* Popup */}
+      {popup && <div className="popup">{popup}</div>}
+
       <h2>Pending Orders</h2>
       {pendingOrders.length === 0 ? <p>No pending orders.</p> : renderOrders(pendingOrders)}
 
-      <h2>Completed Orders</h2>
-      {completedOrders.length === 0 ? <p>No completed orders yet.</p> : renderOrders(completedOrders)}
+      <h2 style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        Completed / Rejected Orders
+        {completedOrders.length > 0 && (
+          <button className="delete-btn" onClick={deleteCompletedOrders} style={{ padding: "0.5rem 1rem", fontSize: "0.9rem" }}>
+            Delete All Completed
+          </button>
+        )}
+      </h2>
+      {completedOrders.length === 0 ? <p>No completed or rejected orders yet.</p> : renderOrders(completedOrders)}
     </div>
   );
 }

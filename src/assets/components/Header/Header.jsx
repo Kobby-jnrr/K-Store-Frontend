@@ -1,26 +1,25 @@
 import "./Header.css";
 import { Link, useNavigate } from "react-router-dom";
 import Search from "./head-image/Search.png";
-import Wishlist from "./head-image/wishlist.png";
 import Cart from "./head-image/Cart.png";
 import Profile from "./head-image/user.png";
 import logo from "./head-image/Web-logo.png";
 import exit from "./head-image/logout.png";
 import allP from "./head-image/allProducts.png";
 import filter from "./head-image/filter.png";
+import Adder from "./head-image/Add.png";
+import MyOrders from "./head-image/Orders.png";
 import { useState } from "react";
 
-function Header({ totalItems, logout }) {
+function Header({ totalItems, logout, user }) {
   const navigate = useNavigate();
   const [showFilter, setShowFilter] = useState(false);
   const [searchInput, setSearchInput] = useState("");
 
   const toggleFilter = () => setShowFilter(!showFilter);
 
-  // Handle typing in search input
   const handleInputChange = (e) => setSearchInput(e.target.value);
 
-  // Handle search button click or Enter key
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchInput.trim() !== "") {
@@ -63,7 +62,6 @@ function Header({ totalItems, logout }) {
           <img src={Search} className="search-icon" alt="Search" />
         </button>
 
-        {/* Filter dropdown panel */}
         {showFilter && (
           <div className="filter-dropdown">
             <h4>Filter Products</h4>
@@ -91,27 +89,43 @@ function Header({ totalItems, logout }) {
         )}
       </div>
 
-      {/* Right section */}
+      {/* Right Section */}
       <div className="right">
-        <Link to={"/allProducts"}>
+        <Link to="/allProducts">
           <button className="allP-button">
             <img src={allP} className="allP" alt="All Products" />
           </button>
         </Link>
-        <button className="wishlist-button">
-          <img src={Wishlist} className="wishlist" alt="Wishlist" />
-        </button>
-        <Link to={"/cartPage"}>
+
+        {/* Vendor-only buttons */}
+        {user?.role === "vendor" && (
+          <>
+            <Link to="/addProduct">
+              <button className="cart-button">
+                <img src={Adder} className="cart" alt="Add Product" />
+              </button>
+            </Link>
+            <Link to="/vendor-orders">
+              <button className="cart-button">
+                <img src={MyOrders} className="cart" alt="My Orders" />
+              </button>
+            </Link>
+          </>
+        )}
+
+        <Link to="/cartPage">
           <button className="cart-button">
             <img src={Cart} className="cart" alt="Cart" />
             <p id="cartCount">{totalItems}</p>
           </button>
         </Link>
-        <Link to="userProfile">
+
+        <Link to="/userProfile">
           <button className="profile-button">
             <img src={Profile} className="user-profile" alt="Profile" />
           </button>
         </Link>
+
         <button className="exit-button" onClick={logout}>
           <img src={exit} className="exit" alt="Logout" />
         </button>

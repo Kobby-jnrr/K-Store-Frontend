@@ -3,7 +3,6 @@
     margin-top: 60px;
     padding: 10px;
     transition: margin-left 0.3s ease;
-
     min-height: 100vh;     /* ensure full viewport height */
     overflow-y: auto;      /* allow vertical scroll */
 }
@@ -43,26 +42,27 @@
     line-height: 5px;
 }
 
-.go-cart, .addproduct {
-    padding: 10px;
+/* Cart Button */
+.go-cart {
+    padding: 10px 15px;
     color: white;
     border: none;
     border-radius: 9px;
     cursor: pointer;
     position: fixed;
-    top: 90vh;  /* you can also adjust to be relative if preferred */
-}
-
-.go-cart {
-    background: rgb(17, 194, 17);
+    top: 90vh;
     right: 20px;
-}
-
-.addproduct {
     background: rgb(17, 194, 17);
-    right: 150px;
+    font-weight: bold;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    transition: 0.2s;
 }
 
+.go-cart:hover {
+    opacity: 0.9;
+}
+
+/* Responsive Adjustments */
 @media(max-width: 750px) {
     .main {
         margin-left: 160px;
@@ -73,19 +73,4 @@
     .main {
         margin-left: 0;
     }
-}
-.vendor-orders-btn {
-    padding: 10px;
-    color: white;
-    border: none;
-    border-radius: 9px;
-    cursor: pointer;
-    position: fixed;
-    top: 82vh;  /* position above other buttons */
-    right: 20px;
-    background: rgb(255, 140, 0); /* Orange */
-}
-
-.vendor-orders-btn:hover {
-    opacity: 0.9;
 }

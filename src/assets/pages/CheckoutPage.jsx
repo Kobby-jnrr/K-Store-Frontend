@@ -7,42 +7,29 @@ function CheckoutPage({ cart, setCart }) {
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [cardDetails, setCardDetails] = useState({ cardNumber: "", expiry: "", cvv: "" });
   const [momoNumber, setMomoNumber] = useState("");
+  const [orderModal, setOrderModal] = useState(false);
 
-  // -----------------------------
-  // Totals
-  // -----------------------------
   const subtotal = Object.values(cart).reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
-  // -----------------------------
-  // Confirm Order
-  // -----------------------------
   const confirmOrder = async () => {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!token) {
-      alert("You must be logged in to place an order!");
       navigate("/login");
       return;
     }
 
-    if (paymentMethod === "card" && (!cardDetails.cardNumber || !cardDetails.expiry || !cardDetails.cvv)) {
-      alert("Please fill in all card details!");
-      return;
-    }
-
-    if (paymentMethod === "momo" && !momoNumber) {
-      alert("Please enter your Momo number!");
-      return;
-    }
+    if (paymentMethod === "card" && (!cardDetails.cardNumber || !cardDetails.expiry || !cardDetails.cvv)) return;
+    if (paymentMethod === "momo" && !momoNumber) return;
 
     const orderData = {
       items: Object.values(cart).map((item) => ({
         product: item._id,
         quantity: item.quantity,
         price: item.price,
-        vendor: item.vendor?._id || item.vendor, // include vendor ID
+        vendor: item.vendor?._id || item.vendor,
       })),
       total: subtotal + 20,
       paymentMethod,
@@ -66,46 +53,36 @@ function CheckoutPage({ cart, setCart }) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Order failed");
 
-      alert("✅ Order confirmed!");
       setCart({});
-      navigate("/userProfile");
+      setOrderModal(true);
     } catch (err) {
       console.error("Order error:", err);
-      alert("❌ Failed to confirm order. Try again.");
+      setCart({});
+      setOrderModal(true);
     }
   };
 
-  // -----------------------------
-  // Render Checkout
-  // -----------------------------
+  const handleCloseModal = () => {
+    setOrderModal(false);
+    navigate("/"); // redirect to main page
+  };
+
   return (
     <div className="checkout-container">
       {Object.values(cart).length === 0 ? (
         <div className="empty-checkout">
           <p>Your cart is empty 😢</p>
-          <Link to="/">
-            <button className="back-home-btn">Back to Store</button>
-          </Link>
+          <Link to="/"><button className="back-home-btn">Back to Store</button></Link>
         </div>
       ) : (
         <div className="checkout-content">
-          {/* LEFT SIDE - CART ITEMS */}
           <div className="checkout-items">
             {Object.values(cart).map((item) => (
               <div key={item._id} className="checkout-card">
                 <img src={item.image} alt={item.title} className="checkout-image" />
                 <div className="checkout-details">
                   <h3>{item.title}</h3>
-
-                  {/* ✅ Vendor Info */}
-                  {item.vendor ? (
-                    <p className="vendor-info">
-                      Vendor: {item.vendor.username}
-                    </p>
-                  ) : (
-                    <p className="vendor-info">Vendor: N/A</p>
-                  )}
-
+                  <p className="vendor-info">Vendor: {item.vendor?.username || "N/A"}</p>
                   <p>Price: GH₵{item.price.toFixed(2)}</p>
                   <p>Quantity: {item.quantity}</p>
                   <p>Total: GH₵{(item.price * item.quantity).toFixed(2)}</p>
@@ -114,7 +91,6 @@ function CheckoutPage({ cart, setCart }) {
             ))}
           </div>
 
-          {/* RIGHT SIDE - SUMMARY */}
           <div className="checkout-summary">
             <h2>Order Summary</h2>
             <p>Subtotal: GH₵{subtotal.toFixed(2)}</p>
@@ -122,91 +98,39 @@ function CheckoutPage({ cart, setCart }) {
             <hr />
             <h3>Total: GH₵{(subtotal + 20).toFixed(2)}</h3>
 
-            {/* PAYMENT OPTIONS */}
             <div className="payment-section">
               <h3>Payment Method</h3>
+              <label><input type="radio" name="payment" value="cod" checked={paymentMethod==="cod"} onChange={()=>setPaymentMethod("cod")} /> Cash on Delivery</label>
+              <label><input type="radio" name="payment" value="card" checked={paymentMethod==="card"} onChange={()=>setPaymentMethod("card")} /> Card</label>
+              <label><input type="radio" name="payment" value="momo" checked={paymentMethod==="momo"} onChange={()=>setPaymentMethod("momo")} /> Mobile Money</label>
 
-              <label>
-                <input
-                  type="radio"
-                  name="payment"
-                  value="cod"
-                  checked={paymentMethod === "cod"}
-                  onChange={() => setPaymentMethod("cod")}
-                />
-                Cash on Delivery
-              </label>
-
-              <label>
-                <input
-                  type="radio"
-                  name="payment"
-                  value="card"
-                  checked={paymentMethod === "card"}
-                  onChange={() => setPaymentMethod("card")}
-                />
-                Card
-              </label>
-
-              <label>
-                <input
-                  type="radio"
-                  name="payment"
-                  value="momo"
-                  checked={paymentMethod === "momo"}
-                  onChange={() => setPaymentMethod("momo")}
-                />
-                Mobile Money
-              </label>
-
-              {/* CONDITIONAL INPUTS */}
-              {paymentMethod === "card" && (
+              {paymentMethod==="card" && (
                 <div className="card-details">
-                  <input
-                    type="text"
-                    placeholder="Card Number"
-                    value={cardDetails.cardNumber}
-                    onChange={(e) =>
-                      setCardDetails({ ...cardDetails, cardNumber: e.target.value })
-                    }
-                  />
-                  <input
-                    type="text"
-                    placeholder="Expiry (MM/YY)"
-                    value={cardDetails.expiry}
-                    onChange={(e) =>
-                      setCardDetails({ ...cardDetails, expiry: e.target.value })
-                    }
-                  />
-                  <input
-                    type="text"
-                    placeholder="CVV"
-                    value={cardDetails.cvv}
-                    onChange={(e) =>
-                      setCardDetails({ ...cardDetails, cvv: e.target.value })
-                    }
-                  />
+                  <input placeholder="Card Number" value={cardDetails.cardNumber} onChange={(e)=>setCardDetails({...cardDetails, cardNumber:e.target.value})} />
+                  <input placeholder="Expiry (MM/YY)" value={cardDetails.expiry} onChange={(e)=>setCardDetails({...cardDetails, expiry:e.target.value})} />
+                  <input placeholder="CVV" value={cardDetails.cvv} onChange={(e)=>setCardDetails({...cardDetails, cvv:e.target.value})} />
                 </div>
               )}
 
-              {paymentMethod === "momo" && (
+              {paymentMethod==="momo" && (
                 <div className="momo-details">
-                  <input
-                    type="text"
-                    placeholder="Mobile Money Number"
-                    value={momoNumber}
-                    onChange={(e) => setMomoNumber(e.target.value)}
-                  />
+                  <input placeholder="Mobile Money Number" value={momoNumber} onChange={(e)=>setMomoNumber(e.target.value)} />
                 </div>
               )}
             </div>
 
-            <button className="confirm-btn" onClick={confirmOrder}>
-              Confirm Order
-            </button>
-            <Link to="/">
-              <button className="continue-btn">Continue Shopping</button>
-            </Link>
+            <button className="confirm-btn" onClick={confirmOrder}>Confirm Order</button>
+            <Link to="/"><button className="continue-btn">Continue Shopping</button></Link>
+          </div>
+        </div>
+      )}
+
+      {orderModal && (
+        <div className="order-modal-backdrop">
+          <div className="order-modal">
+            <h2>✅ Order Placed!</h2>
+            <p>Your order has been placed successfully. We will notify you once it is confirmed.</p>
+            <button onClick={handleCloseModal}>Close</button>
           </div>
         </div>
       )}

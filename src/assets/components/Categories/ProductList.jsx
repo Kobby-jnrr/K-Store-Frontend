@@ -9,9 +9,7 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // -----------------------------
-  // Fetch products with fallback
-  // -----------------------------
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -19,30 +17,24 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
       const url = category ? `/products/${category}` : "/products";
 
       try {
-        // Try deployed backend first
         const res = await API.fallbackRequest("get", url);
         setProducts(res.data);
-      } catch (err) {
-        console.warn("Deployed backend failed, trying localhost...", err);
+      } catch {
         try {
-          // Fallback to localhost
           const localRes = await axios.get(`http://localhost:5000/api${url}`);
           setProducts(localRes.data);
         } catch (err) {
-          console.error("All backend requests failed:", err);
+          console.error(err);
           setError("Failed to load products. Please try again later.");
         }
       } finally {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, [category]);
 
-  // -----------------------------
-  // Filter products by search & price
-  // -----------------------------
+  // Filter products
   useEffect(() => {
     let filtered = [...products];
 
@@ -66,9 +58,7 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
     setFilteredProducts(filtered);
   }, [products, searchQuery, priceRange]);
 
-  // -----------------------------
   // Cart management
-  // -----------------------------
   const addToCart = (product) =>
     setCart({ ...cart, [product._id]: { ...product, quantity: 1 } });
 
@@ -85,9 +75,6 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
     }
   };
 
-  // -----------------------------
-  // Render products
-  // -----------------------------
   if (loading) return <p>Loading products...</p>;
   if (error) return <p className="error">{error}</p>;
 
@@ -96,10 +83,10 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
       {filteredProducts.length === 0 && <p>No products found.</p>}
 
       {filteredProducts.map((item) => (
-        <div key={item._id} className="product">
-          <img src={item.image} alt={item.title} className="pp" />
+        <div key={item._id} className="product-card">
+          <img src={item.image} alt={item.title} className="product-img" />
           <h4>{item.title}</h4>
-          <p>GH₵{item.price}</p>
+          <p className="price">GH₵{item.price}</p>
           {item.vendor && (
             <p className="vendor-name">
               Vendor: {item.vendor.username}
