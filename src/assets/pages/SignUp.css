@@ -34,6 +34,7 @@ body {
   overflow: hidden;
   background-color: rgba(255, 255, 255, 0.85);
   box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  position: relative;
 }
 
 /* Left panel */
@@ -108,7 +109,9 @@ body {
   transition: 0.3s;
 }
 
-.signup-form button:hover { background-color: #6e50aa; }
+.signup-form button:hover {
+  background-color: #6e50aa;
+}
 
 .error { color: red; text-align: center; margin-top: 1vh; }
 .success { color: green; text-align: center; margin-top: 1vh; }
@@ -151,22 +154,37 @@ body {
   gap: 5px;
 }
 
-/* -------- MOBILE RESPONSIVE -------- */
-@media (max-width: 800px) {
+/* Hidden by default */
+.signup-logo-top {
+  display: none;
+}
+
+/* -------- TABLET (hide left panel, logo on top) -------- */
+@media (max-width: 1024px) {
   .signup-left {
     display: none;
   }
 
   .signup-container {
-    width: 95vw;
+    width: 100vw;
     height: auto;
     min-height: 100vh;
     margin: 0;
     border-radius: 0;
     flex-direction: column;
-    justify-content: center;
-    background-color: rgba(255, 255, 255, 0.95);
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #ffffff;
     box-shadow: none;
+    padding-top: 5vh;
+  }
+
+  .signup-logo-top {
+    display: block;
+    width: 35%;
+    max-width: 160px;
+    border-radius: 10px;
+    margin-bottom: -100px;
   }
 
   .signup-right {
@@ -194,5 +212,27 @@ body {
 
   .signup-bg {
     filter: blur(30px);
+  }
+}
+
+/* -------- MOBILE (smaller font/padding) -------- */
+@media (max-width: 768px) {
+  .signup-logo-top {
+    width: 40%;
+    max-width: 140px;
+    margin-bottom: 2vh;
+  }
+
+  .signup-form input,
+  .signup-form select,
+  .signup-form button {
+    font-size: 0.9em;
+    padding: 0.8em;
+  }
+
+  .signup-text,
+  .error,
+  .success {
+    font-size: 0.85em;
   }
 }

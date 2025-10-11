@@ -43,7 +43,6 @@ function SignUp({ setUser }) {
       };
 
       const data = await registerUser(userData);
-      console.log("Signup response:", data);
 
       sessionStorage.setItem("token", data.accessToken);
       sessionStorage.setItem("user", JSON.stringify(data.user));
@@ -52,7 +51,6 @@ function SignUp({ setUser }) {
       setSuccess("Account created! Redirecting...");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      console.error("Signup error:", err);
       setError(err.response?.data?.msg || err.message || "Signup failed. Try again.");
     } finally {
       setLoading(false);
@@ -64,6 +62,9 @@ function SignUp({ setUser }) {
       <div className="signup-bg"></div>
 
       <div className="signup-container">
+        {/* Mobile/Tablet logo */}
+        <img src={logo} alt="Logo" className="signup-logo-top" />
+
         <div className="signup-left">
           <img src={logo} alt="Logo" className="signup-logo" />
           <h1>Welcome to K-Store!</h1>
@@ -118,11 +119,7 @@ function SignUp({ setUser }) {
             </select>
 
             <button type="submit" disabled={loading} className="signup-button">
-              {loading ? (
-                <span className="spinner"></span>
-              ) : (
-                "Create Account"
-              )}
+              {loading ? <span className="spinner"></span> : "Create Account"}
             </button>
 
             {error && <p className="error">{error}</p>}
