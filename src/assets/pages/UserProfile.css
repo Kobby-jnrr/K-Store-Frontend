@@ -303,3 +303,35 @@
 .customer-grid {
   grid-template-columns: 1fr 2fr;
 }
+
+.confirm-modal {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.confirm-modal h3 {
+  margin-bottom: 10px;
+}
+
+.confirm-modal .modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.confirm-modal .delete-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.confirm-modal .delete-btn:hover {
+  background: #b91c1c;
+}

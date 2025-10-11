@@ -11,6 +11,7 @@ const UserProfile = () => {
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null); // 👈 for delete modal
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -93,13 +94,43 @@ const UserProfile = () => {
     setLoadingOrders(false);
   };
 
-  // ✅ Product edit + delete (local simulation)
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this product?")) return;
-    setProducts((prev) => prev.filter((p) => p._id !== id));
-    toast.success("Product deleted (local dev)!");
+  // ✅ Delete product with confirmation modal
+  const confirmDeleteProduct = (product) => {
+    setConfirmDelete(product);
   };
 
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
+    const id = confirmDelete._id;
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) {
+      toast.error("You must be logged in to delete a product.");
+      return;
+    }
+
+    try {
+      for (let base of API_BASES) {
+        try {
+          await axios.delete(`${base}/products/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          break;
+        } catch (err) {
+          console.warn(`Failed to delete from ${base}:`, err.message);
+        }
+      }
+
+      setProducts((prev) => prev.filter((p) => p._id !== id));
+      toast.success("🗑️ Product deleted successfully!");
+    } catch (err) {
+      console.error("Delete failed:", err);
+      toast.error("❌ Failed to delete product.");
+    } finally {
+      setConfirmDelete(null);
+    }
+  };
+
+  // ✅ Product edit modal
   const openEditModal = (product) => {
     setEditingProduct(product);
     setFormData({
@@ -215,7 +246,7 @@ const UserProfile = () => {
                     <p>GH₵{p.price || 0}</p>
                     <div className="product-actions">
                       <button onClick={() => openEditModal(p)}>Edit</button>
-                      <button onClick={() => handleDelete(p._id)}>Delete</button>
+                      <button onClick={() => confirmDeleteProduct(p)}>Delete</button>
                     </div>
                   </div>
                 ))}
@@ -330,6 +361,20 @@ const UserProfile = () => {
             <div className="modal-actions">
               <button onClick={saveEdit}>Save</button>
               <button onClick={closeEditModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {confirmDelete && (
+        <div className="modal-backdrop">
+          <div className="confirm-modal">
+            <h3>Are you sure you want to delete this product?</h3>
+            <p><strong>{confirmDelete.title}</strong> will be permanently removed.</p>
+            <div className="modal-actions">
+              <button className="delete-btn" onClick={handleDelete}>Yes, Delete</button>
+              <button onClick={() => setConfirmDelete(null)}>Cancel</button>
             </div>
           </div>
         </div>
