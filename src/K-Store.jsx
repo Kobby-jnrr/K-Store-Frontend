@@ -1,25 +1,64 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Menu } from "lucide-react"; // hamburger icon
 
 import Header from "./assets/components/Header/Header.jsx";
 import Sidebar from "./assets/components/Sidebar/Sidebar.jsx";
 import Footer from "./assets/components/Footer/Footer.jsx";
-import Main from "./assets/pages/Main-body.jsx";
+import Main from "./assets/pages/Body/Main-body.jsx";
 import LoginPage from "./assets/pages/Login.jsx";
 import SignUp from "./assets/pages/Signup.jsx";
-import CartPage from "./assets/pages/CartPage.jsx";
-import UserProfile from "./assets/pages/UserProfile.jsx";
-import VendorAddProduct from "./assets/pages/AddProduct.jsx";
-import AllProducts from "./assets/pages/AllProducts.jsx";
-import CheckoutPage from "./assets/pages/CheckoutPage.jsx";
+import CartPage from "./assets/pages/Body/CartPage.jsx";
+import UserProfile from "./assets/pages/Body/UserProfile.jsx";
+import VendorAddProduct from "./assets/pages/Body/AddProduct.jsx";
+import AllProducts from "./assets/pages/Body/AllProducts.jsx";
+import CheckoutPage from "./assets/pages/Body/CheckoutPage.jsx";
 import AdminLayout from "./assets/pages/admin/AdminLayout.jsx";
-import VendorOrders from "./assets/pages/VendorOrders.jsx";
+import VendorOrders from "./assets/pages/Body/VendorOrders.jsx";
 
 function AppLayout({ cart, setCart, totalItems, logout, user }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+
+  // Show sidebar only on main page
+  const showSidebar = location.pathname === "/";
+
+  useEffect(() => {
+    if (sidebarOpen) document.body.classList.add("sidebar-open");
+    else document.body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
+
   return (
     <div className="app-layout">
       <Header totalItems={totalItems} logout={logout} user={user} />
-      <Sidebar />
+
+      {/* Hamburger icon - visible only on mobile */}
+      {showSidebar && (
+        <button
+          className="sidebar-toggle"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          style={{
+            position: "fixed",
+            top: "15px",
+            left: "15px",
+            zIndex: "1200",
+            background: "#1e3a8a",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            padding: "6px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Menu size={22} />
+        </button>
+      )}
+
+      {/* Sidebar (only shows on main page) */}
+      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />}
+
       <Routes>
         <Route path="/" element={<Main cart={cart} setCart={setCart} />} />
         <Route path="/allProducts" element={<AllProducts cart={cart} setCart={setCart} />} />
@@ -30,6 +69,7 @@ function AppLayout({ cart, setCart, totalItems, logout, user }) {
         <Route path="/checkout" element={<CheckoutPage cart={cart} setCart={setCart} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
       <Footer />
     </div>
   );

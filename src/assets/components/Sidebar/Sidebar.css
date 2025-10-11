@@ -107,3 +107,47 @@ a:hover {
     left: -220px;
   }
 }
+/* === EXISTING STYLES (keep yours) === */
+/* Add this at the bottom of Sidebar.css */
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+    left: -200px;
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+    background: linear-gradient(180deg, #8a6bcc, #1e3a8a);
+    transition: left 0.3s ease;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .sidebar-toggle {
+    top: 15px;
+    left: 10px;
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+    border-radius: 50%;
+    z-index: 1100;
+  }
+
+  body.sidebar-open::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 900;
+  }
+
+  .head-container {
+    font-size: 18px;
+  }
+
+  .container {
+    padding: 10px;
+  }
+}

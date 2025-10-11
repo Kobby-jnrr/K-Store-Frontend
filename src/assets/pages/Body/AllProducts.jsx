@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ProductList from "../components/Categories/ProductList";
+import ProductList from "../../components/Categories/ProductList";
 import "./AllProducts.css";
 import { useLocation } from "react-router-dom";
 

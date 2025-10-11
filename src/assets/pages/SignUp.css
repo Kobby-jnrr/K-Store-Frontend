@@ -4,7 +4,7 @@ body {
   overflow: hidden;
 }
 
-/* Background gradient blur */
+/* Background */
 .signup-bg {
   position: fixed;
   top: 0;
@@ -127,7 +127,7 @@ body {
 
 .signup-text a:hover { text-decoration: underline; }
 
-/* Spinner on button */
+/* Spinner */
 .spinner {
   width: 20px;
   height: 20px;
@@ -151,8 +151,48 @@ body {
   gap: 5px;
 }
 
-/* Responsive: hide left panel on small screens */
-@media (max-width: 1000px) {
-  .signup-left { display: none; }
-  .signup-container { width: 90vw; height: auto; }
+/* -------- MOBILE RESPONSIVE -------- */
+@media (max-width: 800px) {
+  .signup-left {
+    display: none;
+  }
+
+  .signup-container {
+    width: 95vw;
+    height: auto;
+    min-height: 100vh;
+    margin: 0;
+    border-radius: 0;
+    flex-direction: column;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: none;
+  }
+
+  .signup-right {
+    width: 100%;
+    padding: 5%;
+  }
+
+  .signup-form {
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .signup-form input,
+  .signup-form select,
+  .signup-form button {
+    font-size: 0.95em;
+    padding: 0.9em;
+  }
+
+  .signup-text,
+  .error,
+  .success {
+    font-size: 0.9em;
+  }
+
+  .signup-bg {
+    filter: blur(30px);
+  }
 }

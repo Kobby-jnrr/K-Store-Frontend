@@ -74,3 +74,36 @@
         margin-left: 0;
     }
 }
+
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+    margin-top: 80px;
+    padding: 5px;
+  }
+
+  .promo {
+    font-size: 18px;
+    padding: 15px 10px;
+    text-align: center;
+  }
+
+  section h2 {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .product-list {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+  }
+
+  .go-cart {
+    position: fixed;
+    bottom: 20px;
+    right: 15px;
+    top: auto;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+}

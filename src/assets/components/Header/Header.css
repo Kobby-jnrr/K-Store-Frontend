@@ -224,3 +224,60 @@ header {
     display: none;
   } 
 }
+
+@media (max-width: 768px) {
+  header {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px;
+    justify-content: space-between;
+  }
+
+  .left .logo {
+    width: 55px;
+  }
+
+  .middle {
+    width: 100%;
+    margin-top: 10px;
+    justify-content: center;
+  }
+
+  .search {
+    width: 75%;
+    max-width: none;
+    border-radius: 25px;
+    margin-right: 5px;
+  }
+
+  .search-button {
+    border-radius: 25px;
+  }
+
+  .filter-button {
+    display: none;
+  }
+
+  .right {
+    width: 100%;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .right button {
+    padding: 4px 6px;
+  }
+
+  .cart-button p {
+    top: -10px;
+    right: -5px;
+  }
+
+  .filter-dropdown {
+    position: static;
+    margin-top: 10px;
+    width: 100%;
+  }
+}

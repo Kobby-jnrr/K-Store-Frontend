@@ -1,4 +1,4 @@
-import ProductList from "../components/Categories/ProductList";
+import ProductList from "../../components/Categories/ProductList";
 import "./Main-body.css";
 import { Link } from "react-router-dom";
 
