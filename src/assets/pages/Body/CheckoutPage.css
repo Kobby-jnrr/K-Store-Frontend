@@ -1,3 +1,4 @@
+/* ===================== General Container ===================== */
 .checkout-container {
   margin-top: 80px;
   padding: 20px;
@@ -8,6 +9,7 @@
   background: #f5f5f5;
 }
 
+/* ===================== Empty Cart ===================== */
 .empty-checkout {
   display: flex;
   flex-direction: column;
@@ -27,21 +29,32 @@
   cursor: pointer;
 }
 
+.back-home-btn:hover {
+  background: #0056b3;
+}
+
+/* ===================== Checkout Content ===================== */
 .checkout-content {
   display: flex;
   gap: 20px;
   width: 150vh;
 }
 
+/* Checkout Items - 2 Columns for all screen sizes */
 .checkout-items {
   flex: 2;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+  max-height: calc(100vh - 140px); /* make products scrollable */
+  overflow-y: auto;
+  padding-bottom: 20px;
 }
 
+/* Individual Checkout Card */
 .checkout-card {
   display: flex;
+  flex-direction: column;
   background: white;
   border-radius: 10px;
   padding: 20px;
@@ -49,32 +62,31 @@
 }
 
 .checkout-image {
-  width: 220px;
+  width: 100%;
   height: 220px;
   object-fit: cover;
   border-radius: 10px;
+  margin-bottom: 10px;
 }
 
 .checkout-details {
   flex: 1;
-  padding: 0 30px;
+  padding: 0 10px;
 }
 
+/* Checkout Summary */
 .checkout-summary {
   flex: 1;
   background: white;
   padding: 30px;
   border-radius: 10px;
   height: fit-content;
-  position: sticky;
-  top: 100px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-height: calc(100vh - 100px); /* prevent it from growing too tall */
+  overflow-y: auto;
 }
 
-.checkout-summary h2 {
-  margin-top: 0;
-}
-
+/* Payment Section */
 .payment-section {
   margin-top: 15px;
 }
@@ -101,6 +113,7 @@
   border: 1px solid #ccc;
 }
 
+/* Buttons */
 .confirm-btn {
   margin-top: 20px;
   width: 100%;
@@ -133,7 +146,7 @@
   background: #0056b3;
 }
 
-/* Modal */
+/* ===================== Modal ===================== */
 .order-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -173,13 +186,87 @@
   background: #0056b3;
 }
 
-/* Responsive */
+/* ===================== Responsive Checkout (Tablet & Mobile) ===================== */
 @media(max-width: 1000px) {
-  .checkout-content {
-    flex-direction: column;
+
+  .footer{
+    display: none;
   }
+
+  .checkout-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-height: 100vh;
+  }
+
+  /* Checkout Items Grid */
+  .checkout-items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 10px;
+    max-height: 70vh; /* scrollable if many products */
+    overflow-y: auto;
+    padding-bottom: 20px;
+  }
+
+  /* Checkout Card */
+  .checkout-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    gap: 5px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+
+  .checkout-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 5px;
+  }
+
+  .checkout-details {
+    padding: 0;
+    width: 100%;
+  }
+
+  .checkout-details h3,
+  .checkout-details p {
+    font-size: 13px;
+    margin: 2px 0;
+  }
+
+  /* Payment / Inputs */
+  .card-details input,
+  .momo-details input {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  .payment-section label {
+    font-size: 12px;
+  }
+
+  /* Buttons */
+  .confirm-btn,
+  .continue-btn {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  /* Order Summary */
   .checkout-summary {
-    position: relative;
-    top: auto;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+    font-size: 13px;
+    width: 100%;
+    margin: 0 -20px -100px -20px; /* stick to bottom */
   }
 }

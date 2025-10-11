@@ -18,7 +18,7 @@ function AllProducts({ cart, setCart }) {
 
   return (
     <main className="main">
-      <h1>All Products</h1>
+      <h1 className="h1head">All Products</h1>
 
       {/* Price Filter */}
       <div className="filters">

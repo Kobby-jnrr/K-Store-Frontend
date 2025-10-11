@@ -38,3 +38,51 @@
     margin-left: 0;
   }
 }
+/* ===================== All Products - Smaller Text for Mobile & Tablet ===================== */
+@media (max-width: 950px) {
+  .h1head {
+    font-size: 40px;
+  }
+  .all-products-main,
+  .all-products-main h1,
+  .filters label,
+  .filters select,
+  .filters select option,
+  .product-card h4,
+  .product-card p,
+  .product-actions button {
+    font-size: 0.85rem; /* smaller text */
+  }
+
+  .filters select {
+    padding: 6px 8px;
+  }
+
+  .product-actions button {
+    padding: 4px 6px;
+  }
+}
+
+@media (max-width: 600px) {
+  .h1head {
+    font-size: 30px;
+  }
+  .all-products-main,
+  .all-products-main h1,
+  .filters label,
+  .filters select,
+  .filters select option,
+  .product-card h4,
+  .product-card p,
+  .product-actions button {
+    font-size: 0.75rem; /* extra small text on mobile */
+  }
+
+  .filters select {
+    padding: 4px 6px;
+  }
+
+  .product-actions button {
+    padding: 3px 5px;
+  }
+}

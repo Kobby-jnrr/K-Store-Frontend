@@ -258,3 +258,91 @@
   border: 1px solid #ccc;
   margin-bottom: 10px;
 }
+/* ===================== Responsive Vendor Products (Tablet & Mobile) ===================== */
+@media (max-width: 950px) {
+  .products-container {
+    flex-direction: column;
+    gap: 15px;
+    height: auto;
+  }
+
+  .half-section {
+    padding: 15px;
+    border-radius: 8px;
+  }
+
+  /* Products List Grid */
+  .products-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile/tablet */
+    gap: 10px;
+    max-height: 70vh; /* scrollable if many products */
+    overflow-y: auto;
+    padding-right: 5px;
+  }
+
+  /* Product Card */
+  .product-card {
+    padding: 8px;
+    border-radius: 8px;
+  }
+
+  .product-card img {
+    height: 100px; /* smaller images */
+  }
+
+  .product-card h4 {
+    font-size: 0.95rem; /* smaller text */
+  }
+
+  .product-card p {
+    font-size: 0.8rem;
+  }
+
+  .product-actions {
+    gap: 6px;
+  }
+
+  .product-actions button {
+    font-size: 0.75rem;
+    padding: 4px 6px;
+  }
+
+  /* Edit Form */
+  .edit-form {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .edit-form input,
+  .edit-form select,
+  .edit-form textarea {
+    font-size: 0.8rem;
+    padding: 6px 8px;
+  }
+
+  .edit-form button {
+    font-size: 0.75rem;
+    padding: 6px;
+  }
+
+  /* Form inputs & buttons in Add Product */
+  .vendor-form input,
+  .vendor-form select,
+  .vendor-form textarea {
+    font-size: 0.85rem;
+    padding: 8px 10px;
+  }
+
+  .add-product-button {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+
+  /* Headings */
+  .addhead,
+  .vendor-form h3,
+  .edit-products h3 {
+    font-size: 1.2rem;
+  }
+}

@@ -61,7 +61,10 @@ function CartPage({ cart, setCart }) {
                 <button className="remove-btn" onClick={() => removeItem(item._id)}>Remove</button>
               </div>
               <div className="cart-price">
-                GH₵{(item.price * item.quantity).toFixed(2)}
+                Price :GH₵{(item.price).toFixed(2)}
+              </div>
+              <div className="cart-total">
+                Total: GH₵{(item.price * item.quantity).toFixed(2)}
               </div>
             </div>
           ))}
