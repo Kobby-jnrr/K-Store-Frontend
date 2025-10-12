@@ -77,7 +77,7 @@ function Store() {
         {/* Admin Routes */}
         <Route
           path="/admin/*"
-          element={user?.role === "admin" ? <AdminLayout user={user} /> : <Navigate to="/login" replace />}
+          element={user?.role === "admin" ? <AdminLayout user={user} logout={logout} /> : <Navigate to="/login" replace />}
         />
 
         {/* Authenticated user/vendor routes */}

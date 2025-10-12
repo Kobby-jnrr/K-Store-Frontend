@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Header from "../../components/Header/Header.jsx";
+import AdminHeader from "./AdminHeader.jsx";
 import AdminSidebar from "./AdminSidebar.jsx";
 import AdminDashboard from "./AdminDashboard.jsx";
 import Vendors from "./Vendors.jsx";
@@ -10,20 +10,35 @@ import Orders from "./Orders.jsx";
 
 import "./AdminLayout.css";
 
-function AdminLayout({ user }) {
+function AdminLayout({ user, logout }) {
   if (!user || user.role !== "admin") {
     return <Navigate to="/login" replace />;
   }
 
+  const handleAddUser = () => {
+    // Navigate to create user page or open modal
+    console.log("Add User clicked");
+  };
+
+  const handleAddProduct = () => {
+    // Navigate to add product page
+    console.log("Add Product clicked");
+  };
+
   return (
     <div className="admin-layout">
-      {/* Header */}
-      <Header user={user} />
+      {/* Admin Header */}
+      <AdminHeader
+        user={user}
+        logout={logout}           // matches AdminHeader's logout prop
+        onAddUser={handleAddUser}
+        onAddProduct={handleAddProduct}
+      />
 
       {/* Sidebar */}
       <AdminSidebar />
 
-      {/* Main content */}
+      {/* Main Content */}
       <div className="admin-content">
         <Routes>
           <Route path="dashboard" element={<AdminDashboard />} />

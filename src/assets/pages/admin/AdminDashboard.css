@@ -96,3 +96,40 @@
 .recent-orders th {
   background-color: #f8f9fa;
 }
+/* Dashboard stats and charts responsiveness */
+@media (max-width: 1024px) {
+  .stats-cards {
+    flex-direction: column;
+  }
+
+  .charts-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .chart {
+    width: 100% !important;
+    overflow-x: auto;
+  }
+}
+
+/* Small screens <= 768px */
+@media (max-width: 768px) {
+  .stats-cards, .charts-container {
+    flex-direction: column;
+  }
+
+  .chart, .recent-orders table {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .recent-orders {
+    padding: 0.5rem;
+  }
+
+  .recent-orders th, .recent-orders td {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+}

@@ -169,3 +169,85 @@
   background-color: #ffcc00;
   color: #1e3a8a;
 }
+/* ---------- ADD USER FORM ---------- */
+.add-user-form {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-user-form h3 {
+  width: 100%;
+  margin-bottom: 10px;
+  color: #1e3a8a;
+  font-size: 1.2rem;
+}
+
+.add-user-form input,
+.add-user-form select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 180px;
+  box-sizing: border-box;
+  transition: border 0.3s;
+}
+
+.add-user-form input:focus,
+.add-user-form select:focus {
+  outline: none;
+  border-color: #1e3a8a;
+}
+
+.add-user-form button.add-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background-color: #16a34a;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+
+.add-user-form button.add-btn:hover {
+  background-color: #15803d;
+}
+
+/* ---------- DELETE BUTTON ---------- */
+.delete-btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #dc2626;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s;
+  margin-left: 10px;
+}
+
+.delete-btn:hover {
+  background-color: #b91c1c;
+}
+
+/* ---------- RESPONSIVE ADJUSTMENTS ---------- */
+@media (max-width: 768px) {
+  .add-user-form {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .add-user-form input,
+  .add-user-form select,
+  .add-user-form button.add-btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
