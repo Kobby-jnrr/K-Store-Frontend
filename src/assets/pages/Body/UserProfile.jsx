@@ -190,9 +190,11 @@ const UserProfile = () => {
                 {getInitials(user.username)}
               </div>
             )}
-            <h2>{user.username}</h2>
+            <h2>
+              {user.username} {isVerified && <span className="green-tick">✅</span>}
+            </h2>
             <span className={`vendor-badge ${isVerified ? "verified" : "unverified"}`}>
-              {isVerified ? "✅ Verified Account" : "🔴 Unverified"}
+              {isVerified ? "Verified Account" : "Unverified"}
             </span>
           </div>
           <div className="profile-section">
@@ -234,99 +236,95 @@ const UserProfile = () => {
         )}
 
         {/* Orders */}
-<div className={`profile-card side-card scrollable-column`}>
-  <h3>My Orders</h3>
-  {loadingOrders ? (
-    <p>Loading orders...</p>
-  ) : orders.length === 0 ? (
-    <p>No orders yet.</p>
-  ) : (
-    <div className="vendor-product-grid">
-      {orders.map((order) => (
-        <div key={order._id || Math.random()} className="vendor-product-card">
-          {/* Order Header */}
-          <div className="order-header-new">
-            <span className={`order-status ${order.status?.toLowerCase()}`}>
-              Status: {order.status?.toLowerCase() === "pending" ? "Pending Confirmation" : order.status || "Pending"}
-            </span>
-            <span className="order-total">
-              Total: GH₵{order.total || 0}
-            </span>
-          </div>
-
-          {/* Payment & Date */}
-          <div className="order-date-new">
-            <small>
-              Payment: {order.paymentMethod?.toUpperCase() || "N/A"} | Ordered on:{" "}
-              {order.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}
-            </small>
-          </div>
-
-          {/* Order Items */}
-          <div className="order-items-new">
-            {(order.items || []).map((item) => {
-              let statusText = "Pending";
-              let statusClass = "pending";
-              let color = "black";
-              switch ((item.status || "").toLowerCase()) {
-                case "delivered":
-                  statusText = "Delivered";
-                  statusClass = "delivered";
-                  color = "green";
-                  break;
-                case "pending":
-                  statusText = "Pending";
-                  statusClass = "pending";
-                  color = "black";
-                  break;
-                case "processing":
-                case "accepted":
-                case "preparing":
-                case "ready":
-                  statusText = "Processing";
-                  statusClass = "processing";
-                  color = "green";
-                  break;
-                case "rejected":
-                  statusText = "Cannot be delivered";
-                  statusClass = "rejected";
-                  color = "red";
-                  break;
-                default:
-                  statusText = item.status || "Pending";
-                  statusClass = "pending";
-                  color = "black";
-              }
-              return (
-                <div key={item._id || Math.random()} className="order-item-new">
-                  <img
-                    src={item.product?.image || "/placeholder.png"}
-                    alt={item.product?.title || "Product"}
-                  />
-                  <div className="item-info">
-                    <p className="item-title">{item.product?.title || "Untitled"}</p>
-                    <p className="item-vendor">
-                      Vendor: {item.vendor?.username || "Unknown"}
-                    </p>
+        <div className={`profile-card side-card scrollable-column`}>
+          <h3>My Orders</h3>
+          {loadingOrders ? (
+            <p>Loading orders...</p>
+          ) : orders.length === 0 ? (
+            <p>No orders yet.</p>
+          ) : (
+            <div className="vendor-product-grid">
+              {orders.map((order) => (
+                <div key={order._id || Math.random()} className="vendor-product-card">
+                  <div className="order-header-new">
+                    <span className={`order-status ${order.status?.toLowerCase()}`}>
+                      Status: {order.status?.toLowerCase() === "pending" ? "Pending Confirmation" : order.status || "Pending"}
+                    </span>
+                    <span className="order-total">
+                      Total: GH₵{order.total || 0}
+                    </span>
                   </div>
-                  <div className="item-details-new">
-                    <p>Qty: {item.quantity || 0}</p>
-                    <p>GH₵{item.price || 0}</p>
-                    <span style={{color, fontWeight: statusText !== "Pending" ? "bold" : "normal"}}>{statusText}</span>
+
+                  <div className="order-date-new">
+                    <small>
+                      Payment: {order.paymentMethod?.toUpperCase() || "N/A"} | Ordered on:{" "}
+                      {order.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}
+                    </small>
+                  </div>
+
+                  <div className="order-items-new">
+                    {(order.items || []).map((item) => {
+                      let statusText = "Pending";
+                      let statusClass = "pending";
+                      let color = "black";
+                      switch ((item.status || "").toLowerCase()) {
+                        case "delivered":
+                          statusText = "Delivered";
+                          statusClass = "delivered";
+                          color = "green";
+                          break;
+                        case "pending":
+                          statusText = "Pending";
+                          statusClass = "pending";
+                          color = "black";
+                          break;
+                        case "processing":
+                        case "accepted":
+                        case "preparing":
+                        case "ready":
+                          statusText = "Processing";
+                          statusClass = "processing";
+                          color = "green";
+                          break;
+                        case "rejected":
+                          statusText = "Cannot be delivered";
+                          statusClass = "rejected";
+                          color = "red";
+                          break;
+                        default:
+                          statusText = item.status || "Pending";
+                          statusClass = "pending";
+                          color = "black";
+                      }
+                      return (
+                        <div key={item._id || Math.random()} className="order-item-new">
+                          <img
+                            src={item.product?.image || "/placeholder.png"}
+                            alt={item.product?.title || "Product"}
+                          />
+                          <div className="item-info">
+                            <p className="item-title">{item.product?.title || "Untitled"}</p>
+                            <p className="item-vendor">
+                              Vendor: {item.vendor?.username || "Unknown"}
+                            </p>
+                          </div>
+                          <div className="item-details-new">
+                            <p>Qty: {item.quantity || 0}</p>
+                            <p>GH₵{item.price || 0}</p>
+                            <span style={{color, fontWeight: statusText !== "Pending" ? "bold" : "normal"}}>{statusText}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
-      ))}
-    </div>
-  )}
-</div>
 
       </div>
 
-      {/* Modals remain unchanged */}
     </div>
   );
 };

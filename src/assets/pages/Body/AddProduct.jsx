@@ -104,7 +104,10 @@ const VendorProducts = () => {
       const imageUrl = await uploadToCloudinary(selectedFile);
       await axios.post(
         "https://k-store-backend.onrender.com/api/products",
-        { ...formData, image: imageUrl },
+        { ...formData,
+          price:Number(formData.price),
+          image: imageUrl
+        },
         { headers: { Authorization: `Bearer ${vendor.token}` } }
       );
 

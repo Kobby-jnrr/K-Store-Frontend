@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"; 
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 import "./Vendors.css";
 
 function Vendors() {
@@ -97,10 +98,16 @@ function Vendors() {
           prev.map(v => (v._id === id ? { ...v, verified: !currentStatus } : v))
         );
 
-        alert(res.data.message || "Vendor status updated");
+        // Show toast instead of alert
+        toast.success(!currentStatus ? "Verified ✅" : "Unverified ❌", {
+          duration: 3000,
+          position: "top-right",
+        });
+
         break;
       } catch (err) {
         console.warn(`Failed to update vendor at ${url}:`, err.message);
+        toast.error("Failed to update vendor status", { duration: 3000 });
       }
     }
   };
@@ -123,6 +130,7 @@ function Vendors() {
 
   return (
     <div className="vendors-page">
+      <Toaster />
       <h1>Vendors Management 🏪</h1>
       <p>View all vendor accounts and manage verification status.</p>
 

@@ -196,3 +196,8 @@
     min-width: 160px;
   }
 }
+.green-tick {
+  margin-left: 5px;
+  color: #16a34a; /* green */
+  font-weight: bold;
+}
