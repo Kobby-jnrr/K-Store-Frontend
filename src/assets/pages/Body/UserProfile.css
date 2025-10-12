@@ -5,19 +5,19 @@
   background: #f9fafb;
   min-height: 100vh;
   margin-top: 85px;
+  box-sizing: border-box;
 }
 
-/* -------------------- Grid Layout -------------------- */
 .profile-grid {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  gap: 3rem;
-  max-width: 1400px;
+  grid-template-columns: 1fr 2fr 2fr;
+  gap: 2rem;
+  max-width: 1500px;
   margin: 0 auto;
   align-items: start;
+  box-sizing: border-box;
 }
 
-/* -------------------- Cards -------------------- */
 .profile-card {
   background: #fff;
   border-radius: 16px;
@@ -25,12 +25,12 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: auto;
+  box-sizing: border-box;
 }
 
-/* -------------------- Scrollable Columns -------------------- */
 .scrollable-column {
-  max-height: 600px;
+  max-height: 1000px;
   overflow-y: auto;
   padding-right: 5px;
 }
@@ -60,7 +60,6 @@
   margin: 0 auto;
 }
 
-/* Initials avatar fallback */
 .initials-avatar {
   width: 120px;
   height: 120px;
@@ -89,23 +88,17 @@
   color: #dc2626;
 }
 
-/* -------------------- Products Section -------------------- */
-
-/* Horizontal scroll container for vendor products */
+/* -------------------- Products & Orders Shared Styles -------------------- */
 .vendor-product-grid {
-  display: flex;
-  overflow-x: auto; /* Enable horizontal scrolling */
-  gap: 10px;
-  padding: 10px 0; /* Padding for spacing */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
 }
 
-/* Each product card */
 .vendor-product-card {
-  min-width: 180px; /* Ensure cards have a minimum width */
-  flex: 0 0 auto; /* Prevent shrinkage */
   background: #f3f4f6;
   border-radius: 10px;
-  padding: 10px;
+  padding: 15px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -114,212 +107,65 @@
 
 .vendor-product-card img {
   width: 100%;
-  height: 90px;
+  height: 140px;
   object-fit: cover;
   border-radius: 6px;
 }
 
-/* -------------------- Orders Section -------------------- */
-
-/* Horizontal scroll container for orders */
-.orders-list {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto; /* Enable horizontal scrolling */
-  gap: 1rem;
-  padding: 10px 0; /* Padding for spacing */
+/* Orders Desktop Height Increase */
+.order-card-desktop {
+  min-height: 280px;
 }
 
-/* Order card for each order */
-.order-card-new {
-  flex: 0 0 auto; /* Prevent shrinkage */
-  min-width: 300px; /* Minimum width of the order card */
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-/* Order items within each order */
+/* Order items inside card */
 .order-items-new {
   display: flex;
-  flex-direction: row; /* Horizontal layout for order items */
+  flex-direction: row;
   gap: 8px;
-  overflow-x: auto; /* Horizontal scroll for order items */
-}
-
-.order-item-new {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #f9fafb;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  overflow-x: auto;
 }
 
 .order-item-new img {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin-right: 10px;
+  width: 70px;
+  height: 70px;
 }
 
-.item-info {
-  flex: 1;
-  margin-left: 10px;
-}
-
-.item-title {
+.order-header-new {
+  display: flex;
+  justify-content: space-between; /* puts Status and Total on opposite ends */
+  margin-bottom: 10px;
   font-weight: 600;
-  margin-bottom: 4px;
 }
 
-.item-vendor {
-  font-size: 0.85rem;
-  color: #6b7280;
-}
 
-/* -------------------- Modal -------------------- */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.edit-modal, .confirm-modal {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.modal-actions button:first-child {
-  background: #16a34a;
-  color: #fff;
-}
-
-.modal-actions button:last-child {
-  background: #dc2626;
-  color: #fff;
-}
-
-/* -------------------- Mobile and Tablet Adjustments -------------------- */
-
-/* For screens smaller than 1000px */
+/* -------------------- Mobile / Tablet Adjustments -------------------- */
 @media (max-width: 1000px) {
   .profile-grid {
-    grid-template-columns: 1fr; /* Stack columns on smaller screens */
+    grid-template-columns: 1fr;
     gap: 2rem;
-    margin-top: -30px;
-    margin-left: -20px;
   }
 
-  .profile-card {
-    padding: 1rem;
-  }
-
-  .profile-header h2 {
-    font-size: 1.3rem;
-  }
-
-  .profile-avatar {
-    width: 90px;
-    height: 90px;
-  }
-
-  .profile-avatar.initials-avatar {
-    font-size: 28px;
-  }
-
-  .profile-section p {
-    font-size: 0.9rem;
+  .vendor-product-grid {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 10px;
+    padding: 10px 0;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
 
   .vendor-product-card {
-    padding: 0.8rem;
-    font-size: 0.85rem;
+    flex: 0 0 auto;
+    min-width: 250px;
   }
 
-  .product-actions button {
-    padding: 5px 10px;
-    font-size: 0.75rem;
-  }
-
-  .order-card-new {
-    padding: 12px;
-    font-size: 0.85rem;
-  }
-
-  .order-header-new {
-    font-size: 0.9rem;
-  }
-
-  .order-status {
-    font-size: 0.75rem;
-    padding: 3px 8px;
-  }
-
-  .order-items-new {
-    flex-direction: column;
-  }
-
-  .order-item-new {
-    flex-direction: column;
-    padding: 8px;
-  }
-
-  .order-item-new img {
-    width: 50px;
-    height: 50px;
-  }
-
-  .item-info {
-    font-size: 0.85rem;
-  }
-
-  .edit-modal, .confirm-modal {
-    width: 90%;
-    max-width: 350px;
-  }
-
-  .modal-actions button {
-    padding: 8px 12px;
-    font-size: 0.8rem;
+  .order-card-desktop {
+    min-height: 250px;
   }
 }
 
-/* For screens smaller than 750px */
 @media (max-width: 750px) {
-  .profile-grid {
-    grid-template-columns: 1fr; /* Full width on small screens */
-    gap: 1.5rem;
-    margin-top: 33px;
-    margin-left: -20px;
-  }
-
-  .profile-card {
-    padding: 1rem;
-  }
-
   .profile-avatar {
     width: 80px;
     height: 80px;
@@ -329,68 +175,13 @@
     font-size: 24px;
   }
 
-  .profile-header h2 {
-    font-size: 1.2rem;
-  }
-
-  .profile-section p {
-    font-size: 0.85rem;
-  }
-
-  .vendor-product-card {
-    font-size: 0.8rem;
-  }
-
-  .product-actions button {
-    padding: 4px 8px;
-    font-size: 0.7rem;
-  }
-
-  .order-card-new {
-    padding: 10px;
-    font-size: 0.8rem;
-  }
-
-  .order-header-new {
-    font-size: 0.8rem;
-  }
-
-  .order-status {
-    font-size: 0.7rem;
-    padding: 3px 7px;
-  }
-
-  .order-item-new {
-    flex-direction: column;
-    padding: 6px;
-  }
-
-  .order-item-new img {
-    width: 40px;
-    height: 40px;
-  }
-
-  .item-info {
-    font-size: 0.8rem;
-  }
-
-  .edit-modal, .confirm-modal {
-    width: 85%;
-    max-width: 300px;
-  }
-
-  .modal-actions button {
-    padding: 6px 10px;
-    font-size: 0.75rem;
+  .vendor-product-card,
+  .order-card-desktop {
+    min-width: 200px;
   }
 }
 
-/* For screens smaller than 500px */
 @media (max-width: 500px) {
-  .profile-card {
-    padding: 0.8rem;
-  }
-
   .profile-avatar {
     width: 70px;
     height: 70px;
@@ -400,58 +191,8 @@
     font-size: 20px;
   }
 
-  .profile-header h2 {
-    font-size: 1rem;
-  }
-
-  .profile-section p {
-    font-size: 0.8rem;
-  }
-
-  .vendor-product-card {
-    font-size: 0.75rem;
-  }
-
-  .product-actions button {
-    padding: 4px 6px;
-    font-size: 0.65rem;
-  }
-
-  .order-card-new {
-    padding: 8px;
-    font-size: 0.75rem;
-  }
-
-  .order-header-new {
-    font-size: 0.75rem;
-  }
-
-  .order-status {
-    font-size: 0.65rem;
-    padding: 3px 6px;
-  }
-
-  .order-item-new {
-    flex-direction: column;
-    padding: 5px;
-  }
-
-  .order-item-new img {
-    width: 35px;
-    height: 35px;
-  }
-
-  .item-info {
-    font-size: 0.75rem;
-  }
-
-  .edit-modal, .confirm-modal {
-    width: 80%;
-    max-width: 250px;
-  }
-
-  .modal-actions button {
-    padding: 5px 8px;
-    font-size: 0.65rem;
+  .vendor-product-card,
+  .order-card-desktop {
+    min-width: 160px;
   }
 }
