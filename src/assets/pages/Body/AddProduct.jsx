@@ -107,7 +107,7 @@ const VendorProducts = () => {
         ...formData,
         price: Number(formData.price),
         image: imageUrl,
-        vendor: vendor._id,
+        vendor: vendor._id, // ✅ include vendor
       };
 
       await axios.post(
@@ -148,9 +148,16 @@ const VendorProducts = () => {
       let imageUrl = editPreview;
       if (editFile) imageUrl = await uploadToCloudinary(editFile);
 
+      const payload = {
+        ...editData,
+        image: imageUrl,
+        vendor: vendor._id, // ✅ include vendor
+        price: Number(editData.price),
+      };
+
       const res = await axios.put(
         `https://k-store-backend.onrender.com/api/products/${editingProduct._id}`,
-        { ...editData, image: imageUrl },
+        payload,
         { headers: { Authorization: `Bearer ${vendor.token}` } }
       );
 
@@ -159,7 +166,8 @@ const VendorProducts = () => {
       setEditFile(null);
       setEditPreview("");
       toast.success("✅ Product updated!");
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to update product.");
     } finally {
       setSavingEdit(false);
@@ -243,7 +251,6 @@ const VendorProducts = () => {
               <button onClick={() => setEditingProduct(null)} disabled={savingEdit}>Cancel</button>
             </div>
           )}
-
         </div>
       </div>
 
