@@ -37,29 +37,37 @@ function CheckoutPage({ cart, setCart }) {
       ...(paymentMethod === "momo" ? { momoNumber } : {}),
     };
 
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/orders`,
-        {
+    const urls = [
+      `${import.meta.env.VITE_API_BASE_URL || "https://k-store-backend.onrender.com"}/api/orders`,
+      "http://localhost:5000/api/orders"
+    ];
+
+    let success = false;
+
+    for (let url of urls) {
+      try {
+        const response = await fetch(url, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(orderData),
-        }
-      );
+        });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Order failed");
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Order failed");
 
-      setCart({});
-      setOrderModal(true);
-    } catch (err) {
-      console.error("Order error:", err);
-      setCart({});
-      setOrderModal(true);
+        success = true;
+        break; // stop at first success
+      } catch (err) {
+        console.warn(`Order attempt failed at ${url}:`, err.message);
+      }
     }
+
+    // Regardless of success/failure, clear cart and show modal
+    setCart({});
+    setOrderModal(true);
   };
 
   const handleCloseModal = () => {
