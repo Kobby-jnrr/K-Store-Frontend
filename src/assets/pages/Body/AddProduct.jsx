@@ -102,12 +102,17 @@ const VendorProducts = () => {
     setAdding(true);
     try {
       const imageUrl = await uploadToCloudinary(selectedFile);
+
+      const payload = {
+        ...formData,
+        price: Number(formData.price),
+        image: imageUrl,
+        vendor: vendor._id,
+      };
+
       await axios.post(
         "https://k-store-backend.onrender.com/api/products",
-        { ...formData,
-          price:Number(formData.price),
-          image: imageUrl
-        },
+        payload,
         { headers: { Authorization: `Bearer ${vendor.token}` } }
       );
 
@@ -116,7 +121,8 @@ const VendorProducts = () => {
       setPreviewUrl("");
       fetchProducts(vendor.token);
       setShowSuccessModal(true);
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to add product.");
     } finally {
       setAdding(false);
@@ -241,7 +247,6 @@ const VendorProducts = () => {
         </div>
       </div>
 
-      {/* Success Modal */}
       {showSuccessModal && (
         <div className="success-modal-backdrop">
           <div className="success-modal">
