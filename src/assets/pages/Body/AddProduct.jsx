@@ -62,6 +62,7 @@ const VendorProducts = () => {
   const navigate = useNavigate();
   const [vendor, setVendor] = useState(null);
   const [products, setProducts] = useState([]);
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   // Add Product States
   const [formData, setFormData] = useState({
@@ -87,34 +88,12 @@ const VendorProducts = () => {
   const [editPreview, setEditPreview] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
-  // -------------------- Categories (matches backend enum) --------------------
   const categories = [
-  "fashion",
-  "electronics",
-  "home",
-  "grocery",
-  "baby",
-  "beauty",
-  "sports",
-  "gaming",
-  "books",
-  "toys",
-  "automotive",
-  "jewelry",
-  "health",
-  "pets",
-  "office",
-  "tools",
-  "garden",
-  "music",
-  "movies",
-  "appliances",
-  "footwear",
-  "accessories",
-  "outdoor",
-  "art",
-  "other",
-];
+    "fashion", "electronics", "home", "grocery", "baby", "beauty",
+    "sports", "gaming", "books", "toys", "automotive", "jewelry",
+    "health", "pets", "office", "tools", "garden", "music", "movies",
+    "appliances", "footwear", "accessories", "outdoor", "art", "other",
+  ];
 
   const API_BASE = "https://k-store-backend.onrender.com/api/products";
 
@@ -144,7 +123,7 @@ const VendorProducts = () => {
     }
   };
 
-  // -------------------- File Handlers --------------------
+  // -------------------- Add Product --------------------
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -152,14 +131,6 @@ const VendorProducts = () => {
     setPreviewUrl(URL.createObjectURL(file));
   };
 
-  const handleEditFileSelect = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setEditFile(file);
-    setEditPreview(URL.createObjectURL(file));
-  };
-
-  // -------------------- Add Product --------------------
   const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.price || !formData.category || !selectedFile) {
@@ -228,8 +199,6 @@ const VendorProducts = () => {
 
       setProducts(products.map((p) => (p._id === editingProduct._id ? res.data.product : p)));
       setEditingProduct(null);
-      setEditFile(null);
-      setEditPreview("");
       toast.success("✅ Product updated!");
     } catch (err) {
       console.error(err);
@@ -239,14 +208,14 @@ const VendorProducts = () => {
     }
   };
 
-  // -------------------- Delete Product --------------------
-  const deleteProduct = async (id) => {
-    if (!window.confirm("Delete this product?")) return;
+  // -------------------- Inline Delete Confirmation --------------------
+  const handleDeleteConfirm = async (id) => {
     try {
       await axios.delete(`${API_BASE}/${id}`, {
         headers: { Authorization: `Bearer ${vendor.token}` },
       });
       setProducts(products.filter((p) => p._id !== id));
+      setConfirmDelete(null);
       toast.success("🗑️ Product deleted!");
     } catch {
       toast.error("Failed to delete product.");
@@ -301,7 +270,7 @@ const VendorProducts = () => {
         {/* ---------------- Products List ---------------- */}
         <div className="half-section edit-products">
           <h3>Your Products</h3>
-          <div className="products-list">
+          <div className="products-list grid-2">
             {products.length === 0 ? (
               <p>No products added yet.</p>
             ) : (
@@ -311,15 +280,37 @@ const VendorProducts = () => {
                   <h4>{p.title}</h4>
                   <p>GH₵{p.price}</p>
                   <p>{p.category}</p>
-                  <div className="product-actions">
-                    <button onClick={() => openEdit(p)}>Edit</button>
-                    <button onClick={() => deleteProduct(p._id)}>Delete</button>
-                  </div>
+
+                  {confirmDelete === p._id ? (
+                    <div className="confirm-inline">
+                      <p>Confirm delete?</p>
+                      <div className="inline-actions">
+                        <button
+                          className="confirm-btn danger"
+                          onClick={() => handleDeleteConfirm(p._id)}
+                        >
+                          Yes
+                        </button>
+                        <button
+                          className="confirm-btn cancel"
+                          onClick={() => setConfirmDelete(null)}
+                        >
+                          No
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="product-actions">
+                      <button onClick={() => openEdit(p)}>Edit</button>
+                      <button onClick={() => setConfirmDelete(p._id)}>Delete</button>
+                    </div>
+                  )}
                 </div>
               ))
             )}
           </div>
 
+          {/* ---------------- Edit Form ---------------- */}
           {editingProduct && (
             <div className="edit-form">
               <h4>Editing: {editingProduct.title}</h4>
@@ -338,7 +329,7 @@ const VendorProducts = () => {
                 onChange={(val) => setEditData({ ...editData, category: val })}
               />
               {editPreview && <img src={editPreview} alt="Preview" className="image-preview" />}
-              <input type="file" accept="image/*" onChange={handleEditFileSelect} />
+              <input type="file" accept="image/*" onChange={(e) => setEditFile(e.target.files[0])} />
               <textarea
                 value={editData.description}
                 onChange={(e) => setEditData({ ...editData, description: e.target.value })}
