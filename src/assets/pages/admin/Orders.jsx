@@ -6,7 +6,11 @@ function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrders, setExpandedOrders] = useState({});
-  const [autoPass, setAutoPass] = useState(false);
+  const [autoPass, setAutoPass] = useState(() => {
+    // Initialize from localStorage
+    const saved = localStorage.getItem("autoPass");
+    return saved === "true";
+  });
   const [popup, setPopup] = useState("");
 
   useEffect(() => {
@@ -18,6 +22,7 @@ function Orders() {
   const toggleAutoPass = () => {
     const newValue = !autoPass;
     setAutoPass(newValue);
+    localStorage.setItem("autoPass", newValue); // persist across sessions
     setPopup(newValue ? "Auto Pass is ON" : "Manual Pass is ON");
     setTimeout(() => setPopup(""), 2000);
   };

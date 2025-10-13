@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./VendorOrders.css";
 
-const STATUS_SEQUENCE = ["pending", "accepted", "preparing", "ready", "delivered"];
+const STATUS_SEQUENCE = ["accepted", "preparing", "ready", "delivered"];
 const STATUS_COLORS = {
   pending: "#f59e0b",
   accepted: "#3b82f6",
@@ -10,6 +10,14 @@ const STATUS_COLORS = {
   ready: "#14b8a6",
   delivered: "#16a34a",
   rejected: "#dc2626",
+};
+
+const buttonStyles = {
+  padding: "5px 12px",
+  borderRadius: "6px",
+  border: "none",
+  cursor: "pointer",
+  marginRight: "6px"
 };
 
 function VendorOrders() {
@@ -36,18 +44,16 @@ function VendorOrders() {
       try {
         const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
         if (Array.isArray(res.data)) {
-          fetchedOrders = res.data;
+          fetchedOrders = res.data.map(order => ({
+            ...order,
+            items: order.items.map(item => ({ ...item, status: item.status.toLowerCase() })),
+          }));
           break;
         }
       } catch (err) {
         console.warn(`Failed to fetch orders from ${url}:`, err.message);
       }
     }
-
-    fetchedOrders = fetchedOrders.map(order => ({
-      ...order,
-      items: order.items.map(item => ({ ...item, status: item.status.toLowerCase() })),
-    }));
 
     fetchedOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     setOrders(fetchedOrders);
@@ -67,61 +73,49 @@ function VendorOrders() {
   };
 
   const nextStatus = (current) => {
-    if (current === "delivered" || current === "rejected") return current;
+    if (current === "delivered" || current === "rejected" || current === "pending") return current;
     const idx = STATUS_SEQUENCE.indexOf(current);
     return idx === -1 || idx === STATUS_SEQUENCE.length - 1 ? current : STATUS_SEQUENCE[idx + 1];
   };
 
-  const handleNextStatus = (itemId) => {
-    setItemStatuses(prev => ({ ...prev, [itemId]: nextStatus(prev[itemId]) }));
-  };
+  const handleNextStatus = (itemId) => updateStatus(itemId, nextStatus(itemStatuses[itemId]));
+  const handleAccept = (itemId) => updateStatus(itemId, "accepted");
+  const handleReject = (itemId) => updateStatus(itemId, "rejected");
 
-  const handleReject = (itemId) => {
-    setItemStatuses(prev => ({ ...prev, [itemId]: "rejected" }));
+  const updateStatus = async (itemId, status) => {
+    if (!selectedOrder) return;
+    const token = sessionStorage.getItem("token");
+    const urls = [
+      `${import.meta.env.VITE_API_BASE_URL || "https://k-store-backend.onrender.com"}/api/orders/vendor-orders/${selectedOrder._id}/item/${itemId}`,
+      `http://localhost:5000/api/orders/vendor-orders/${selectedOrder._id}/item/${itemId}`,
+    ];
+
+    for (let url of urls) {
+      try {
+        await axios.put(url, { status }, { headers: { Authorization: `Bearer ${token}` } });
+        break;
+      } catch {}
+    }
+
+    setItemStatuses(prev => ({ ...prev, [itemId]: status }));
+    setOrders(prev =>
+      prev.map(order => {
+        if (order._id !== selectedOrder._id) return order;
+        return {
+          ...order,
+          items: order.items.map(item => item._id === itemId ? { ...item, status } : item),
+        };
+      })
+    );
   };
 
   const updateAllDelivered = () => {
-    const newStatuses = {};
-    selectedOrder.items.forEach(item => newStatuses[item._id] = "delivered");
-    setItemStatuses(newStatuses);
+    selectedOrder.items.forEach(item => {
+      if (itemStatuses[item._id] !== "rejected" && itemStatuses[item._id] !== "pending") handleNextStatus(item._id);
+    });
   };
 
-  const saveStatuses = async () => {
-    if (!selectedOrder) return;
-    const token = sessionStorage.getItem("token");
-    const baseUrls = [
-      `${import.meta.env.VITE_API_BASE_URL || "https://k-store-backend.onrender.com"}/api/orders/vendor-orders/${selectedOrder._id}/item`,
-      `http://localhost:5000/api/orders/vendor-orders/${selectedOrder._id}/item`,
-    ];
-
-    for (const item of selectedOrder.items) {
-      const newStatus = itemStatuses[item._id];
-      if (newStatus && newStatus !== item.status) {
-        let success = false;
-        for (let url of baseUrls) {
-          try {
-            await axios.put(`${url}/${item._id}`, { status: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
-            success = true;
-            break;
-          } catch {}
-        }
-        if (success) {
-          setOrders(prev => prev.map(order => {
-            if (order._id !== selectedOrder._id) return order;
-            return {
-              ...order,
-              items: order.items.map(it => it._id === item._id ? { ...it, status: newStatus } : it)
-            };
-          }));
-        }
-      }
-    }
-
-    closeModal();
-  };
-
-  const isOrderCompleted = (order) =>
-    order.items.every(i => ["delivered", "rejected"].includes(i.status));
+  const isOrderCompleted = (order) => order.items.every(i => ["delivered", "rejected"].includes(i.status));
 
   if (loading) return <div className="loader">Loading vendor orders...</div>;
 
@@ -148,7 +142,16 @@ function VendorOrders() {
           {order.items.map(item => (
             <div key={item._id} className="vendor-order-item">
               <span>{item.product.title} x {item.quantity}</span>
-              <span style={{ color: STATUS_COLORS[item.status] }}>{item.status}</span>
+              <span style={{
+                color: "#fff",
+                backgroundColor: STATUS_COLORS[item.status],
+                padding: "2px 8px",
+                borderRadius: "5px",
+                fontWeight: "bold",
+                textTransform: "capitalize"
+              }}>
+                {item.status}
+              </span>
             </div>
           ))}
         </div>
@@ -174,44 +177,35 @@ function VendorOrders() {
         <div className="modal-backdrop fade-in">
           <div className="modal-content">
             <h3>Update Order: {selectedOrder._id.slice(0, 8)}</h3>
-            {selectedOrder.items.map(item => (
-              <div key={item._id} className="modal-item">
-                <span>{item.product.title}</span>
-                <button
-                  onClick={() => handleNextStatus(item._id)}
-                  style={{
-                    backgroundColor: STATUS_COLORS[itemStatuses[item._id]],
-                    color: "#fff",
-                    padding: "5px 12px",
-                    borderRadius: "6px",
-                    border: "none",
-                    cursor: "pointer",
-                    marginRight: "6px"
-                  }}
-                  disabled={["delivered", "rejected"].includes(itemStatuses[item._id])}
-                >
-                  {itemStatuses[item._id]}
-                </button>
-                <button
-                  onClick={() => handleReject(item._id)}
-                  style={{
-                    backgroundColor: STATUS_COLORS["rejected"],
-                    color: "#fff",
-                    padding: "5px 12px",
-                    borderRadius: "6px",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                  disabled={itemStatuses[item._id] === "rejected"}
-                >
-                  Reject
-                </button>
-              </div>
-            ))}
+
+            {/* --- Accept/Reject Section --- */}
+            <div style={{ marginBottom: "15px" }}>
+              <h4>Pending Items - Accept or Reject</h4>
+              {selectedOrder.items.filter(i => itemStatuses[i._id] === "pending").map(item => (
+                <div key={item._id} className="modal-item">
+                  <span>{item.product.title}</span>
+                  <button onClick={() => handleAccept(item._id)} style={{ backgroundColor: STATUS_COLORS["accepted"], color: "#fff", ...buttonStyles }}>Accept</button>
+                  <button onClick={() => handleReject(item._id)} style={{ backgroundColor: STATUS_COLORS["rejected"], color: "#fff", ...buttonStyles }}>Reject</button>
+                </div>
+              ))}
+            </div>
+
+            {/* --- Status Update Section --- */}
+            <div>
+              <h4>Accepted Items - Update Status</h4>
+              {selectedOrder.items.filter(i => ["accepted","preparing","ready"].includes(itemStatuses[i._id])).map(item => (
+                <div key={item._id} className="modal-item">
+                  <span>{item.product.title}</span>
+                  <button onClick={() => handleNextStatus(item._id)} style={{ backgroundColor: STATUS_COLORS[itemStatuses[item._id]], color: "#fff", ...buttonStyles }}>
+                    {itemStatuses[item._id]}
+                  </button>
+                </div>
+              ))}
+            </div>
+
             <div className="modal-buttons" style={{ marginTop: "12px" }}>
               <button onClick={updateAllDelivered} className="btn-secondary">Update All to Delivered</button>
-              <button onClick={saveStatuses} className="btn-primary">Save Changes</button>
-              <button onClick={closeModal} className="btn-cancel">Cancel</button>
+              <button onClick={closeModal} className="btn-cancel">Close</button>
             </div>
           </div>
         </div>

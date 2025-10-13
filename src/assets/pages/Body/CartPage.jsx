@@ -61,7 +61,7 @@ function CartPage({ cart, setCart }) {
                 <button className="remove-btn" onClick={() => removeItem(item._id)}>Remove</button>
               </div>
               <div className="cart-price">
-                Price :GH₵{(item.price).toFixed(2)}
+                Price: GH₵{item.price.toFixed(2)}
               </div>
               <div className="cart-total">
                 Total: GH₵{(item.price * item.quantity).toFixed(2)}
@@ -74,9 +74,11 @@ function CartPage({ cart, setCart }) {
         <div className="order-summary">
           <h2>Order Summary</h2>
           <p>Subtotal: GH₵{subtotal.toFixed(2)}</p>
-          <p>Delivery: GH₵20.00</p>
           <hr />
-          <h3>Total: GH₵{(subtotal + 20).toFixed(2)}</h3>
+          <h3>Total: GH₵{subtotal.toFixed(2)}</h3>
+          <p className="checkout-note">
+            Delivery fees (if any) will be applied at checkout.
+          </p>
 
           <Link to="/checkout">
             <button className="checkout-btn">Checkout</button>
