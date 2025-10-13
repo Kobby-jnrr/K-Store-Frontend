@@ -6,23 +6,20 @@ function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrders, setExpandedOrders] = useState({});
-  const [autoPass, setAutoPass] = useState(() => {
-    // Initialize from localStorage
-    const saved = localStorage.getItem("autoPass");
-    return saved === "true";
-  });
+  const [autoPass, setAutoPass] = useState(() => localStorage.getItem("autoPass") === "true");
   const [popup, setPopup] = useState("");
+  const [modal, setModal] = useState({ show: false, type: "", orderId: null });
 
   useEffect(() => {
     fetchOrders();
-    const interval = setInterval(fetchOrders, 5000); // Auto-refresh every 5 seconds
+    const interval = setInterval(fetchOrders, 5000);
     return () => clearInterval(interval);
   }, [autoPass]);
 
   const toggleAutoPass = () => {
     const newValue = !autoPass;
     setAutoPass(newValue);
-    localStorage.setItem("autoPass", newValue); // persist across sessions
+    localStorage.setItem("autoPass", newValue);
     setPopup(newValue ? "Auto Pass is ON" : "Manual Pass is ON");
     setTimeout(() => setPopup(""), 2000);
   };
@@ -89,16 +86,29 @@ function Orders() {
       }
     }
 
-    setOrders(prev =>
-      prev.map(o => (o._id === orderId ? { ...o, _passed: true } : o))
-    );
-
+    setOrders(prev => prev.map(o => (o._id === orderId ? { ...o, _passed: true } : o)));
     setPopup("Order Passed ✅");
     setTimeout(() => setPopup(""), 2000);
   };
 
+  const confirmDeleteOrder = (orderId) => {
+    setModal({ show: true, type: "single", orderId });
+  };
+
+  const confirmDeleteCompletedOrders = () => {
+    setModal({ show: true, type: "all", orderId: null });
+  };
+
+  const handleModalConfirm = async () => {
+    if (modal.type === "single" && modal.orderId) {
+      await deleteOrder(modal.orderId);
+    } else if (modal.type === "all") {
+      await deleteAllCompleted();
+    }
+    setModal({ show: false, type: "", orderId: null });
+  };
+
   const deleteOrder = async (orderId) => {
-    if (!window.confirm("Are you sure you want to delete this order?")) return;
     const urls = [
       `https://k-store-backend.onrender.com/api/admin/orders/${orderId}`,
       `http://localhost:5000/api/admin/orders/${orderId}`,
@@ -114,11 +124,11 @@ function Orders() {
         console.warn(`Failed to delete order at ${url}:`, err.message);
       }
     }
+    setPopup("Order deleted ✅");
+    setTimeout(() => setPopup(""), 2000);
   };
 
-  const deleteCompletedOrders = async () => {
-    if (!window.confirm("Are you sure you want to delete all completed/rejected orders?")) return;
-
+  const deleteAllCompleted = async () => {
     const completedOrders = orders.filter(order => getOrderStatus(order) !== "Pending");
     const token = sessionStorage.getItem("token");
 
@@ -178,6 +188,7 @@ function Orders() {
             <strong>Order:</strong> {order._id.slice(0, 6)}... | 
             <strong>Customer:</strong> {order.user.username} | 
             <strong>Total:</strong> GH₵{order.total} | 
+            <strong>Fulfillment:</strong> {order.fulfillmentType || "N/A"} | 
             <span className={`order-badge ${orderStatus === "Pending" ? "badge-pending" : orderStatus === "Completed" ? "badge-completed" : "badge-rejected"}`}>
               {orderStatus}
             </span>
@@ -229,7 +240,7 @@ function Orders() {
                           </div>
                         </div>
                       ))}
-                      <button className="delete-btn" onClick={() => deleteOrder(order._id)}>Delete Order</button>
+                      <button className="delete-btn" onClick={() => confirmDeleteOrder(order._id)}>Delete Order</button>
                     </div>
                   )}
                 </div>
@@ -249,14 +260,12 @@ function Orders() {
     <div className="orders-page">
       <h1>Orders Management 🛒</h1>
 
-      {/* Auto Pass Toggle */}
       <div className="auto-pass-toggle" style={{ marginBottom: "1rem" }}>
         <button className={`auto-pass-btn ${autoPass ? "on" : "off"}`} onClick={toggleAutoPass}>
           {autoPass ? "Auto Pass" : "Manual Pass"}
         </button>
       </div>
 
-      {/* Popup */}
       {popup && <div className="popup">{popup}</div>}
 
       <h2>Pending Orders</h2>
@@ -265,12 +274,26 @@ function Orders() {
       <h2 style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         Completed / Rejected Orders
         {completedOrders.length > 0 && (
-          <button className="delete-btn" onClick={deleteCompletedOrders} style={{ padding: "0.5rem 1rem", fontSize: "0.9rem" }}>
+          <button className="delete-btn" onClick={confirmDeleteCompletedOrders} style={{ padding: "0.5rem 1rem", fontSize: "0.9rem" }}>
             Delete All Completed
           </button>
         )}
       </h2>
       {completedOrders.length === 0 ? <p>No completed or rejected orders yet.</p> : renderOrders(completedOrders)}
+
+      {/* Confirmation Modal */}
+      {modal.show && (
+        <div className="order-modal-backdrop">
+          <div className="order-modal">
+            <h2>Confirm Action</h2>
+            <p>{modal.type === "single" ? "Delete this order?" : "Delete all completed/rejected orders?"}</p>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+              <button onClick={handleModalConfirm}>Yes</button>
+              <button onClick={() => setModal({ show: false, type: "", orderId: null })}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

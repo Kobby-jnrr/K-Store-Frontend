@@ -23,7 +23,6 @@ const UserProfile = () => {
   useEffect(() => {
     const sessionUser = JSON.parse(sessionStorage.getItem("user"));
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-
     if (sessionUser && token) {
       setUser({ ...sessionUser, token });
       fetchVerificationStatus(sessionUser._id || sessionUser.id, token);
@@ -44,15 +43,15 @@ const UserProfile = () => {
 
   const fetchVerificationStatus = async (userId, token) => {
     if (!userId || !token) return;
-    const urls = API_BASES.map((base) => `${base}/auth/status/${userId}`);
+    const urls = API_BASES.map(base => `${base}/auth/status/${userId}`);
     const data = await fetchWithFallback(urls, token);
     setVerifiedStatus(data?.verified ?? false);
-    if (data) setUser((prev) => ({ ...prev, ...data }));
+    if (data) setUser(prev => ({ ...prev, ...data }));
   };
 
   const fetchVendorProducts = async (token) => {
     setLoadingProducts(true);
-    const urls = API_BASES.map((base) => `${base}/products/vendor`);
+    const urls = API_BASES.map(base => `${base}/products/vendor`);
     const data = await fetchWithFallback(urls, token);
     setProducts(Array.isArray(data) ? data : []);
     setLoadingProducts(false);
@@ -60,7 +59,7 @@ const UserProfile = () => {
 
   const fetchUserOrders = async (token) => {
     setLoadingOrders(true);
-    const urls = API_BASES.map((base) => `${base}/orders/my-orders`);
+    const urls = API_BASES.map(base => `${base}/orders/my-orders`);
     const data = await fetchWithFallback(urls, token);
     setOrders(Array.isArray(data) ? data : []);
     setLoadingOrders(false);
@@ -79,7 +78,7 @@ const UserProfile = () => {
           break;
         } catch {}
       }
-      setProducts((prev) => prev.filter((p) => p._id !== id));
+      setProducts(prev => prev.filter(p => p._id !== id));
       toast.success("Product deleted successfully!");
     } catch {
       toast.error("Failed to delete product.");
@@ -119,25 +118,19 @@ const UserProfile = () => {
       if (editingItem.type === "product") {
         for (let base of API_BASES) {
           try {
-            await axios.put(`${base}/products/${editingItem._id}`, formData, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
+            await axios.put(`${base}/products/${editingItem._id}`, formData, { headers: { Authorization: `Bearer ${token}` } });
             break;
           } catch {}
         }
-        setProducts((prev) =>
-          prev.map((p) => (p._id === editingItem._id ? { ...p, ...formData } : p))
-        );
+        setProducts(prev => prev.map(p => (p._id === editingItem._id ? { ...p, ...formData } : p)));
       } else {
         for (let base of API_BASES) {
           try {
-            await axios.put(`${base}/auth/update/${user._id || user.id}`, formData, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
+            await axios.put(`${base}/auth/update/${user._id || user.id}`, formData, { headers: { Authorization: `Bearer ${token}` } });
             break;
           } catch {}
         }
-        setUser((prev) => ({ ...prev, ...formData }));
+        setUser(prev => ({ ...prev, ...formData }));
         sessionStorage.setItem("user", JSON.stringify({ ...user, ...formData }));
       }
       closeEditModal();
@@ -149,19 +142,22 @@ const UserProfile = () => {
 
   const getInitials = (name) => {
     if (!name) return "";
-    return name
-      .trim()
-      .split(" ")
-      .map((n) => n[0].toUpperCase())
-      .slice(0, 2)
-      .join("");
+    return name.trim().split(" ").map(n => n[0].toUpperCase()).slice(0,2).join("");
   };
 
   const getAvatarColor = (name) => {
-    const colors = ["#2563eb", "#f97316", "#16a34a", "#eab308", "#8b5cf6", "#db2777"];
+    const colors = ["#2563eb","#f97316","#16a34a","#eab308","#8b5cf6","#db2777"];
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
     return colors[Math.abs(hash) % colors.length];
+  };
+
+  const computeOrderStatus = (order) => {
+    if (!order.items || order.items.length === 0) return "Pending";
+    const allDeliveredOrRejected = order.items.every(item => item.status === "delivered" || item.status === "rejected");
+    if (allDeliveredOrRejected) return "Delivered";
+    const anyPending = order.items.some(item => item.status === "pending");
+    return anyPending ? "Pending" : "Processing";
   };
 
   if (!user) return <div className="loader">Loading profile...</div>;
@@ -178,18 +174,11 @@ const UserProfile = () => {
         <div className="profile-card side-card">
           <div className="profile-header">
             {!user.avatar ? (
-              <div
-                className="profile-avatar initials-avatar"
-                style={{ backgroundColor: getAvatarColor(user.username) }}
-              >
+              <div className="profile-avatar initials-avatar" style={{ backgroundColor: getAvatarColor(user.username) }}>
                 {getInitials(user.username)}
               </div>
-            ) : (
-              <img src={user.avatar} alt={user.username} className="profile-avatar" />
-            )}
-            <h2>
-              {user.username} {isVerified && <span className="green-tick">✅</span>}
-            </h2>
+            ) : <img src={user.avatar} alt={user.username} className="profile-avatar" />}
+            <h2>{user.username} {isVerified && <span className="green-tick">✅</span>}</h2>
             <span className={`vendor-badge ${isVerified ? "verified" : "unverified"}`}>
               {isVerified ? "Verified Account" : "Unverified"}
             </span>
@@ -209,13 +198,9 @@ const UserProfile = () => {
         {isVendor && (
           <div className="profile-card middle-card scrollable-column">
             <h3>My Products</h3>
-            {loadingProducts ? (
-              <p>Loading products...</p>
-            ) : products.length === 0 ? (
-              <p>No products found.</p>
-            ) : (
+            {loadingProducts ? <p>Loading products...</p> : products.length === 0 ? <p>No products found.</p> :
               <div className="vendor-product-grid">
-                {products.map((p) => (
+                {products.map(p => (
                   <div key={p._id || Math.random()} className="vendor-product-card hover-card">
                     <img src={p.image || "/placeholder.png"} alt={p.title || "Product"} />
                     <h4>{p.title || "Untitled"}</h4>
@@ -227,23 +212,19 @@ const UserProfile = () => {
                   </div>
                 ))}
               </div>
-            )}
+            }
           </div>
         )}
 
         {/* Orders */}
         <div className="profile-card side-card scrollable-column">
           <h3>My Orders</h3>
-          {loadingOrders ? (
-            <p>Loading orders...</p>
-          ) : orders.length === 0 ? (
-            <p>No orders yet.</p>
-          ) : (
+          {loadingOrders ? <p>Loading orders...</p> : orders.length === 0 ? <p>No orders yet.</p> :
             <div className="vendor-product-grid">
-              {orders.map((order) => (
+              {orders.map(order => (
                 <div key={order._id || Math.random()} className="vendor-product-card hover-card" onClick={() => setActiveOrder(order)}>
                   <div className="order-header-new">
-                    <span className={`order-status ${order.status?.toLowerCase()}`}>Status: {order.status || "Pending"}</span>
+                    <span className={`order-status ${computeOrderStatus(order).toLowerCase()}`}>Status: {computeOrderStatus(order)}</span>
                     <span className="order-total">Total: GH₵{order.total || 0}</span>
                   </div>
                   <div className="order-date-new">
@@ -252,7 +233,7 @@ const UserProfile = () => {
                 </div>
               ))}
             </div>
-          )}
+          }
         </div>
       </div>
 
@@ -300,14 +281,14 @@ const UserProfile = () => {
         <div className="edit-modal fade-in">
           <div className="edit-modal-content">
             <h3>Order Details</h3>
-            <p><strong>Status:</strong> {activeOrder.status}</p>
+            <p><strong>Status:</strong> {computeOrderStatus(activeOrder)}</p>
             <p><strong>Total:</strong> GH₵{activeOrder.total}</p>
             <p><strong>Payment:</strong> {activeOrder.paymentMethod}</p>
             <p><strong>Ordered on:</strong> {new Date(activeOrder.createdAt).toLocaleString()}</p>
             <h4>Items:</h4>
             <div className="order-items-new">
-              {(activeOrder.items || []).map((item) => (
-                <div key={item._id || Math.random()} className="order-item-new">
+              {(activeOrder.items || []).map(item => (
+                <div key={item._id || Math.random()} className={`order-item-new ${item.status === "rejected" ? "rejected-item" : ""}`}>
                   <img src={item.product?.image || "/placeholder.png"} alt={item.product?.title || "Product"} />
                   <div className="item-info">
                     <p>{item.product?.title || "Untitled"}</p>
@@ -316,7 +297,11 @@ const UserProfile = () => {
                   <div className="item-details-new">
                     <p>Qty: {item.quantity || 0}</p>
                     <p>GH₵{item.price || 0}</p>
-                    <span>{item.status || "Pending"}</span>
+                    {item.status === "rejected" ? (
+                      <span className="rejected-msg">❌ Sorry, this item cannot be delivered</span>
+                    ) : (
+                      <span>{item.status || "Pending"}</span>
+                    )}
                   </div>
                 </div>
               ))}
