@@ -93,6 +93,12 @@ body {
   font-size: 1em;
 }
 
+.signup-form input[name="businessName"],
+.signup-form input[name="location"],
+.signup-form input[name="phone"] {
+  margin-bottom: 1.5vh; /* same spacing as other inputs */
+}
+
 .signup-form input:focus,
 .signup-form select:focus {
   border-color: #8a6bcc;

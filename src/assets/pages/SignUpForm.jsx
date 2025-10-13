@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./SignUp.css";
+import "./SignUpForm.css";
 import logo from "../components/Header/head-image/Web-logo.png";
 import { registerUser } from "../../api/authService";
 
-function SignUp({ setUser }) {
+function SignUpForm({ setUser, role = "customer" }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     firstName: "",
@@ -12,7 +12,7 @@ function SignUp({ setUser }) {
     email: "",
     password: "",
     confirmpassword: "",
-    role: "customer",
+    role,
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -62,13 +62,16 @@ function SignUp({ setUser }) {
       <div className="signup-bg"></div>
 
       <div className="signup-container">
-        {/* Mobile/Tablet logo */}
         <img src={logo} alt="Logo" className="signup-logo-top" />
 
         <div className="signup-left">
           <img src={logo} alt="Logo" className="signup-logo" />
           <h1>Welcome to K-Store!</h1>
-          <p>Create your account and start shopping</p>
+          <p>
+            {role === "vendor"
+              ? "Join K-Store as a vendor and start selling your products."
+              : "Create your account and start shopping"}
+          </p>
         </div>
 
         <div className="signup-right">
@@ -113,10 +116,6 @@ function SignUp({ setUser }) {
               onChange={handleChange}
               required
             />
-            <select name="role" value={form.role} onChange={handleChange}>
-              <option value="customer">Customer</option>
-              <option value="vendor">Vendor</option>
-            </select>
 
             <button type="submit" disabled={loading} className="signup-button">
               {loading ? <span className="spinner"></span> : "Create Account"}
@@ -124,6 +123,20 @@ function SignUp({ setUser }) {
 
             {error && <p className="error">{error}</p>}
             {success && <p className="success">{success}</p>}
+
+            <p className="signup-text">
+              {role === "vendor" ? (
+                <>
+                  Want to sign up as a customer?{" "}
+                  <Link to="/signup">Click here</Link>
+                </>
+              ) : (
+                <>
+                  Are you a vendor?{" "}
+                  <Link to="/vendor-signup">Click here</Link>
+                </>
+              )}
+            </p>
 
             <p className="signup-text">
               Already have an account? <Link to="/login">Sign In</Link>
@@ -135,4 +148,4 @@ function SignUp({ setUser }) {
   );
 }
 
-export default SignUp;
+export default SignUpForm;
