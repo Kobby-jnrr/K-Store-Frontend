@@ -1,6 +1,9 @@
+import axios from "axios";
 import API from "./axios.js";
 
-// ✅ Register user
+/* ------------------ AUTH ------------------ */
+
+// ✅ Register user (customer or vendor)
 export const registerUser = async (userData) => {
   try {
     const res = await API.post("/auth/register", userData);
@@ -19,6 +22,21 @@ export const loginUser = async (email, password) => {
     return res.data;
   } catch (err) {
     const localRes = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+    return localRes.data;
+  }
+};
+
+// ✅ Update user info (phone, location, businessName)
+export const updateUser = async (userId, userData, token) => {
+  try {
+    const res = await API.put(`/auth/update/${userId}`, userData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  } catch (err) {
+    const localRes = await axios.put(`http://localhost:5000/api/auth/update/${userId}`, userData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     return localRes.data;
   }
 };

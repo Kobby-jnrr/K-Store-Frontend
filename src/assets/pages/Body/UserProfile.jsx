@@ -3,6 +3,11 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import "./UserProfile.css";
 
+const API_BASES = [
+  "http://localhost:5000/api",
+  "https://k-store-backend.onrender.com/api",
+];
+
 const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [verifiedStatus, setVerifiedStatus] = useState(false);
@@ -10,81 +15,53 @@ const UserProfile = () => {
   const [orders, setOrders] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [loadingOrders, setLoadingOrders] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
+  const [editingItem, setEditingItem] = useState(null);
+  const [formData, setFormData] = useState({});
   const [confirmDelete, setConfirmDelete] = useState(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    price: "",
-    category: "",
-    image: "",
-    description: "",
-  });
-
-  const API_BASES = [
-    "http://localhost:5000/api",
-    "https://k-store-backend.onrender.com/api",
-  ];
+  const [activeOrder, setActiveOrder] = useState(null);
 
   useEffect(() => {
     const sessionUser = JSON.parse(sessionStorage.getItem("user"));
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
     if (sessionUser && token) {
       setUser({ ...sessionUser, token });
       fetchVerificationStatus(sessionUser._id || sessionUser.id, token);
       if (sessionUser.role === "vendor") fetchVendorProducts(token);
       fetchUserOrders(token);
-    } else {
-      const mockUser = {
-        username: "Test User",
-        email: "test@example.com",
-        role: "vendor",
-        verified: false,
-        phone: "",
-        location: "",
-        token: "mock-token",
-      };
-      setUser(mockUser);
-      setVerifiedStatus(false);
-      setProducts([]);
-      setOrders([]);
     }
   }, []);
 
-  const fetchWithFallback = async (endpoints, token) => {
-    for (let url of endpoints) {
+  const fetchWithFallback = async (urls, token) => {
+    for (let url of urls) {
       try {
-        const res = await axios.get(url, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
         if (res.data) return res.data;
-      } catch (err) {
-        console.warn(`Request failed for ${url}:`, err.message);
-      }
+      } catch {}
     }
     return null;
   };
 
   const fetchVerificationStatus = async (userId, token) => {
-    if (!token || !userId) return setVerifiedStatus(false);
-    const endpoints = API_BASES.map((base) => `${base}/auth/status/${userId}`);
-    const data = await fetchWithFallback(endpoints, token);
+    if (!userId || !token) return;
+    const urls = API_BASES.map((base) => `${base}/auth/status/${userId}`);
+    const data = await fetchWithFallback(urls, token);
     setVerifiedStatus(data?.verified ?? false);
+    if (data) setUser((prev) => ({ ...prev, ...data }));
   };
 
   const fetchVendorProducts = async (token) => {
     setLoadingProducts(true);
-    const endpoints = API_BASES.map((base) => `${base}/products/vendor`);
-    const data = await fetchWithFallback(endpoints, token);
+    const urls = API_BASES.map((base) => `${base}/products/vendor`);
+    const data = await fetchWithFallback(urls, token);
     setProducts(Array.isArray(data) ? data : []);
     setLoadingProducts(false);
   };
 
   const fetchUserOrders = async (token) => {
     setLoadingOrders(true);
-    const endpoints = API_BASES.map((base) => `${base}/orders/my-orders`);
-    const data = await fetchWithFallback(endpoints, token);
+    const urls = API_BASES.map((base) => `${base}/orders/my-orders`);
+    const data = await fetchWithFallback(urls, token);
     setOrders(Array.isArray(data) ? data : []);
     setLoadingOrders(false);
   };
@@ -93,102 +70,122 @@ const UserProfile = () => {
 
   const handleDelete = async () => {
     if (!confirmDelete) return;
+    const token = user.token;
     const id = confirmDelete._id;
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (!token) {
-      toast.error("You must be logged in to delete a product.");
-      return;
-    }
-
     try {
       for (let base of API_BASES) {
         try {
-          await axios.delete(`${base}/products/${id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          await axios.delete(`${base}/products/${id}`, { headers: { Authorization: `Bearer ${token}` } });
           break;
-        } catch (err) {
-          console.warn(`Failed to delete from ${base}:`, err.message);
-        }
+        } catch {}
       }
-
       setProducts((prev) => prev.filter((p) => p._id !== id));
       toast.success("Product deleted successfully!");
-    } catch (err) {
+    } catch {
       toast.error("Failed to delete product.");
     } finally {
       setConfirmDelete(null);
     }
   };
 
-  const openEditModal = (product) => {
-    setEditingProduct(product);
-    setFormData({
-      title: product.title || "",
-      price: product.price || "",
-      category: product.category || "",
-      image: product.image || "",
-      description: product.description || "",
-    });
+  const openEditModal = (item, type = "product") => {
+    setEditingItem({ ...item, type });
+    if (type === "product") {
+      setFormData({
+        title: item.title || "",
+        price: item.price || "",
+        category: item.category || "",
+        image: item.image || "",
+        description: item.description || "",
+      });
+    } else {
+      setFormData({
+        phone: item.phone || "",
+        location: item.location || "",
+        businessName: item.businessName || "",
+      });
+    }
   };
 
-  const closeEditModal = () => setEditingProduct(null);
+  const closeEditModal = () => setEditingItem(null);
+
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const saveEdit = () => {
-    if (!editingProduct) return;
-    setProducts((prev) =>
-      prev.map((p) =>
-        p._id === editingProduct._id ? { ...p, ...formData } : p
-      )
-    );
-    closeEditModal();
-    toast.success("Product updated (local dev)!");
+  const saveEdit = async () => {
+    if (!editingItem) return;
+    const token = user.token;
+    try {
+      if (editingItem.type === "product") {
+        for (let base of API_BASES) {
+          try {
+            await axios.put(`${base}/products/${editingItem._id}`, formData, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            break;
+          } catch {}
+        }
+        setProducts((prev) =>
+          prev.map((p) => (p._id === editingItem._id ? { ...p, ...formData } : p))
+        );
+      } else {
+        for (let base of API_BASES) {
+          try {
+            await axios.put(`${base}/auth/update/${user._id || user.id}`, formData, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            break;
+          } catch {}
+        }
+        setUser((prev) => ({ ...prev, ...formData }));
+        sessionStorage.setItem("user", JSON.stringify({ ...user, ...formData }));
+      }
+      closeEditModal();
+      toast.success("Changes saved!");
+    } catch {
+      toast.error("Failed to save changes.");
+    }
   };
 
   const getInitials = (name) => {
     if (!name) return "";
-    const names = name.trim().split(" ");
-    return names.map((n) => n[0].toUpperCase()).slice(0, 2).join("");
+    return name
+      .trim()
+      .split(" ")
+      .map((n) => n[0].toUpperCase())
+      .slice(0, 2)
+      .join("");
   };
 
   const getAvatarColor = (name) => {
-    const colors = [
-      "#2563eb", "#f97316", "#16a34a",
-      "#eab308", "#8b5cf6", "#db2777",
-    ];
+    const colors = ["#2563eb", "#f97316", "#16a34a", "#eab308", "#8b5cf6", "#db2777"];
     let hash = 0;
-    for (let i = 0; i < name.length; i++)
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
     return colors[Math.abs(hash) % colors.length];
   };
 
   if (!user) return <div className="loader">Loading profile...</div>;
-  const isVerified = verifiedStatus ?? user.verified ?? false;
+
   const isVendor = user.role === "vendor";
+  const isVerified = verifiedStatus ?? user.verified ?? false;
 
   return (
     <div className="profile-page">
       <Toaster position="top-right" />
 
       <div className={`profile-grid ${isVendor ? "vendor-grid" : "customer-grid"}`}>
-        {/* Profile Info */}
+        {/* Profile Card */}
         <div className="profile-card side-card">
           <div className="profile-header">
-            {user.avatar ? (
-              <img
-                src={user.avatar}
-                alt={user.username}
-                className="profile-avatar"
-              />
-            ) : (
+            {!user.avatar ? (
               <div
                 className="profile-avatar initials-avatar"
                 style={{ backgroundColor: getAvatarColor(user.username) }}
               >
                 {getInitials(user.username)}
               </div>
+            ) : (
+              <img src={user.avatar} alt={user.username} className="profile-avatar" />
             )}
             <h2>
               {user.username} {isVerified && <span className="green-tick">✅</span>}
@@ -202,7 +199,9 @@ const UserProfile = () => {
             <p><strong>Email:</strong> {user.email || "Not set"}</p>
             <p><strong>Phone:</strong> {user.phone || "Not added yet"}</p>
             <p><strong>Location:</strong> {user.location || "No location set"}</p>
+            {isVendor && <p><strong>Business Name:</strong> {user.businessName || "Not added yet"}</p>}
             <p><strong>Role:</strong> {user.role}</p>
+            <button className="btn-primary" onClick={() => openEditModal(user, "vendor")}>Edit Info</button>
           </div>
         </div>
 
@@ -217,16 +216,13 @@ const UserProfile = () => {
             ) : (
               <div className="vendor-product-grid">
                 {products.map((p) => (
-                  <div key={p._id || Math.random()} className="vendor-product-card">
-                    <img
-                      src={p.image || "/placeholder.png"}
-                      alt={p.title || "Product"}
-                    />
+                  <div key={p._id || Math.random()} className="vendor-product-card hover-card">
+                    <img src={p.image || "/placeholder.png"} alt={p.title || "Product"} />
                     <h4>{p.title || "Untitled"}</h4>
                     <p>GH₵{p.price || 0}</p>
                     <div className="product-actions">
-                      <button onClick={() => openEditModal(p)}>Edit</button>
-                      <button onClick={() => confirmDeleteProduct(p)}>Delete</button>
+                      <button className="btn-primary" onClick={() => openEditModal(p)}>Edit</button>
+                      <button className="btn-danger" onClick={() => confirmDeleteProduct(p)}>Delete</button>
                     </div>
                   </div>
                 ))}
@@ -236,7 +232,7 @@ const UserProfile = () => {
         )}
 
         {/* Orders */}
-        <div className={`profile-card side-card scrollable-column`}>
+        <div className="profile-card side-card scrollable-column">
           <h3>My Orders</h3>
           {loadingOrders ? (
             <p>Loading orders...</p>
@@ -245,85 +241,92 @@ const UserProfile = () => {
           ) : (
             <div className="vendor-product-grid">
               {orders.map((order) => (
-                <div key={order._id || Math.random()} className="vendor-product-card">
+                <div key={order._id || Math.random()} className="vendor-product-card hover-card" onClick={() => setActiveOrder(order)}>
                   <div className="order-header-new">
-                    <span className={`order-status ${order.status?.toLowerCase()}`}>
-                      Status: {order.status?.toLowerCase() === "pending" ? "Pending Confirmation" : order.status || "Pending"}
-                    </span>
-                    <span className="order-total">
-                      Total: GH₵{order.total || 0}
-                    </span>
+                    <span className={`order-status ${order.status?.toLowerCase()}`}>Status: {order.status || "Pending"}</span>
+                    <span className="order-total">Total: GH₵{order.total || 0}</span>
                   </div>
-
                   <div className="order-date-new">
-                    <small>
-                      Payment: {order.paymentMethod?.toUpperCase() || "N/A"} | Ordered on:{" "}
-                      {order.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}
-                    </small>
-                  </div>
-
-                  <div className="order-items-new">
-                    {(order.items || []).map((item) => {
-                      let statusText = "Pending";
-                      let statusClass = "pending";
-                      let color = "black";
-                      switch ((item.status || "").toLowerCase()) {
-                        case "delivered":
-                          statusText = "Delivered";
-                          statusClass = "delivered";
-                          color = "green";
-                          break;
-                        case "pending":
-                          statusText = "Pending";
-                          statusClass = "pending";
-                          color = "black";
-                          break;
-                        case "processing":
-                        case "accepted":
-                        case "preparing":
-                        case "ready":
-                          statusText = "Processing";
-                          statusClass = "processing";
-                          color = "green";
-                          break;
-                        case "rejected":
-                          statusText = "Cannot be delivered";
-                          statusClass = "rejected";
-                          color = "red";
-                          break;
-                        default:
-                          statusText = item.status || "Pending";
-                          statusClass = "pending";
-                          color = "black";
-                      }
-                      return (
-                        <div key={item._id || Math.random()} className="order-item-new">
-                          <img
-                            src={item.product?.image || "/placeholder.png"}
-                            alt={item.product?.title || "Product"}
-                          />
-                          <div className="item-info">
-                            <p className="item-title">{item.product?.title || "Untitled"}</p>
-                            <p className="item-vendor">
-                              Vendor: {item.vendor?.username || "Unknown"}
-                            </p>
-                          </div>
-                          <div className="item-details-new">
-                            <p>Qty: {item.quantity || 0}</p>
-                            <p>GH₵{item.price || 0}</p>
-                            <span style={{color, fontWeight: statusText !== "Pending" ? "bold" : "normal"}}>{statusText}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                    <small>Payment: {order.paymentMethod?.toUpperCase() || "N/A"} | Ordered on: {order.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}</small>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-
       </div>
+
+      {/* Modals */}
+      {editingItem && (
+        <div className="edit-modal fade-in">
+          <div className="edit-modal-content">
+            <h3>{editingItem.type === "product" ? "Edit Product" : "Edit Info"}</h3>
+            {editingItem.type === "product" ? (
+              <>
+                <input type="text" name="title" placeholder="Title" value={formData.title} onChange={handleChange} />
+                <input type="number" name="price" placeholder="Price" value={formData.price} onChange={handleChange} />
+                <input type="text" name="category" placeholder="Category" value={formData.category} onChange={handleChange} />
+                <input type="text" name="image" placeholder="Image URL" value={formData.image} onChange={handleChange} />
+                <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} />
+              </>
+            ) : (
+              <>
+                <input type="text" name="phone" placeholder="Phone" value={formData.phone} onChange={handleChange} />
+                <input type="text" name="location" placeholder="Location" value={formData.location} onChange={handleChange} />
+                <input type="text" name="businessName" placeholder="Business Name" value={formData.businessName} onChange={handleChange} />
+              </>
+            )}
+            <div className="edit-modal-actions">
+              <button className="btn-primary" onClick={saveEdit}>Save</button>
+              <button className="btn-cancel" onClick={closeEditModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmDelete && (
+        <div className="confirm-modal fade-in">
+          <div className="confirm-modal-content">
+            <p>Are you sure you want to delete <strong>"{confirmDelete.title}"</strong>?</p>
+            <div className="confirm-buttons">
+              <button className="btn-danger" onClick={handleDelete}>Yes, Delete</button>
+              <button className="btn-cancel" onClick={() => setConfirmDelete(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeOrder && (
+        <div className="edit-modal fade-in">
+          <div className="edit-modal-content">
+            <h3>Order Details</h3>
+            <p><strong>Status:</strong> {activeOrder.status}</p>
+            <p><strong>Total:</strong> GH₵{activeOrder.total}</p>
+            <p><strong>Payment:</strong> {activeOrder.paymentMethod}</p>
+            <p><strong>Ordered on:</strong> {new Date(activeOrder.createdAt).toLocaleString()}</p>
+            <h4>Items:</h4>
+            <div className="order-items-new">
+              {(activeOrder.items || []).map((item) => (
+                <div key={item._id || Math.random()} className="order-item-new">
+                  <img src={item.product?.image || "/placeholder.png"} alt={item.product?.title || "Product"} />
+                  <div className="item-info">
+                    <p>{item.product?.title || "Untitled"}</p>
+                    <p>Vendor: {item.vendor?.username || "Unknown"}</p>
+                  </div>
+                  <div className="item-details-new">
+                    <p>Qty: {item.quantity || 0}</p>
+                    <p>GH₵{item.price || 0}</p>
+                    <span>{item.status || "Pending"}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="edit-modal-actions">
+              <button className="btn-cancel" onClick={() => setActiveOrder(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

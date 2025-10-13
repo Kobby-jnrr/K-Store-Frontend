@@ -93,10 +93,11 @@ body {
   font-size: 1em;
 }
 
+/* Extra fields for vendor */
 .signup-form input[name="businessName"],
 .signup-form input[name="location"],
 .signup-form input[name="phone"] {
-  margin-bottom: 1.5vh; /* same spacing as other inputs */
+  margin-bottom: 1.5vh; /* consistent spacing */
 }
 
 .signup-form input:focus,

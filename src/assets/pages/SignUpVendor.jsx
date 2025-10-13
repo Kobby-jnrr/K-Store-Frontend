@@ -29,14 +29,14 @@ function SignUpVendor({ setUser }) {
     setSuccess("");
     setLoading(true);
 
-    if (!form.phone.trim()) {
-      setError("Phone number is required!");
+    if (form.password !== form.confirmpassword) {
+      setError("Passwords do not match!");
       setLoading(false);
       return;
     }
 
-    if (form.password !== form.confirmpassword) {
-      setError("Passwords do not match!");
+    if (!form.phone) {
+      setError("Phone number is required!");
       setLoading(false);
       return;
     }
@@ -48,8 +48,8 @@ function SignUpVendor({ setUser }) {
         password: form.password,
         role: form.role,
         phone: form.phone,
-        businessName: form.businessName || undefined,
-        location: form.location || undefined,
+        businessName: form.businessName || "",
+        location: form.location || "",
       };
 
       const data = await registerUser(userData);
@@ -68,100 +68,42 @@ function SignUpVendor({ setUser }) {
   };
 
   return (
-    <>
-      <div className="signup-bg"></div>
+    <div className="signup-container">
+      <img src={logo} alt="Logo" className="signup-logo-top" />
 
-      <div className="signup-container">
-        <img src={logo} alt="Logo" className="signup-logo-top" />
-
-        <div className="signup-left">
-          <img src={logo} alt="Logo" className="signup-logo" />
-          <h1>Sign Up as Vendor</h1>
-          <p>Create your vendor account to start selling</p>
-        </div>
-
-        <div className="signup-right">
-          <form className="signup-form" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="firstName"
-              placeholder="First Name*"
-              value={form.firstName}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="lastName"
-              placeholder="Last Name*"
-              value={form.lastName}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email*"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="phone"
-              placeholder="Phone Number*"
-              value={form.phone}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="businessName"
-              placeholder="Business Name"
-              value={form.businessName}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="location"
-              placeholder="Location"
-              value={form.location}
-              onChange={handleChange}
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password*"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="password"
-              name="confirmpassword"
-              placeholder="Confirm Password*"
-              value={form.confirmpassword}
-              onChange={handleChange}
-              required
-            />
-
-            <button type="submit" disabled={loading} className="signup-button">
-              {loading ? <span className="spinner"></span> : "Create Account"}
-            </button>
-
-            {error && <p className="error">{error}</p>}
-            {success && <p className="success">{success}</p>}
-
-            <p className="signup-text">
-              Already have an account? <Link to="/login">Sign In</Link>
-            </p>
-            <p className="signup-text">
-              Are you a customer? <Link to="/signup">Click here</Link>
-            </p>
-          </form>
-        </div>
+      <div className="signup-left">
+        <img src={logo} alt="Logo" className="signup-logo" />
+        <h1>Sign Up as Vendor</h1>
+        <p>Create your vendor account to start selling</p>
       </div>
-    </>
+
+      <div className="signup-right">
+        <form className="signup-form" onSubmit={handleSubmit}>
+          <input type="text" name="firstName" placeholder="First Name*" value={form.firstName} onChange={handleChange} required />
+          <input type="text" name="lastName" placeholder="Last Name*" value={form.lastName} onChange={handleChange} required />
+          <input type="email" name="email" placeholder="Email*" value={form.email} onChange={handleChange} required />
+          <input type="number" name="phone" placeholder="Phone Number*" value={form.phone} onChange={handleChange} required />
+          <input type="text" name="businessName" placeholder="Business Name" value={form.businessName} onChange={handleChange} />
+          <input type="text" name="location" placeholder="Location" value={form.location} onChange={handleChange} />
+          <input type="password" name="password" placeholder="Password*" value={form.password} onChange={handleChange} required />
+          <input type="password" name="confirmpassword" placeholder="Confirm Password*" value={form.confirmpassword} onChange={handleChange} required />
+
+          <button type="submit" disabled={loading} className="signup-button">
+            {loading ? <span className="spinner"></span> : "Create Account"}
+          </button>
+
+          {error && <p className="error">{error}</p>}
+          {success && <p className="success">{success}</p>}
+
+          <p className="signup-text">
+            Already have an account? <Link to="/login">Sign In</Link>
+          </p>
+          <p className="signup-text">
+            Are you a customer? <Link to="/signup">Click here</Link>
+          </p>
+        </form>
+      </div>
+    </div>
   );
 }
 
