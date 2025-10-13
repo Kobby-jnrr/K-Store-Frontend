@@ -68,14 +68,14 @@
   cursor: pointer;
 }
 
-.card-details, .momo-details {
+.momo-details {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-top: 10px;
 }
 
-.card-details input, .momo-details input {
+.momo-details input {
   padding: 10px;
   border-radius: 5px;
   border: 1px solid #ccc;

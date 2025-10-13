@@ -218,3 +218,12 @@
   .modal-item button { width: 100%; }
   .modal-buttons { flex-direction: column; }
 }
+
+.fulfillment-badge {
+  display: inline-block;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}

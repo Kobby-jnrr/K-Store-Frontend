@@ -9,31 +9,11 @@ function Main({ cart, setCart }) {
   const [loading, setLoading] = useState(true);
 
   const categories = [
-    "fashion",
-    "electronics",
-    "home",
-    "grocery",
-    "baby",
-    "beauty",
-    "sports",
-    "gaming",
-    "books",
-    "toys",
-    "automotive",
-    "jewelry",
-    "office",
-    "pet",
-    "tools",
-    "music",
-    "health",
-    "outdoors",
-    "kitchen",
-    "shoes",
-    "accessories",
-    "other",
+    "fashion", "electronics", "home", "grocery", "baby", "beauty", "sports",
+    "gaming", "books", "toys", "automotive", "jewelry", "office", "pet",
+    "tools", "music", "health", "outdoors", "kitchen", "shoes", "accessories", "other",
   ];
 
-  // Fetch all products grouped by category
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -61,28 +41,31 @@ function Main({ cart, setCart }) {
     fetchProducts();
   }, []);
 
-  if (loading) return <p>Loading products...</p>;
-
   return (
     <main className="main">
       <div className="promo">
         🎉 Black Friday Mega Sale!! 🎉
         <span>Grab your deal now!!!!!!</span>
-        <div className="countdown" id="countdown"></div>
       </div>
 
-      {categories.map(
-        (cat) =>
-          productsByCategory[cat] && (
-            <section key={cat} id={cat}>
-              <h2>{cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}</h2>
-              <ProductList
-                category={cat}
-                cart={cart}
-                setCart={setCart}
-              />
-            </section>
-          )
+      {loading ? (
+        <div className="loading-container">
+          <p className="loading-text">Loading products...</p>
+        </div>
+      ) : (
+        <>
+          {categories.map(
+            (cat) =>
+              productsByCategory[cat] && (
+                <section key={cat} id={cat}>
+                  <h2>
+                    {cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}
+                  </h2>
+                  <ProductList category={cat} cart={cart} setCart={setCart} />
+                </section>
+              )
+          )}
+        </>
       )}
 
       <Link to="/cartPage">

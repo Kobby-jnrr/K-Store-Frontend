@@ -34,12 +34,6 @@ function SignUpCustomer({ setUser }) {
       return;
     }
 
-    if (!form.phone) {
-      setError("Phone number is required!");
-      setLoading(false);
-      return;
-    }
-
     try {
       const userData = {
         username: `${form.firstName} ${form.lastName}`,
@@ -82,7 +76,7 @@ function SignUpCustomer({ setUser }) {
           <input type="email" name="email" placeholder="Email*" value={form.email} onChange={handleChange} required />
           <input type="password" name="password" placeholder="Password*" value={form.password} onChange={handleChange} required />
           <input type="password" name="confirmpassword" placeholder="Confirm Password*" value={form.confirmpassword} onChange={handleChange} required />
-          <input type="number" name="phone" placeholder="Phone Number*" value={form.phone} onChange={handleChange} required />
+          <input type="number" name="phone" placeholder="Phone Number" value={form.phone} onChange={handleChange} />
           <input type="text" name="location" placeholder="Location" value={form.location} onChange={handleChange} />
 
           <button type="submit" disabled={loading} className="signup-button">

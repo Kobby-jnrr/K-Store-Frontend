@@ -148,6 +148,7 @@
 }
 .order-status {
   padding: 0.3rem 0.6rem;
+  margin-right: 15px;
   border-radius: 8px;
   font-size: 0.85rem;
   color: white;

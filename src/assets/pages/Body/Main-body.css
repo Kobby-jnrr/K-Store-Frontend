@@ -166,3 +166,17 @@
         font-size: 0.8em;
     }
 }
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh; /* keeps page tall enough while loading */
+  text-align: center;
+}
+
+.loading-text {
+  font-size: 1.5rem;
+  color: #555;
+  font-weight: 500;
+}

@@ -8,6 +8,9 @@ const API_BASES = [
   "https://k-store-backend.onrender.com/api",
 ];
 
+// --- Utility to ceil to 2 decimals ---
+const ceil2 = (num) => Math.ceil(num * 100) / 100;
+
 const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [verifiedStatus, setVerifiedStatus] = useState(false);
@@ -122,7 +125,9 @@ const UserProfile = () => {
             break;
           } catch {}
         }
-        setProducts(prev => prev.map(p => (p._id === editingItem._id ? { ...p, ...formData } : p)));
+        setProducts(prev =>
+          prev.map(p => (p._id === editingItem._id ? { ...p, ...formData } : p))
+        );
       } else {
         for (let base of API_BASES) {
           try {
@@ -142,7 +147,7 @@ const UserProfile = () => {
 
   const getInitials = (name) => {
     if (!name) return "";
-    return name.trim().split(" ").map(n => n[0].toUpperCase()).slice(0,2).join("");
+    return name.trim().split(" ").map(n => n[0].toUpperCase()).slice(0, 2).join("");
   };
 
   const getAvatarColor = (name) => {
@@ -163,7 +168,7 @@ const UserProfile = () => {
   if (!user) return <div className="loader">Loading profile...</div>;
 
   const isVendor = user.role === "vendor";
-  const isVerified = verifiedStatus ?? user.verified ?? false;
+  const isVerified = isVendor ? (verifiedStatus ?? user.verified ?? false): false ;
 
   return (
     <div className="profile-page">
@@ -178,10 +183,14 @@ const UserProfile = () => {
                 {getInitials(user.username)}
               </div>
             ) : <img src={user.avatar} alt={user.username} className="profile-avatar" />}
-            <h2>{user.username} {isVerified && <span className="green-tick">✅</span>}</h2>
-            <span className={`vendor-badge ${isVerified ? "verified" : "unverified"}`}>
-              {isVerified ? "Verified Account" : "Unverified"}
-            </span>
+                        <h2>
+              {user.username} {isVendor && isVerified && <span className="green-tick">✅</span>}
+              </h2>
+              {isVendor && (
+                <span className={`vendor-badge ${isVerified ? "verified" : "unverified"}`}>
+                  {isVerified ? "Verified Account" : "Unverified"}
+                </span>
+              )}
           </div>
           <div className="profile-section">
             <h3>Account Info</h3>
@@ -204,7 +213,7 @@ const UserProfile = () => {
                   <div key={p._id || Math.random()} className="vendor-product-card hover-card">
                     <img src={p.image || "/placeholder.png"} alt={p.title || "Product"} />
                     <h4>{p.title || "Untitled"}</h4>
-                    <p>GH₵{p.price || 0}</p>
+                    <p>GH₵{ceil2(p.price || 0).toFixed(2)}</p>
                     <div className="product-actions">
                       <button className="btn-primary" onClick={() => openEditModal(p)}>Edit</button>
                       <button className="btn-danger" onClick={() => confirmDeleteProduct(p)}>Delete</button>
@@ -225,7 +234,7 @@ const UserProfile = () => {
                 <div key={order._id || Math.random()} className="vendor-product-card hover-card" onClick={() => setActiveOrder(order)}>
                   <div className="order-header-new">
                     <span className={`order-status ${computeOrderStatus(order).toLowerCase()}`}>Status: {computeOrderStatus(order)}</span>
-                    <span className="order-total">Total: GH₵{order.total || 0}</span>
+                    <span className="order-total">Total: GH₵{ceil2(order.total || 0).toFixed(2)}</span>
                   </div>
                   <div className="order-date-new">
                     <small>Payment: {order.paymentMethod?.toUpperCase() || "N/A"} | Ordered on: {order.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"}</small>
@@ -282,7 +291,7 @@ const UserProfile = () => {
           <div className="edit-modal-content">
             <h3>Order Details</h3>
             <p><strong>Status:</strong> {computeOrderStatus(activeOrder)}</p>
-            <p><strong>Total:</strong> GH₵{activeOrder.total}</p>
+            <p><strong>Total:</strong> GH₵{ceil2(activeOrder.total || 0).toFixed(2)}</p>
             <p><strong>Payment:</strong> {activeOrder.paymentMethod}</p>
             <p><strong>Ordered on:</strong> {new Date(activeOrder.createdAt).toLocaleString()}</p>
             <h4>Items:</h4>
@@ -296,7 +305,7 @@ const UserProfile = () => {
                   </div>
                   <div className="item-details-new">
                     <p>Qty: {item.quantity || 0}</p>
-                    <p>GH₵{item.price || 0}</p>
+                    <p>GH₵{ceil2(item.price || 0).toFixed(2)}</p>
                     {item.status === "rejected" ? (
                       <span className="rejected-msg">❌ Sorry, this item cannot be delivered</span>
                     ) : (
