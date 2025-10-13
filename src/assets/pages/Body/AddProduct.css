@@ -395,3 +395,47 @@
 .success-modal button:hover {
   background: #218838;
 }
+.searchable-dropdown {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.searchable-dropdown input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+  display: none;
+}
+
+.dropdown-options.show {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown-item.disabled {
+  cursor: default;
+  color: #aaa;
+}

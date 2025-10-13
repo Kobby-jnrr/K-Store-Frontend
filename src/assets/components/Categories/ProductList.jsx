@@ -3,7 +3,7 @@ import API from "../../../api/axios.js";
 import axios from "axios";
 import "./ProductList.css";
 
-function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
+function ProductList({ category, cart, setCart, searchQuery, priceRange, showCategoryTitle }) {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -75,37 +75,37 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange }) {
     }
   };
 
-  if (loading) return <p>Loading products...</p>;
-  if (error) return <p className="error">{error}</p>;
+  if (loading || error) return null; // hide section while loading or error
+
+  if (filteredProducts.length === 0) return null; // hide section if no products
 
   return (
-    <div className="product-list">
-      {filteredProducts.length === 0 && <p>No products found.</p>}
-
-      {filteredProducts.map((item) => (
-        <div key={item._id} className="product-card">
-          <img src={item.image} alt={item.title} className="product-img" />
-          <h4>{item.title}</h4>
-          <p className="price">GH₵{item.price}</p>
-          {item.vendor && (
-            <p className="vendor-name">
-              Vendor: {item.vendor.username}
-            </p>
-          )}
-          {!cart[item._id] ? (
-            <button className="add-btn" onClick={() => addToCart(item)}>
-              Add to Cart
-            </button>
-          ) : (
-            <div className="counter">
-              <button onClick={() => decrease(item._id)}>-</button>
-              <span>{cart[item._id].quantity}</span>
-              <button onClick={() => increase(item._id)}>+</button>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
+    <section id={category}>
+      {showCategoryTitle && (
+        <h2>{category.charAt(0).toUpperCase() + category.slice(1).replace("-", " ")}</h2>
+      )}
+      <div className="product-list">
+        {filteredProducts.map((item) => (
+          <div key={item._id} className="product-card">
+            <img src={item.image} alt={item.title} className="product-img" />
+            <h4>{item.title}</h4>
+            <p className="price">GH₵{item.price}</p>
+            {item.vendor && <p className="vendor-name">Vendor: {item.vendor.username}</p>}
+            {!cart[item._id] ? (
+              <button className="add-btn" onClick={() => addToCart(item)}>
+                Add to Cart
+              </button>
+            ) : (
+              <div className="counter">
+                <button onClick={() => decrease(item._id)}>-</button>
+                <span>{cart[item._id].quantity}</span>
+                <button onClick={() => increase(item._id)}>+</button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 

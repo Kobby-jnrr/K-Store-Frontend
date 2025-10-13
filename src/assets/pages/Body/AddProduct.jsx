@@ -1,9 +1,63 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import "./AddProduct.css";
 
+// -------------------- Reusable SearchableDropdown --------------------
+const SearchableDropdown = ({ options, value, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState(value || "");
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter((opt) =>
+    opt.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  return (
+    <div ref={ref} className="searchable-dropdown">
+      <input
+        type="text"
+        placeholder="Search or select category..."
+        value={filter}
+        onChange={(e) => {
+          setFilter(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+      />
+      <div className={`dropdown-options ${open ? "show" : ""}`}>
+        {filteredOptions.length === 0 ? (
+          <div className="dropdown-item disabled">No categories found</div>
+        ) : (
+          filteredOptions.map((opt) => (
+            <div
+              key={opt}
+              className="dropdown-item"
+              onClick={() => {
+                onChange(opt);
+                setFilter(opt);
+                setOpen(false);
+              }}
+            >
+              {opt.charAt(0).toUpperCase() + opt.slice(1)}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+// -------------------- Main VendorProducts Component --------------------
 const VendorProducts = () => {
   const navigate = useNavigate();
   const [vendor, setVendor] = useState(null);
@@ -33,20 +87,38 @@ const VendorProducts = () => {
   const [editPreview, setEditPreview] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
+  // -------------------- Categories (matches backend enum) --------------------
   const categories = [
-    "fashion",
-    "electronics",
-    "home",
-    "grocery",
-    "baby",
-    "beauty",
-    "sports",
-    "gaming",
-  ];
+  "fashion",
+  "electronics",
+  "home",
+  "grocery",
+  "baby",
+  "beauty",
+  "sports",
+  "gaming",
+  "books",
+  "toys",
+  "automotive",
+  "jewelry",
+  "health",
+  "pets",
+  "office",
+  "tools",
+  "garden",
+  "music",
+  "movies",
+  "appliances",
+  "footwear",
+  "accessories",
+  "outdoor",
+  "art",
+  "other",
+];
 
   const API_BASE = "https://k-store-backend.onrender.com/api/products";
 
-  // Load vendor & products
+  // -------------------- Load vendor & products --------------------
   useEffect(() => {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -72,6 +144,7 @@ const VendorProducts = () => {
     }
   };
 
+  // -------------------- File Handlers --------------------
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -86,7 +159,7 @@ const VendorProducts = () => {
     setEditPreview(URL.createObjectURL(file));
   };
 
-  // ---------------- Add Product ----------------
+  // -------------------- Add Product --------------------
   const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.price || !formData.category || !selectedFile) {
@@ -123,7 +196,7 @@ const VendorProducts = () => {
     }
   };
 
-  // ---------------- Edit Product ----------------
+  // -------------------- Edit Product --------------------
   const openEdit = (product) => {
     setEditingProduct(product);
     setEditData({
@@ -166,7 +239,7 @@ const VendorProducts = () => {
     }
   };
 
-  // ---------------- Delete Product ----------------
+  // -------------------- Delete Product --------------------
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete this product?")) return;
     try {
@@ -190,6 +263,7 @@ const VendorProducts = () => {
       </h2>
 
       <div className="products-container">
+        {/* ---------------- Add Product Form ---------------- */}
         <div className="half-section add-product">
           <form className="vendor-form" onSubmit={handleAddProduct}>
             <h3>Add Product</h3>
@@ -206,18 +280,11 @@ const VendorProducts = () => {
               onChange={(e) => setFormData({ ...formData, price: e.target.value })}
               required
             />
-            <select
+            <SearchableDropdown
+              options={categories}
               value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              required
-            >
-              <option value="">Select Category</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setFormData({ ...formData, category: val })}
+            />
             {previewUrl && <img src={previewUrl} alt="Preview" className="image-preview" />}
             <input type="file" accept="image/*" onChange={handleFileSelect} required />
             <textarea
@@ -225,13 +292,13 @@ const VendorProducts = () => {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
-
             <button type="submit" className="add-product-button">
               {adding ? <span className="spinner"></span> : "Add Product"}
             </button>
           </form>
         </div>
 
+        {/* ---------------- Products List ---------------- */}
         <div className="half-section edit-products">
           <h3>Your Products</h3>
           <div className="products-list">
@@ -265,16 +332,11 @@ const VendorProducts = () => {
                 value={editData.price}
                 onChange={(e) => setEditData({ ...editData, price: e.target.value })}
               />
-              <select
+              <SearchableDropdown
+                options={categories}
                 value={editData.category}
-                onChange={(e) => setEditData({ ...editData, category: e.target.value })}
-              >
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setEditData({ ...editData, category: val })}
+              />
               {editPreview && <img src={editPreview} alt="Preview" className="image-preview" />}
               <input type="file" accept="image/*" onChange={handleEditFileSelect} />
               <textarea

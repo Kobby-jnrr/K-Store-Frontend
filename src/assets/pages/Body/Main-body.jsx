@@ -1,34 +1,57 @@
+import React from "react";
+import { Link } from "react-router-dom";
 import ProductList from "../../components/Categories/ProductList";
 import "./Main-body.css";
-import { Link } from "react-router-dom";
 
-function Main({ cart, setCart }) {
-  const user = JSON.parse(sessionStorage.getItem("user")); // ✅ use sessionStorage
+function Main({ cart, setCart, searchQuery, priceRange }) {
+  const categories = [
+    "fashion",
+    "electronics",
+    "home",
+    "grocery",
+    "baby",
+    "beauty",
+    "sports",
+    "gaming",
+    "books",
+    "toys",
+    "automotive",
+    "jewelry",
+    "office",
+    "pet",
+    "tools",
+    "music",
+    "health",
+    "outdoors",
+    "kitchen",
+    "shoes",
+    "accessories",
+    "other",
+  ];
 
   return (
     <main className="main">
+      {/* Promo Banner */}
       <div className="promo">
         🎉 Black Friday Mega Sale!! 🎉
         <span>Grab your deal now!!!!!!</span>
         <div className="countdown" id="countdown"></div>
       </div>
 
-      {[
-        "fashion",
-        "electronics",
-        "home",
-        "grocery",
-        "baby",
-        "beauty",
-        "sports",
-        "gaming",
-      ].map((cat) => (
-        <section key={cat} id={cat}>
-          <h2>{cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}</h2>
-          <ProductList category={cat} cart={cart} setCart={setCart} />
-        </section>
+      {/* Categories with products */}
+      {categories.map((cat) => (
+        <ProductList
+          key={cat}
+          category={cat}
+          cart={cart}
+          setCart={setCart}
+          searchQuery={searchQuery}
+          priceRange={priceRange}
+          showCategoryTitle={true} // title only shows if products exist
+        />
       ))}
 
+      {/* Go to cart button */}
       <Link to="/cartPage">
         <button className="go-cart">GO TO CART</button>
       </Link>
