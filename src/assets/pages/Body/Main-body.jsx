@@ -1,9 +1,13 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import ProductList from "../../components/Categories/ProductList";
 import "./Main-body.css";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
-function Main({ cart, setCart, searchQuery, priceRange }) {
+function Main({ cart, setCart }) {
+  const [productsByCategory, setProductsByCategory] = useState({});
+  const [loading, setLoading] = useState(true);
+
   const categories = [
     "fashion",
     "electronics",
@@ -29,29 +33,58 @@ function Main({ cart, setCart, searchQuery, priceRange }) {
     "other",
   ];
 
+  // Fetch all products grouped by category
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      const newProductsByCategory = {};
+
+      await Promise.all(
+        categories.map(async (cat) => {
+          try {
+            const res = await axios.get(
+              `https://k-store-backend.onrender.com/api/products/${cat}`
+            );
+            if (res.data && res.data.length > 0) {
+              newProductsByCategory[cat] = res.data;
+            }
+          } catch (err) {
+            console.error(`Failed to fetch ${cat}`, err);
+          }
+        })
+      );
+
+      setProductsByCategory(newProductsByCategory);
+      setLoading(false);
+    };
+
+    fetchProducts();
+  }, []);
+
+  if (loading) return <p>Loading products...</p>;
+
   return (
     <main className="main">
-      {/* Promo Banner */}
       <div className="promo">
         🎉 Black Friday Mega Sale!! 🎉
         <span>Grab your deal now!!!!!!</span>
         <div className="countdown" id="countdown"></div>
       </div>
 
-      {/* Categories with products */}
-      {categories.map((cat) => (
-        <ProductList
-          key={cat}
-          category={cat}
-          cart={cart}
-          setCart={setCart}
-          searchQuery={searchQuery}
-          priceRange={priceRange}
-          showCategoryTitle={true} // title only shows if products exist
-        />
-      ))}
+      {categories.map(
+        (cat) =>
+          productsByCategory[cat] && (
+            <section key={cat} id={cat}>
+              <h2>{cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}</h2>
+              <ProductList
+                category={cat}
+                cart={cart}
+                setCart={setCart}
+              />
+            </section>
+          )
+      )}
 
-      {/* Go to cart button */}
       <Link to="/cartPage">
         <button className="go-cart">GO TO CART</button>
       </Link>

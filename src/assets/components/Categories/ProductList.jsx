@@ -3,13 +3,12 @@ import API from "../../../api/axios.js";
 import axios from "axios";
 import "./ProductList.css";
 
-function ProductList({ category, cart, setCart, searchQuery, priceRange, showCategoryTitle }) {
+function ProductList({ category, cart, setCart, searchQuery, priceRange, vendor }) {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -18,14 +17,15 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange, showCat
 
       try {
         const res = await API.fallbackRequest("get", url);
-        setProducts(res.data);
+        setProducts(res.data || []);
       } catch {
         try {
           const localRes = await axios.get(`http://localhost:5000/api${url}`);
-          setProducts(localRes.data);
+          setProducts(localRes.data || []);
         } catch (err) {
           console.error(err);
           setError("Failed to load products. Please try again later.");
+          setProducts([]);
         }
       } finally {
         setLoading(false);
@@ -34,7 +34,7 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange, showCat
     fetchProducts();
   }, [category]);
 
-  // Filter products
+  // Apply filters: search, price, vendor
   useEffect(() => {
     let filtered = [...products];
 
@@ -55,8 +55,12 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange, showCat
       });
     }
 
+    if (vendor) {
+      filtered = filtered.filter((p) => p.vendor?.username === vendor);
+    }
+
     setFilteredProducts(filtered);
-  }, [products, searchQuery, priceRange]);
+  }, [products, searchQuery, priceRange, vendor]);
 
   // Cart management
   const addToCart = (product) =>
@@ -75,17 +79,15 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange, showCat
     }
   };
 
-  if (loading || error) return null; // hide section while loading or error
-
-  if (filteredProducts.length === 0) return null; // hide section if no products
+  if (loading) return <p>Loading products...</p>;
+  if (error) return <p className="error">{error}</p>;
 
   return (
-    <section id={category}>
-      {showCategoryTitle && (
-        <h2>{category.charAt(0).toUpperCase() + category.slice(1).replace("-", " ")}</h2>
-      )}
-      <div className="product-list">
-        {filteredProducts.map((item) => (
+    <div className="product-list">
+      {filteredProducts.length === 0 ? (
+        <p>No products found.</p>
+      ) : (
+        filteredProducts.map((item) => (
           <div key={item._id} className="product-card">
             <img src={item.image} alt={item.title} className="product-img" />
             <h4>{item.title}</h4>
@@ -103,9 +105,9 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange, showCat
               </div>
             )}
           </div>
-        ))}
-      </div>
-    </section>
+        ))
+      )}
+    </div>
   );
 }
 
