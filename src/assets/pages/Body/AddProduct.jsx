@@ -34,9 +34,17 @@ const VendorProducts = () => {
   const [savingEdit, setSavingEdit] = useState(false);
 
   const categories = [
-    "fashion", "electronics", "home", "grocery",
-    "baby", "beauty", "sports", "gaming"
+    "fashion",
+    "electronics",
+    "home",
+    "grocery",
+    "baby",
+    "beauty",
+    "sports",
+    "gaming",
   ];
+
+  const API_BASE = "https://k-store-backend.onrender.com/api/products";
 
   // Load vendor & products
   useEffect(() => {
@@ -55,10 +63,9 @@ const VendorProducts = () => {
 
   const fetchProducts = async (token) => {
     try {
-      const res = await axios.get(
-        "https://k-store-backend.onrender.com/api/products/vendor",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await axios.get(`${API_BASE}/vendor`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setProducts(res.data);
     } catch {
       toast.error("Failed to load your products.");
@@ -79,19 +86,7 @@ const VendorProducts = () => {
     setEditPreview(URL.createObjectURL(file));
   };
 
-  const uploadToCloudinary = async (file) => {
-    const formDataCloud = new FormData();
-    formDataCloud.append("file", file);
-    formDataCloud.append("upload_preset", "K-Store");
-    const res = await fetch("https://api.cloudinary.com/v1_1/dydefhhcd/image/upload", {
-      method: "POST",
-      body: formDataCloud,
-    });
-    const data = await res.json();
-    return data.secure_url;
-  };
-
-  // Add Product
+  // ---------------- Add Product ----------------
   const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.price || !formData.category || !selectedFile) {
@@ -101,20 +96,19 @@ const VendorProducts = () => {
 
     setAdding(true);
     try {
-      const imageUrl = await uploadToCloudinary(selectedFile);
+      const payload = new FormData();
+      payload.append("title", formData.title);
+      payload.append("price", formData.price);
+      payload.append("category", formData.category);
+      payload.append("description", formData.description || "");
+      payload.append("image", selectedFile);
 
-      const payload = {
-        ...formData,
-        price: Number(formData.price),
-        image: imageUrl,
-        vendor: vendor._id, // ✅ include vendor
-      };
-
-      await axios.post(
-        "https://k-store-backend.onrender.com/api/products",
-        payload,
-        { headers: { Authorization: `Bearer ${vendor.token}` } }
-      );
+      await axios.post(API_BASE, payload, {
+        headers: {
+          Authorization: `Bearer ${vendor.token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       setFormData({ title: "", price: "", category: "", description: "" });
       setSelectedFile(null);
@@ -129,7 +123,7 @@ const VendorProducts = () => {
     }
   };
 
-  // Edit Product
+  // ---------------- Edit Product ----------------
   const openEdit = (product) => {
     setEditingProduct(product);
     setEditData({
@@ -145,23 +139,21 @@ const VendorProducts = () => {
   const saveEdit = async () => {
     setSavingEdit(true);
     try {
-      let imageUrl = editPreview;
-      if (editFile) imageUrl = await uploadToCloudinary(editFile);
+      const payload = new FormData();
+      payload.append("title", editData.title);
+      payload.append("price", editData.price);
+      payload.append("category", editData.category);
+      payload.append("description", editData.description || "");
+      if (editFile) payload.append("image", editFile);
 
-      const payload = {
-        ...editData,
-        image: imageUrl,
-        vendor: vendor._id, // ✅ include vendor
-        price: Number(editData.price),
-      };
+      const res = await axios.put(`${API_BASE}/${editingProduct._id}`, payload, {
+        headers: {
+          Authorization: `Bearer ${vendor.token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-      const res = await axios.put(
-        `https://k-store-backend.onrender.com/api/products/${editingProduct._id}`,
-        payload,
-        { headers: { Authorization: `Bearer ${vendor.token}` } }
-      );
-
-      setProducts(products.map(p => (p._id === editingProduct._id ? res.data.product : p)));
+      setProducts(products.map((p) => (p._id === editingProduct._id ? res.data.product : p)));
       setEditingProduct(null);
       setEditFile(null);
       setEditPreview("");
@@ -174,14 +166,14 @@ const VendorProducts = () => {
     }
   };
 
+  // ---------------- Delete Product ----------------
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete this product?")) return;
     try {
-      await axios.delete(
-        `https://k-store-backend.onrender.com/api/products/${id}`,
-        { headers: { Authorization: `Bearer ${vendor.token}` } }
-      );
-      setProducts(products.filter(p => p._id !== id));
+      await axios.delete(`${API_BASE}/${id}`, {
+        headers: { Authorization: `Bearer ${vendor.token}` },
+      });
+      setProducts(products.filter((p) => p._id !== id));
       toast.success("🗑️ Product deleted!");
     } catch {
       toast.error("Failed to delete product.");
@@ -201,15 +193,38 @@ const VendorProducts = () => {
         <div className="half-section add-product">
           <form className="vendor-form" onSubmit={handleAddProduct}>
             <h3>Add Product</h3>
-            <input placeholder="Product Name" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required />
-            <input type="number" placeholder="Price" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} required />
-            <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} required>
+            <input
+              placeholder="Product Name"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              required
+            />
+            <input
+              type="number"
+              placeholder="Price"
+              value={formData.price}
+              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+              required
+            />
+            <select
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              required
+            >
               <option value="">Select Category</option>
-              {categories.map(cat => <option key={cat} value={cat}>{cat.charAt(0).toUpperCase()+cat.slice(1)}</option>)}
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </option>
+              ))}
             </select>
             {previewUrl && <img src={previewUrl} alt="Preview" className="image-preview" />}
             <input type="file" accept="image/*" onChange={handleFileSelect} required />
-            <textarea placeholder="Description (optional)" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
+            <textarea
+              placeholder="Description (optional)"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
 
             <button type="submit" className="add-product-button">
               {adding ? <span className="spinner"></span> : "Add Product"}
@@ -220,8 +235,10 @@ const VendorProducts = () => {
         <div className="half-section edit-products">
           <h3>Your Products</h3>
           <div className="products-list">
-            {products.length === 0 ? <p>No products added yet.</p> :
-              products.map(p => (
+            {products.length === 0 ? (
+              <p>No products added yet.</p>
+            ) : (
+              products.map((p) => (
                 <div key={p._id} className="product-card">
                   <img src={p.image} alt={p.title} className="product-img" />
                   <h4>{p.title}</h4>
@@ -233,22 +250,43 @@ const VendorProducts = () => {
                   </div>
                 </div>
               ))
-            }
+            )}
           </div>
 
           {editingProduct && (
             <div className="edit-form">
               <h4>Editing: {editingProduct.title}</h4>
-              <input value={editData.title} onChange={e => setEditData({...editData, title: e.target.value})} />
-              <input type="number" value={editData.price} onChange={e => setEditData({...editData, price: e.target.value})} />
-              <select value={editData.category} onChange={e => setEditData({...editData, category: e.target.value})}>
-                {categories.map(cat => <option key={cat} value={cat}>{cat.charAt(0).toUpperCase()+cat.slice(1)}</option>)}
+              <input
+                value={editData.title}
+                onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+              />
+              <input
+                type="number"
+                value={editData.price}
+                onChange={(e) => setEditData({ ...editData, price: e.target.value })}
+              />
+              <select
+                value={editData.category}
+                onChange={(e) => setEditData({ ...editData, category: e.target.value })}
+              >
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  </option>
+                ))}
               </select>
               {editPreview && <img src={editPreview} alt="Preview" className="image-preview" />}
               <input type="file" accept="image/*" onChange={handleEditFileSelect} />
-              <textarea value={editData.description} onChange={e => setEditData({...editData, description: e.target.value})} />
-              <button onClick={saveEdit} disabled={savingEdit}>{savingEdit ? "Saving..." : "Save"}</button>
-              <button onClick={() => setEditingProduct(null)} disabled={savingEdit}>Cancel</button>
+              <textarea
+                value={editData.description}
+                onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+              />
+              <button onClick={saveEdit} disabled={savingEdit}>
+                {savingEdit ? "Saving..." : "Save"}
+              </button>
+              <button onClick={() => setEditingProduct(null)} disabled={savingEdit}>
+                Cancel
+              </button>
             </div>
           )}
         </div>
