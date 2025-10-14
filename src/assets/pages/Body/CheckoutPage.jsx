@@ -19,7 +19,7 @@ function CheckoutPage({ cart, setCart }) {
   const deliveryFee = fulfillmentType === "delivery" ? 20 : 0;
   const total = subtotal + deliveryFee;
 
-  /* ------------------- PLACE ORDER ------------------- */
+  // ------------------- PLACE ORDER -------------------
   const placeOrder = async () => {
     const token =
       localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -45,25 +45,46 @@ function CheckoutPage({ cart, setCart }) {
       ...(paymentMethod === "momo" ? { momoNumber } : {}),
     };
 
+    // --- Hardcoded API with fallback ---
+    const API_BASES = [
+      "https://k-store-backend.onrender.com",
+      "http://localhost:5000",
+    ];
+    let API_BASE = API_BASES[0];
+
     try {
-      const res = await fetch(
-        `${
-          import.meta.env.VITE_API_BASE_URL ||
-          "http://localhost:5000"
-        }/api/orders`,
-        {
+      // Try to reach live backend first
+      const res = await fetch(`${API_BASE}/api/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!res.ok) {
+        // If live fails, try localhost
+        console.warn("Falling back to localhost backend...");
+        API_BASE = API_BASES[1];
+
+        const localRes = await fetch(`${API_BASE}/api/orders`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(orderData),
-        }
-      );
+        });
+
+        if (!localRes.ok) throw new Error("Order failed");
+        const localData = await localRes.json();
+        setCart({});
+        setOrderModal(true);
+        return;
+      }
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Order failed");
-
       setCart({});
       setOrderModal(true);
     } catch (err) {
@@ -74,19 +95,17 @@ function CheckoutPage({ cart, setCart }) {
     }
   };
 
-  /* ------------------- CONFIRM HANDLER ------------------- */
+  // ------------------- CONFIRM HANDLER -------------------
   const confirmOrder = () => {
     const uniqueVendors = [
       ...new Set(cartItems.map((item) => item.vendor?._id || item.vendor)),
     ];
 
-    // If pickup and multiple vendors → show warning first
     if (fulfillmentType === "pickup" && uniqueVendors.length > 1) {
       setPickupWarning(true);
       return;
     }
 
-    // Otherwise place order directly
     placeOrder();
   };
 
@@ -100,7 +119,7 @@ function CheckoutPage({ cart, setCart }) {
     navigate("/");
   };
 
-  /* ------------------- RENDER ------------------- */
+  // ------------------- RENDER -------------------
   return (
     <div className="checkout-container">
       {cartItems.length === 0 ? (
@@ -223,7 +242,9 @@ function CheckoutPage({ cart, setCart }) {
               different pickup location.
             </p>
             <p>Are you sure you want to continue?</p>
-            <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+            <div
+              style={{ display: "flex", gap: "10px", justifyContent: "center" }}
+            >
               <button
                 style={{ background: "#16a34a" }}
                 onClick={handleProceedPickup}
