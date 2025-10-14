@@ -1,182 +1,210 @@
+/* ---------- MAIN LAYOUT ---------- */
 .main {
-    margin-left: 15px;
-    margin-top: 55px;
-    padding: 10px;
-    transition: margin-left 0.3s ease;
-    min-height: 100vh;   
-    overflow-y: auto;      
+  margin-left: 15px;
+  margin-top: 55px;
+  padding: 10px;
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+  overflow-y: auto;
 }
 
 .sidebar.open ~ .main {
-    margin-left: 240px; 
+  margin-left: 240px;
 }
 
+/* ---------- PROMO ---------- */
 .promo {
-    text-align: center;
-    padding: 20px;
-    background: linear-gradient(90deg, #8a6bcc, #130043);
-    color: white;
-    font-size: 30px;
-    font-weight: bold;
-    margin-top: 5px;
-    margin-bottom: 10px; 
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(90deg, #8a6bcc, #130043);
+  color: white;
+  font-size: 30px;
+  font-weight: bold;
+  margin: 5px 0 10px 0;
 }
 
-.product-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.pp {
-    width: 100%;
-    max-height: 200px;
-    object-fit: cover;
-}
-
-.product {
-    border: solid grey;
-    border-radius: 10px;
-    text-align: center;
-    line-height: 5px;
-    padding: 10px;
-}
-
-/* Cart Button */
+/* ---------- CART BUTTON ---------- */
 .go-cart {
-    padding: 10px 15px;
-    color: white;
-    border: none;
-    border-radius: 9px;
-    cursor: pointer;
-    position: fixed;
-    top: 90vh;
-    right: 20px;
-    background: rgb(17, 194, 17);
-    font-weight: bold;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-    transition: 0.2s;
+  padding: 10px 15px;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  position: fixed;
+  top: 90vh;
+  right: 20px;
+  background: rgb(17, 194, 17);
+  font-weight: bold;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  transition: 0.2s;
 }
 
 .go-cart:hover {
-    opacity: 0.9;
+  opacity: 0.9;
 }
 
-/* -------- TABLET -------- */
-@media(max-width: 1024px) {
-    .main {
-        margin-left: 0;
-        margin-top: 70px;
-        padding: 8px;
-    }
-
-    .promo {
-        font-size: 24px;
-        padding: 15px;
-    }
-
-    section h2 {
-        font-size: 1.5rem;
-    }
-
-    .product-list {
-        grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
-        gap: 30px;
-    }
-
-    .pp {
-        max-height: 170px;
-    }
-
-    .product {
-        padding: 8px;
-        font-size: 0.9em;
-    }
-
-    .go-cart {
-        top: 85vh;
-        padding: 9px 13px;
-        font-size: 14px;
-    }
-}
-
-/* -------- MOBILE -------- */
-@media(max-width: 768px) {
-    
-    .main {
-        margin-left: 2px;
-        margin-top: 75px;
-        padding: 20px;
-    }
-
-    .promo {
-        display: none;
-    }
-
-    section h2 {
-        font-size: 1.2rem;
-        text-align: center;
-    }
-
-    .product-list {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 13px;
-    }
-
-    .pp {
-        max-height: 120px;
-    }
-
-    .product {
-        padding: 5px;
-        font-size: 0.85em;
-    }
-
-    .go-cart {
-        bottom: 20px;
-        right: 15px;
-        top: auto;
-        padding: 7px 10px;
-        font-size: 13px;
-    }
-}
-
-/* Optional extra small screens */
-@media(max-width: 480px) {
-    .promo {
-        font-size: 16px;
-        padding: 8px 5px;
-    }
-
-    section h2 {
-        font-size: 1rem;
-    }
-
-    .product-list {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 10px;
-    }
-
-    .pp {
-        max-height: 100px;
-    }
-
-    .product {
-        padding: 4px;
-        font-size: 0.8em;
-    }
-}
-
-.loading-container {
+/* ---------- TOGGLE BUTTONS ---------- */
+.view-toggle-tabs {
   display: flex;
   justify-content: center;
-  align-items: center;
-  height: 70vh; /* keeps page tall enough while loading */
-  text-align: center;
+  margin: 1rem 0;
+  gap: 1rem;
 }
 
-.loading-text {
-  font-size: 1.5rem;
-  color: #555;
+.tab-btn {
+  padding: 0.5rem 1.2rem;
+  border-radius: 25px;
+  border: 2px solid #ffb300;
+  background-color: white;
+  color: #ffb300;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.tab-btn:hover {
+  background-color: #ffb300;
+  color: white;
+}
+
+.tab-btn.active {
+  background-color: #ffb300;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* ---------- VENDOR BANNER ---------- */
+.vendor-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #fff3e0;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+.vendor-initials {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #ffb300;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vendor-banner-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+
+.view-shop-btn {
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  background-color: #ffb300;
+  border: none;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
   font-weight: 500;
+  width: fit-content;
+  transition: background 0.2s;
+}
+
+.view-shop-btn:hover {
+  background-color: #e69b00;
+}
+
+/* ---------- PRODUCT GRID ---------- */
+.product-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+/* ---------- RESPONSIVE STYLES ---------- */
+
+/* Tablet */
+@media(max-width: 1024px) {
+  .main {
+    margin-left: 0;
+    margin-top: 70px;
+    padding: 8px;
+  }
+
+  .promo {
+    font-size: 24px;
+    padding: 15px;
+  }
+
+  section h2 {
+    font-size: 1.5rem;
+  }
+
+  .product-list {
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+    gap: 20px;
+  }
+
+  .go-cart {
+    top: 85vh;
+    padding: 9px 13px;
+    font-size: 14px;
+  }
+}
+
+/* Mobile */
+@media(max-width: 768px) {
+  .main {
+    margin-left: 2px;
+    margin-top: 75px;
+    padding: 15px;
+  }
+
+  .promo {
+    display: none;
+  }
+
+  section h2 {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .product-list {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  .go-cart {
+    bottom: 20px;
+    right: 15px;
+    top: auto;
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+}
+
+/* Extra Small */
+@media(max-width: 480px) {
+  section h2 {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .product-list {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .view-shop-btn {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+  }
 }

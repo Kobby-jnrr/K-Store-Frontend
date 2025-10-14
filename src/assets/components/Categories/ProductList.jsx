@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../../../api/axios.js";
 import axios from "axios";
 import "./ProductList.css";
 
-function ProductList({ category, cart, setCart, searchQuery, priceRange, vendor }) {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+function ProductList({ category, cart, setCart, products: externalProducts, showVendorHeader = false, fullCount = 0 }) {
+  const [products, setProducts] = useState(externalProducts || []);
+  const [loading, setLoading] = useState(!externalProducts);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (externalProducts) {
+      setProducts(externalProducts);
+      setLoading(false);
+      return;
+    }
+
     const fetchProducts = async () => {
       setLoading(true);
       setError("");
@@ -31,38 +38,10 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange, vendor 
         setLoading(false);
       }
     };
+
     fetchProducts();
-  }, [category]);
+  }, [category, externalProducts]);
 
-  // Apply filters: search, price, vendor
-  useEffect(() => {
-    let filtered = [...products];
-
-    if (searchQuery) {
-      filtered = filtered.filter((p) =>
-        p.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (priceRange) {
-      filtered = filtered.filter((p) => {
-        const price = Number(p.price);
-        if (priceRange === "0-50") return price >= 0 && price <= 50;
-        if (priceRange === "50-100") return price > 50 && price <= 100;
-        if (priceRange === "100-200") return price > 100 && price <= 200;
-        if (priceRange === "200+") return price > 200;
-        return true;
-      });
-    }
-
-    if (vendor) {
-      filtered = filtered.filter((p) => p.vendor?.username === vendor);
-    }
-
-    setFilteredProducts(filtered);
-  }, [products, searchQuery, priceRange, vendor]);
-
-  // Cart management
   const addToCart = (product) =>
     setCart({ ...cart, [product._id]: { ...product, quantity: 1 } });
 
@@ -82,30 +61,47 @@ function ProductList({ category, cart, setCart, searchQuery, priceRange, vendor 
   if (loading) return <p>Loading products...</p>;
   if (error) return <p className="error">{error}</p>;
 
+  const previewProducts = products;
+
   return (
-    <div className="product-list">
-      {filteredProducts.length === 0 ? (
-        <p>No products found.</p>
-      ) : (
-        filteredProducts.map((item) => (
-          <div key={item._id} className="product-card">
-            <img src={item.image} alt={item.title} className="product-img" />
-            <h4>{item.title}</h4>
-            <p className="price">GH₵{item.price}</p>
-            {item.vendor && <p className="vendor-name">Vendor: {item.vendor.username}</p>}
-            {!cart[item._id] ? (
-              <button className="add-btn" onClick={() => addToCart(item)}>
-                Add to Cart
-              </button>
-            ) : (
-              <div className="counter">
-                <button onClick={() => decrease(item._id)}>-</button>
-                <span>{cart[item._id].quantity}</span>
-                <button onClick={() => increase(item._id)}>+</button>
-              </div>
-            )}
-          </div>
-        ))
+    <div className="product-list-container">
+      <div className="product-list">
+        {previewProducts.length === 0 ? (
+          <p>No products found.</p>
+        ) : (
+          previewProducts.map((item) => (
+            <div key={item._id} className="product-card">
+              <img src={item.image} alt={item.title} className="product-img" />
+              <h4>{item.title}</h4>
+              <p className="price">GH₵{item.price}</p>
+              
+              {/* Vendor Name */}
+              {item.vendor && (
+                <p
+                  className="vendor-name"
+                  onClick={() => navigate(`/vendor/${item.vendor._id}`)}
+                >
+                  Vendor: {item.vendor.shopName || item.vendor.username}
+                </p>
+              )}
+
+              {!cart[item._id] ? (
+                <button className="add-btn" onClick={() => addToCart(item)}>Add to Cart</button>
+              ) : (
+                <div className="counter">
+                  <button onClick={() => decrease(item._id)}>-</button>
+                  <span>{cart[item._id].quantity}</span>
+                  <button onClick={() => increase(item._id)}>+</button>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+      {showVendorHeader && fullCount > previewProducts.length && (
+        <div className="view-more">
+          +{fullCount - previewProducts.length} more
+        </div>
       )}
     </div>
   );

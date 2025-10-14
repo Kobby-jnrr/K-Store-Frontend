@@ -21,7 +21,7 @@
   flex: 1;
   margin-left: 270px; /* space for sidebar */
   padding: 20px;
-  padding-top: 65px; /* space for header */
+  padding-top: 75px; /* space for header */
 }
 
 .admin-nav {

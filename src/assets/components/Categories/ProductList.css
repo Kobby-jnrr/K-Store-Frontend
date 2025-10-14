@@ -1,6 +1,6 @@
 .product-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* always 2 columns on desktop */
+  grid-template-columns: repeat(2, 1fr);
   gap: 15px;
   padding: 10px 0;
 }
@@ -42,10 +42,18 @@ h4 {
   margin: 4px 0;
 }
 
+/* --- Vendor name gradient theme --- */
 .vendor-name {
   font-size: 0.85rem;
   margin: 3px 0;
-  color: #555;
+  font-weight: 600;
+  color: #11ec44;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.vendor-name:hover {
+  opacity: 0.8;
 }
 
 .add-btn {
@@ -87,57 +95,62 @@ h4 {
   font-weight: bold;
 }
 
-/* Tablet */
-@media (max-width: 1024px) {
-  .product-list {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  .product-img {
-    height: 140px;
-  }
-  h4 {
-    font-size: 0.95rem;
-  }
-  .price {
-    font-size: 0.9rem;
-  }
-  .vendor-name {
-    font-size: 0.8rem;
-  }
-  .add-btn {
-    padding: 5px 8px;
-    font-size: 0.9rem;
-  }
+/* --- Vendor Header --- */
+.vendor-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(90deg, #8a6bcc, #130043);
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-/* Mobile */
-@media (max-width: 600px) {
-  .product-list {
-    grid-template-columns: 1fr; /* single column for mobile */
-    gap: 10px;
-  }
-  .product-img {
-    height: 120px;
-  }
-  h4 {
-    font-size: 0.9rem;
-  }
-  .price {
-    font-size: 0.85rem;
-  }
-  .vendor-name {
-    font-size: 0.75rem;
-  }
-  .add-btn {
-    padding: 4px 6px;
-    font-size: 0.85rem;
-  }
-  .counter button {
-    padding: 3px 8px;
-    font-size: 0.85rem;
-  }
-  .counter span {
-    font-size: 0.85rem;
-  }
+.vendor-banner-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+}
+
+.vendor-banner-details h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.vendor-banner-details p {
+  font-size: 0.9rem;
+  color: #fff;
+  margin: 4px 0;
+}
+
+.view-shop-btn {
+  background: #ffb300;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-size: 0.9rem;
+}
+
+.view-shop-btn:hover {
+  background: #ffa000;
+}
+
+.vendor-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.view-more {
+  cursor: pointer;
+  font-weight: 600;
+  transition: text-decoration 0.2s;
+  margin: 0 0px 25px 10px;
 }

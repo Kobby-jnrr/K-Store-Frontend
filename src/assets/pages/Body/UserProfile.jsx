@@ -146,8 +146,8 @@ const UserProfile = () => {
   };
 
   const getInitials = (name) => {
-    if (!name) return "";
-    return name.trim().split(" ").map(n => n[0].toUpperCase()).slice(0, 2).join("");
+    if (!name || typeof name !== "string") return "";
+    return name.trim().split(" ").filter(n => n).map(n => n[0].toUpperCase()).slice(0, 2).join("");
   };
 
   const getAvatarColor = (name) => {

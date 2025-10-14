@@ -15,6 +15,7 @@ import AllProducts from "./assets/pages/Body/AllProducts.jsx";
 import CheckoutPage from "./assets/pages/Body/CheckoutPage.jsx";
 import AdminLayout from "./assets/pages/admin/AdminLayout.jsx";
 import VendorOrders from "./assets/pages/Body/VendorOrders.jsx";
+import VendorProfile from "./assets/pages/Body/VendorProfile";
 
 function AppLayout({ cart, setCart, totalItems, logout, user }) {
   const location = useLocation();
@@ -35,6 +36,7 @@ function AppLayout({ cart, setCart, totalItems, logout, user }) {
         <Route path="/cartPage" element={<CartPage cart={cart} setCart={setCart} />} />
         <Route path="/userProfile" element={<UserProfile user={user} />} />
         <Route path="/checkout" element={<CheckoutPage cart={cart} setCart={setCart} />} />
+        <Route path="/vendor/:vendorId" element={<VendorProfile cart={cart} setCart={setCart} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
