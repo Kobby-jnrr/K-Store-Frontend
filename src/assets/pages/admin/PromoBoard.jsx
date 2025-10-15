@@ -13,6 +13,10 @@ function PromoBoard() {
     "https://k-store-backend.onrender.com/api/admin",
     "http://localhost:5000/api/admin",
   ];
+  const PROMO_API_BASES = [
+    "https://k-store-backend.onrender.com/api",
+    "http://localhost:5000/api",
+  ];
 
   // Fetch vendors and current promo
   useEffect(() => {
@@ -31,7 +35,7 @@ function PromoBoard() {
 
         // Fetch active promo
         const promoRes = await Promise.any(
-          API_BASES.map(base =>
+          PROMO_API_BASES.map(base =>
             axios.get(`${base}/promo`, { headers: { Authorization: `Bearer ${token}` } })
           )
         );
@@ -74,7 +78,7 @@ function PromoBoard() {
 
     try {
       await Promise.any(
-        API_BASES.map(base =>
+        PROMO_API_BASES.map(base =>
           axios.post(`${base}/promo`, payload, {
             headers: { Authorization: `Bearer ${token}` },
           })

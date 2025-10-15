@@ -15,10 +15,10 @@
 /* ---------- PROMO ---------- */
 .promo {
   text-align: center;
-  padding: 25px 15px;
+  padding: 20px 15px;
   background: linear-gradient(135deg, #8a6bcc, #1e3a8a);
   color: #fff;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   margin: 10px 0 20px 0;
   border-radius: 15px;
@@ -29,7 +29,7 @@
 
 .promo span {
   display: block;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   margin-top: 8px;
   color: #ffe4ff;
@@ -47,37 +47,42 @@
   animation: rotate 6s linear infinite;
 }
 
-/* Promo products horizontal scroll */
+/* Promo products horizontal scroll - DESKTOP */
 .promo-products .product-list {
   display: flex !important;       
   flex-wrap: nowrap;              
   overflow-x: auto;               
-  justify-content: center;        
+  justify-content: flex-start;        
   gap: 8px;
-  padding: 3px 0;
+  padding: 10px 8px;
   scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
 }
 
-/* Hide scrollbars */
+/* Hide scrollbars for desktop */
 .promo-products .product-list::-webkit-scrollbar {
   display: none;
 }
-.promo-products .product-list {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
 
+/* Compact promo product cards - IMAGE & PRICE ONLY */
 .promo-products .product-card {
-  min-width: 90px;     
-  max-width: 90px;
+  min-width: 80px;     
+  max-width: 80px;
   flex: 0 0 auto;         
-  padding: 4px;      
-  border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  padding: 6px;      
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.promo-products .product-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.15);
 }
 
 .promo-products .product-img {
@@ -85,37 +90,29 @@
   height: 60px;   
   object-fit: cover;
   border-radius: 4px;
-  margin-bottom: 3px;
+  margin-bottom: 5px;
 }
 
-/* Tiny text */
-.promo-products h4 {
-  font-size: 0.65rem;
-  margin: 1px 0;
-  text-align: center;
-}
-
+/* Price only - centered below image */
 .promo-products .price {
-  font-size: 0.6rem;
-  margin: 1px 0;
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: #1e3a8a;
+  text-align: center;
+  margin: 0;
+  padding: 2px 4px;
+  background: rgba(30, 58, 138, 0.1);
+  border-radius: 4px;
+  width: 100%;
 }
 
-.promo-products .vendor-name {
-  font-size: 0.55rem;
-}
-
+/* Hide other elements */
+.promo-products h4,
+.promo-products .vendor-name,
 .promo-products .add-btn,
-.promo-products .counter button {
-  padding: 2px 5px;
-  font-size: 0.55rem;
-}
-
-.promo-products .counter span {
-  font-size: 0.6rem;
-}
-
+.promo-products .counter,
 .promo-products .view-more {
-  font-size: 0.6rem;
+  display: none !important;
 }
 
 @keyframes rotate {
@@ -206,7 +203,6 @@
   gap: 5px;
 }
 
-
 .view-shop-btn {
   margin-top: 0.5rem;
   padding: 0.3rem 0.7rem;
@@ -242,8 +238,22 @@
   }
 
   .promo {
-    font-size: 24px;
+    font-size: 22px;
     padding: 15px;
+  }
+
+  .promo-products .product-card {
+    min-width: 75px;
+    max-width: 75px;
+    padding: 5px;
+  }
+
+  .promo-products .product-img {
+    height: 55px;
+  }
+
+  .promo-products .price {
+    font-size: 0.6rem;
   }
 
   section h2 {
@@ -271,13 +281,57 @@
   }
 
   .promo {
-    font-size: 20px;
-    padding: 18px 10px;
+    font-size: 18px;
+    padding: 15px 10px;
     border-radius: 12px;
   }
 
   .promo span {
     font-size: 14px;
+  }
+
+  /* Mobile scrollable products with visible scrollbar */
+  .promo-products .product-list {
+    gap: 6px;
+    padding: 8px 6px;
+    overflow-x: auto;
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #8a6bcc #f0f0f0; /* Firefox */
+  }
+
+  /* Show scrollbar for mobile */
+  .promo-products .product-list::-webkit-scrollbar {
+    display: block;
+    height: 4px;
+  }
+
+  .promo-products .product-list::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+  }
+
+  .promo-products .product-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #8a6bcc, #1e3a8a);
+    border-radius: 10px;
+  }
+
+  .promo-products .product-list::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #7a5bbc, #0e2a7a);
+  }
+
+  .promo-products .product-card {
+    min-width: 70px;
+    max-width: 70px;
+    padding: 5px;
+  }
+
+  .promo-products .product-img {
+    height: 50px;
+  }
+
+  .promo-products .price {
+    font-size: 0.55rem;
+    padding: 1px 3px;
   }
 
   section h2 {
@@ -299,15 +353,35 @@
   }
 }
 
-/* Extra Small */
+/* Extra Small Mobile */
 @media(max-width: 480px) {
   .promo {
-    font-size: 18px;
-    padding: 15px 8px;
+    font-size: 16px;
+    padding: 12px 8px;
   }
 
   .promo span {
-    font-size: 13px;
+    font-size: 12px;
+  }
+
+  .promo-products .product-list {
+    gap: 5px;
+    padding: 6px 4px;
+  }
+
+  .promo-products .product-card {
+    min-width: 65px;
+    max-width: 65px;
+    padding: 4px;
+  }
+
+  .promo-products .product-img {
+    height: 45px;
+  }
+
+  .promo-products .price {
+    font-size: 0.5rem;
+    padding: 1px 2px;
   }
 
   section h2 {
@@ -323,5 +397,17 @@
   .view-shop-btn {
     font-size: 0.85rem;
     padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Landscape mode optimization */
+@media(max-width: 768px) and (orientation: landscape) {
+  .promo-products .product-card {
+    min-width: 60px;
+    max-width: 60px;
+  }
+  
+  .promo-products .product-img {
+    height: 40px;
   }
 }

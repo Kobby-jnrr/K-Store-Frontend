@@ -37,32 +37,35 @@ function Main({ cart, setCart }) {
 
   // Fetch promo vendors (can be called manually)
   const fetchPromo = useCallback(async () => {
-    for (const base of API_BASES) {
-      try {
-        const res = await axios.get(`${base}/promo`);
-        const vendorIds = res.data.vendorIds || [];
-        setActivePromoVendors(vendorIds);
+  for (const base of API_BASES) {
+    try {
+      const res = await axios.get(`${base}/promo`);
+      const vendorIds = res.data.vendorIds || [];
+      setActivePromoVendors(vendorIds);
 
-        if (vendorIds.length) {
-          const allProducts = [];
-          for (const vendorId of vendorIds) {
-            try {
-              const prodRes = await axios.get(`${base}/products/vendor/${vendorId}`);
-              if (prodRes.data?.length) allProducts.push(...prodRes.data);
-            } catch {}
-          }
-          const shuffled = allProducts.sort(() => Math.random() - 0.5).slice(0, 12);
-          setPromoProducts(shuffled);
-        } else {
-          setPromoProducts([]);
+      // Use the products from the API response if available
+      if (res.data.products && res.data.products.length) {
+        setPromoProducts(res.data.products.slice(0, 16));
+      } else if (vendorIds.length) {
+        // Fallback: fetch products manually
+        const allProducts = [];
+        for (const vendorId of vendorIds) {
+          try {
+            const prodRes = await axios.get(`${base}/products/vendor/${vendorId}`);
+            if (prodRes.data?.length) allProducts.push(...prodRes.data);
+          } catch {}
         }
-        break;
-      } catch(err) {
-        console.error("Error fetching vendor products:", vendorId, err);
+        const shuffled = allProducts.sort(() => Math.random() - 0.5).slice(0, 16);
+        setPromoProducts(shuffled);
+      } else {
+        setPromoProducts([]);
       }
-
+      break;
+    } catch(err) {
+      console.error("Error fetching promo:", err);
     }
-  }, []);
+  }
+}, []);
 
   // Fetch promo on mount
   useEffect(() => {
@@ -150,21 +153,25 @@ function Main({ cart, setCart }) {
         Object.keys(productsByGroup).map(group => (
           <section key={group} id={group}>
             <div className="promo">
-              {promoProducts.length ? (
-                <div className="promo-products">
-                  <ProductList
+            <div className="particle"></div>
+            <div className="particle"></div>
+            <div className="particle"></div>
+            
+            {promoProducts.length ? (
+              <div className="promo-products">
+                <ProductList
                   products={promoProducts}
                   cart={cart}
                   setCart={setCart}
-                  />
-                </div>
-                ) : (
-                <>
+                />
+              </div>
+            ) : (
+              <>
                 🎉 Special Promo Available! 🎉
                 <span>Activate promo in admin to display vendor products here.</span>
-                </>
-              )}
-            </div>
+              </>
+            )}
+          </div>
             {/* Category / Vendor Title */}
             {viewType === "category" && <h2>{group.toUpperCase()}</h2>}
 
