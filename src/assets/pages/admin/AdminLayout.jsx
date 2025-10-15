@@ -7,6 +7,7 @@ import Vendors from "./Vendors.jsx";
 import Users from "./Users.jsx";
 import Products from "./Products.jsx";
 import Orders from "./Orders.jsx";
+import PromoBoard from "./PromoBoard.jsx";
 
 import "./AdminLayout.css";
 
@@ -46,6 +47,7 @@ function AdminLayout({ user, logout }) {
           <Route path="users" element={<Users />} />
           <Route path="products" element={<Products />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="promo" element={<PromoBoard />} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Routes>
       </div>
