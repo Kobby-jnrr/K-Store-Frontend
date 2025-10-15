@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import ProductList from "../../components/Categories/ProductList";
@@ -11,6 +11,7 @@ function Main({ cart, setCart }) {
   const [categories, setCategories] = useState([]);
   const [groupFullCount, setGroupFullCount] = useState({});
   const [activePromoVendors, setActivePromoVendors] = useState([]);
+  const [promoProducts, setPromoProducts] = useState([]);
 
   const defaultCategories = [
     "fashion","electronics","home","grocery","baby","beauty","sports",
@@ -34,23 +35,36 @@ function Main({ cart, setCart }) {
     }
   }, []);
 
-  // Fetch active promo vendors (public route)
-  useEffect(() => {
-    const fetchPromo = async () => {
-      let promoVendors = [];
-      for (const base of API_BASES) {
-        try {
-          const res = await axios.get(`${base}/promo`);
-          promoVendors = res.data.vendorIds || [];
-          break;
-        } catch (err) {
-          console.warn(`Failed to fetch promo at ${base}:`, err.message);
+  // Fetch promo vendors (can be called manually)
+  const fetchPromo = useCallback(async () => {
+    for (const base of API_BASES) {
+      try {
+        const res = await axios.get(`${base}/promo`);
+        const vendorIds = res.data.vendorIds || [];
+        setActivePromoVendors(vendorIds);
+
+        if (vendorIds.length) {
+          const allProducts = [];
+          for (const vendorId of vendorIds) {
+            try {
+              const prodRes = await axios.get(`${base}/products/vendor/${vendorId}`);
+              if (prodRes.data?.length) allProducts.push(...prodRes.data);
+            } catch {}
+          }
+          const shuffled = allProducts.sort(() => Math.random() - 0.5).slice(0, 7);
+          setPromoProducts(shuffled);
+        } else {
+          setPromoProducts([]);
         }
-      }
-      setActivePromoVendors(promoVendors);
-    };
-    fetchPromo();
+        break;
+      } catch {}
+    }
   }, []);
+
+  // Fetch promo on mount
+  useEffect(() => {
+    fetchPromo();
+  }, [fetchPromo]);
 
   // Fetch products grouped by category or vendor
   useEffect(() => {
@@ -72,7 +86,6 @@ function Main({ cart, setCart }) {
           }
         }));
       } else {
-        // Vendor view
         const tempVendorMap = {};
         for (const base of API_BASES) {
           try {
@@ -131,56 +144,50 @@ function Main({ cart, setCart }) {
           <h3 className="loading-text">Loading products...</h3>
         </div>
       ) : Object.keys(productsByGroup).length ? (
-        Object.keys(productsByGroup).map(group => {
-          const promoProducts = Object.values(productsByGroup[group]).filter(p =>
-            activePromoVendors.includes(p.vendorId)
-          );
-
-          return (
-            <section key={group} id={group}>
-              {/* Promo Banner */}
-              <div className="promo">
-                {promoProducts.length ? (
-                  <ProductList
-                    products={promoProducts}
-                    cart={cart}
-                    setCart={setCart}
-                  />
-                ) : (
-                  <>
-                    🎉 Special Promo Available! 🎉
-                    <span>Activate promo in admin to display vendor products here.</span>
-                  </>
-                )}
-              </div>
-
-              {/* Category / Vendor Title */}
-              {viewType === "category" && <h2>{group.toUpperCase()}</h2>}
-
-              {viewType === "vendor" && productsByGroup[group][0] && (
-                <div className="vendor-banner">
-                  <div className="vendor-initials">{getInitials(group)}</div>
-                  <div className="vendor-banner-details">
-                    <h3>{group}</h3>
-                    <Link to={`/vendor/${productsByGroup[group][0].vendorId}`}>
-                      <button className="view-shop-btn">View Shop</button>
-                    </Link>
-                  </div>
-                </div>
+        Object.keys(productsByGroup).map(group => (
+          <section key={group} id={group}>
+            {/* Promo Banner */}
+            <div className="promo">
+              {promoProducts.length ? (
+                <ProductList
+                  products={promoProducts}
+                  cart={cart}
+                  setCart={setCart}
+                />
+              ) : (
+                <>
+                  🎉 Special Promo Available! 🎉
+                  <span>Activate promo in admin to display vendor products here.</span>
+                </>
               )}
+            </div>
 
-              {/* Product List */}
-              <ProductList
-                category={group}
-                cart={cart}
-                setCart={setCart}
-                products={productsByGroup[group]}
-                showVendorHeader={viewType === "vendor"}
-                fullCount={groupFullCount[group]}
-              />
-            </section>
-          );
-        })
+            {/* Category / Vendor Title */}
+            {viewType === "category" && <h2>{group.toUpperCase()}</h2>}
+
+            {viewType === "vendor" && productsByGroup[group][0] && (
+              <div className="vendor-banner">
+                <div className="vendor-initials">{getInitials(group)}</div>
+                <div className="vendor-banner-details">
+                  <h3>{group}</h3>
+                  <Link to={`/vendor/${productsByGroup[group][0].vendorId}`}>
+                    <button className="view-shop-btn">View Shop</button>
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Product List */}
+            <ProductList
+              category={group}
+              cart={cart}
+              setCart={setCart}
+              products={productsByGroup[group]}
+              showVendorHeader={viewType === "vendor"}
+              fullCount={groupFullCount[group]}
+            />
+          </section>
+        ))
       ) : (
         <div className="no-products"><p>No products available.</p></div>
       )}

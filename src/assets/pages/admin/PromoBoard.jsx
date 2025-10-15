@@ -6,6 +6,7 @@ import "./PromoBoard.css";
 function PromoBoard() {
   const [vendors, setVendors] = useState([]);
   const [activePromoIds, setActivePromoIds] = useState([]);
+  const [promoDurations, setPromoDurations] = useState({});
   const [loading, setLoading] = useState(true);
 
   const API_BASES = [
@@ -20,21 +21,27 @@ function PromoBoard() {
       const token = sessionStorage.getItem("token");
 
       try {
-        // Fetch vendors
+        // Vendors
         const vendorRes = await Promise.any(
           API_BASES.map(base =>
             axios.get(`${base}/vendors`, { headers: { Authorization: `Bearer ${token}` } })
           )
         );
-        setVendors(Array.isArray(vendorRes.data) ? vendorRes.data : []);
+        setVendors(vendorRes.data);
 
-        // Fetch promo
+        // Active promo
         const promoRes = await Promise.any(
           API_BASES.map(base =>
             axios.get(`${base}/promo`, { headers: { Authorization: `Bearer ${token}` } })
           )
         );
-        setActivePromoIds(promoRes.data.vendorIds || []);
+        const activeIds = promoRes.data.vendorIds || [];
+        setActivePromoIds(activeIds);
+
+        // Set default durations for active vendors
+        const durations = {};
+        activeIds.forEach(id => (durations[id] = promoRes.data.durationWeeks || 2));
+        setPromoDurations(durations);
       } catch (err) {
         console.error("Failed to fetch vendors or promo:", err);
         toast.error("Failed to fetch vendors or promo");
@@ -46,11 +53,15 @@ function PromoBoard() {
     fetchData();
   }, []);
 
+  const handleDurationChange = (vendorId, weeks) => {
+    setPromoDurations(prev => ({ ...prev, [vendorId]: weeks }));
+  };
+
   const togglePromo = async (vendorId) => {
     const token = sessionStorage.getItem("token");
-    const promoDurationHours = 14 * 24; // 14 days
-
     const isActive = activePromoIds.includes(vendorId);
+    const durationWeeks = promoDurations[vendorId] || 2;
+
     const updatedIds = isActive
       ? activePromoIds.filter(id => id !== vendorId)
       : [...activePromoIds, vendorId];
@@ -60,20 +71,20 @@ function PromoBoard() {
         API_BASES.map(base =>
           axios.post(
             `${base}/promo`,
-            { vendorIds: updatedIds, durationHours: promoDurationHours },
+            { vendorIds: updatedIds, durationWeeks },
             { headers: { Authorization: `Bearer ${token}` } }
           )
         )
       );
 
       setActivePromoIds(updatedIds);
-      toast.success(isActive ? "Promo removed ✅" : "Promo activated 🎉", {
-        duration: 3000,
-        position: "top-right",
-      });
+      toast.success(isActive ? "Promo removed ✅" : "Promo activated 🎉");
+
+      // Trigger Main.jsx to refresh promo banner
+      window.dispatchEvent(new Event("promoUpdated"));
     } catch (err) {
       console.error("Error toggling promo:", err);
-      toast.error("Failed to update promo", { duration: 3000 });
+      toast.error("Failed to update promo");
     }
   };
 
@@ -83,7 +94,7 @@ function PromoBoard() {
     <div className="promo-board-page">
       <Toaster />
       <h1>Promo Management 🎁</h1>
-      <p>Activate or remove special promo banners for vendors.</p>
+      <p>Activate or remove promo banners for vendors with duration 1–4 weeks.</p>
 
       <div className="vendors-table">
         <table>
@@ -91,15 +102,14 @@ function PromoBoard() {
             <tr>
               <th>Username</th>
               <th>Email</th>
+              <th>Duration (weeks)</th>
               <th>Promo Status</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {vendors.length === 0 ? (
-              <tr>
-                <td colSpan="4">No vendors found</td>
-              </tr>
+              <tr><td colSpan="5">No vendors found</td></tr>
             ) : (
               vendors.map(vendor => {
                 const isActive = activePromoIds.includes(vendor._id);
@@ -107,6 +117,17 @@ function PromoBoard() {
                   <tr key={vendor._id}>
                     <td>{vendor.username}</td>
                     <td>{vendor.email}</td>
+                    <td>
+                      <select
+                        value={promoDurations[vendor._id] || 2}
+                        onChange={e => handleDurationChange(vendor._id, +e.target.value)}
+                        disabled={isActive}
+                      >
+                        {[1,2,3,4].map(week => (
+                          <option key={week} value={week}>{week}</option>
+                        ))}
+                      </select>
+                    </td>
                     <td>
                       <span className={`status ${isActive ? "active" : "inactive"}`}>
                         {isActive ? "Active" : "Inactive"}
