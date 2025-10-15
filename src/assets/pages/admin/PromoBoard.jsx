@@ -21,7 +21,7 @@ function PromoBoard() {
       const token = sessionStorage.getItem("token");
 
       try {
-        // Vendors
+        // Fetch vendors
         const vendorRes = await Promise.any(
           API_BASES.map(base =>
             axios.get(`${base}/vendors`, { headers: { Authorization: `Bearer ${token}` } })
@@ -29,16 +29,17 @@ function PromoBoard() {
         );
         setVendors(vendorRes.data);
 
-        // Active promo
+        // Fetch active promo
         const promoRes = await Promise.any(
           API_BASES.map(base =>
             axios.get(`${base}/promo`, { headers: { Authorization: `Bearer ${token}` } })
           )
         );
+
         const activeIds = promoRes.data.vendorIds || [];
         setActivePromoIds(activeIds);
 
-        // Set default durations for active vendors
+        // Set default durations
         const durations = {};
         activeIds.forEach(id => (durations[id] = promoRes.data.durationWeeks || 2));
         setPromoDurations(durations);
@@ -60,31 +61,34 @@ function PromoBoard() {
   const togglePromo = async (vendorId) => {
     const token = sessionStorage.getItem("token");
     const isActive = activePromoIds.includes(vendorId);
-    const durationWeeks = promoDurations[vendorId] || 2;
 
+    // Determine new promo array
     const updatedIds = isActive
       ? activePromoIds.filter(id => id !== vendorId)
       : [...activePromoIds, vendorId];
 
+    // Prepare payload conditionally
+    const payload = isActive
+      ? { vendorIds: updatedIds } // removing vendor
+      : { vendorIds: updatedIds, durationWeeks: promoDurations[vendorId] || 2 }; // activating vendor
+
     try {
       await Promise.any(
         API_BASES.map(base =>
-          axios.post(
-            `${base}/promo`,
-            { vendorIds: updatedIds, durationWeeks },
-            { headers: { Authorization: `Bearer ${token}` } }
-          )
+          axios.post(`${base}/promo`, payload, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
         )
       );
 
       setActivePromoIds(updatedIds);
       toast.success(isActive ? "Promo removed ✅" : "Promo activated 🎉");
 
-      // Trigger Main.jsx to refresh promo banner
+      // Refresh promo banner in Main.jsx
       window.dispatchEvent(new Event("promoUpdated"));
     } catch (err) {
       console.error("Error toggling promo:", err);
-      toast.error("Failed to update promo");
+      toast.error(err.response?.data?.message || "Failed to update promo");
     }
   };
 
@@ -123,7 +127,7 @@ function PromoBoard() {
                         onChange={e => handleDurationChange(vendor._id, +e.target.value)}
                         disabled={isActive}
                       >
-                        {[1,2,3,4].map(week => (
+                        {[1, 2, 3, 4].map(week => (
                           <option key={week} value={week}>{week}</option>
                         ))}
                       </select>

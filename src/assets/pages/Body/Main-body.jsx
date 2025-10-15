@@ -51,13 +51,16 @@ function Main({ cart, setCart }) {
               if (prodRes.data?.length) allProducts.push(...prodRes.data);
             } catch {}
           }
-          const shuffled = allProducts.sort(() => Math.random() - 0.5).slice(0, 7);
+          const shuffled = allProducts.sort(() => Math.random() - 0.5).slice(0, 12);
           setPromoProducts(shuffled);
         } else {
           setPromoProducts([]);
         }
         break;
-      } catch {}
+      } catch(err) {
+        console.error("Error fetching vendor products:", vendorId, err);
+      }
+
     }
   }, []);
 
@@ -146,22 +149,22 @@ function Main({ cart, setCart }) {
       ) : Object.keys(productsByGroup).length ? (
         Object.keys(productsByGroup).map(group => (
           <section key={group} id={group}>
-            {/* Promo Banner */}
             <div className="promo">
               {promoProducts.length ? (
-                <ProductList
+                <div className="promo-products">
+                  <ProductList
                   products={promoProducts}
                   cart={cart}
                   setCart={setCart}
-                />
-              ) : (
+                  />
+                </div>
+                ) : (
                 <>
-                  🎉 Special Promo Available! 🎉
-                  <span>Activate promo in admin to display vendor products here.</span>
+                🎉 Special Promo Available! 🎉
+                <span>Activate promo in admin to display vendor products here.</span>
                 </>
               )}
             </div>
-
             {/* Category / Vendor Title */}
             {viewType === "category" && <h2>{group.toUpperCase()}</h2>}
 

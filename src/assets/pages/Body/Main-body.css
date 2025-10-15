@@ -47,6 +47,77 @@
   animation: rotate 6s linear infinite;
 }
 
+/* Promo products horizontal scroll */
+.promo-products .product-list {
+  display: flex !important;       
+  flex-wrap: nowrap;              
+  overflow-x: auto;               
+  justify-content: center;        
+  gap: 8px;
+  padding: 3px 0;
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbars */
+.promo-products .product-list::-webkit-scrollbar {
+  display: none;
+}
+.promo-products .product-list {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.promo-products .product-card {
+  min-width: 90px;     
+  max-width: 90px;
+  flex: 0 0 auto;         
+  padding: 4px;      
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.promo-products .product-img {
+  width: 100%;
+  height: 60px;   
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 3px;
+}
+
+/* Tiny text */
+.promo-products h4 {
+  font-size: 0.65rem;
+  margin: 1px 0;
+  text-align: center;
+}
+
+.promo-products .price {
+  font-size: 0.6rem;
+  margin: 1px 0;
+}
+
+.promo-products .vendor-name {
+  font-size: 0.55rem;
+}
+
+.promo-products .add-btn,
+.promo-products .counter button {
+  padding: 2px 5px;
+  font-size: 0.55rem;
+}
+
+.promo-products .counter span {
+  font-size: 0.6rem;
+}
+
+.promo-products .view-more {
+  font-size: 0.6rem;
+}
+
 @keyframes rotate {
   0% { transform: rotate(0deg) translate(0,0); }
   100% { transform: rotate(360deg) translate(0,0); }
