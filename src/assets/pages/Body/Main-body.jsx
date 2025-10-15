@@ -7,10 +7,10 @@ import "./Main-body.css";
 function Main({ cart, setCart }) {
   const [productsByGroup, setProductsByGroup] = useState({});
   const [loading, setLoading] = useState(true);
-  const [viewType, setViewType] = useState("category"); // "category" or "vendor"
+  const [viewType, setViewType] = useState("category");
   const [categories, setCategories] = useState([]);
   const [groupFullCount, setGroupFullCount] = useState({});
-  const [activePromoVendors, setActivePromoVendors] = useState([]); // vendor IDs with active promo
+  const [activePromoVendors, setActivePromoVendors] = useState([]);
 
   const defaultCategories = [
     "fashion","electronics","home","grocery","baby","beauty","sports",
@@ -40,7 +40,7 @@ function Main({ cart, setCart }) {
       let promoVendors = [];
       for (const base of API_BASES) {
         try {
-          const res = await axios.get(`${base}/promo`); // no token needed
+          const res = await axios.get(`${base}/promo`);
           promoVendors = res.data.vendorIds || [];
           break;
         } catch (err) {
@@ -49,7 +49,6 @@ function Main({ cart, setCart }) {
       }
       setActivePromoVendors(promoVendors);
     };
-
     fetchPromo();
   }, []);
 
@@ -61,19 +60,17 @@ function Main({ cart, setCart }) {
       const fullCountObj = {};
 
       if (viewType === "category") {
-        await Promise.all(
-          categories.map(async (cat) => {
-            for (const base of API_BASES) {
-              try {
-                const res = await axios.get(`${base}/products/${cat}`);
-                if (res.data?.length) {
-                  newProducts[cat] = res.data;
-                  break;
-                }
-              } catch {}
-            }
-          })
-        );
+        await Promise.all(categories.map(async cat => {
+          for (const base of API_BASES) {
+            try {
+              const res = await axios.get(`${base}/products/${cat}`);
+              if (res.data?.length) {
+                newProducts[cat] = res.data;
+                break;
+              }
+            } catch {}
+          }
+        }));
       } else {
         // Vendor view
         const tempVendorMap = {};
@@ -81,7 +78,7 @@ function Main({ cart, setCart }) {
           try {
             const res = await axios.get(`${base}/products`);
             if (res.data?.length) {
-              res.data.forEach((prod) => {
+              res.data.forEach(prod => {
                 const vendorName = prod.vendorName || prod.vendor?.username || "Unknown Vendor";
                 if (!tempVendorMap[vendorName]) tempVendorMap[vendorName] = [];
                 tempVendorMap[vendorName].push({
@@ -109,12 +106,11 @@ function Main({ cart, setCart }) {
     fetchProducts();
   }, [viewType, categories]);
 
-  const getInitials = (name) =>
-    name.split(" ").map(word => word[0]?.toUpperCase()).join("").slice(0, 2);
+  const getInitials = name =>
+    name.split(" ").map(w => w[0]?.toUpperCase()).join("").slice(0, 2);
 
   return (
     <main className="main">
-      {/* Toggle Buttons */}
       <div className="view-toggle-tabs">
         <button
           className={`tab-btn ${viewType === "category" ? "active" : ""}`}
@@ -135,63 +131,60 @@ function Main({ cart, setCart }) {
           <h3 className="loading-text">Loading products...</h3>
         </div>
       ) : Object.keys(productsByGroup).length ? (
-        <>
-          {Object.keys(productsByGroup).map(group => {
-            const promoProducts = Object.values(productsByGroup[group]).filter(p =>
-              activePromoVendors.includes(p.vendorId)
-            );
+        Object.keys(productsByGroup).map(group => {
+          const promoProducts = Object.values(productsByGroup[group]).filter(p =>
+            activePromoVendors.includes(p.vendorId)
+          );
 
-            return (
-              <section key={group} id={group}>
-                {/* Promo Banner (above title) */}
-                <div className="promo">
-                  {promoProducts.length ? (
-                    <ProductList
-                      products={promoProducts}
-                      cart={cart}
-                      setCart={setCart}
-                    />
-                  ) : (
-                    <>
-                      🎉 Special Promo Available! 🎉
-                      <span>Activate promo in admin to display vendor products here.</span>
-                    </>
-                  )}
-                </div>
-
-                {/* Category / Vendor Title */}
-                {viewType === "category" && <h2>{group.toUpperCase()}</h2>}
-
-                {viewType === "vendor" && productsByGroup[group][0] && (
-                  <div className="vendor-banner">
-                    <div className="vendor-initials">{getInitials(group)}</div>
-                    <div className="vendor-banner-details">
-                      <h3>{group}</h3>
-                      <Link to={`/vendor/${productsByGroup[group][0].vendorId}`}>
-                        <button className="view-shop-btn">View Shop</button>
-                      </Link>
-                    </div>
-                  </div>
+          return (
+            <section key={group} id={group}>
+              {/* Promo Banner */}
+              <div className="promo">
+                {promoProducts.length ? (
+                  <ProductList
+                    products={promoProducts}
+                    cart={cart}
+                    setCart={setCart}
+                  />
+                ) : (
+                  <>
+                    🎉 Special Promo Available! 🎉
+                    <span>Activate promo in admin to display vendor products here.</span>
+                  </>
                 )}
+              </div>
 
-                {/* Product List */}
-                <ProductList
-                  category={group}
-                  cart={cart}
-                  setCart={setCart}
-                  products={productsByGroup[group]}
-                  showVendorHeader={viewType === "vendor"}
-                  fullCount={groupFullCount[group]}
-                />
-              </section>
-            );
-          })}
-        </>
+              {/* Category / Vendor Title */}
+              {viewType === "category" && <h2>{group.toUpperCase()}</h2>}
+
+              {viewType === "vendor" && productsByGroup[group][0] && (
+                <div className="vendor-banner">
+                  <div className="vendor-initials">{getInitials(group)}</div>
+                  <div className="vendor-banner-details">
+                    <h3>{group}</h3>
+                    <Link to={`/vendor/${productsByGroup[group][0].vendorId}`}>
+                      <button className="view-shop-btn">View Shop</button>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* Product List */}
+              <ProductList
+                category={group}
+                cart={cart}
+                setCart={setCart}
+                products={productsByGroup[group]}
+                showVendorHeader={viewType === "vendor"}
+                fullCount={groupFullCount[group]}
+              />
+            </section>
+          );
+        })
       ) : (
         <div className="no-products"><p>No products available.</p></div>
       )}
 
-      {/* Cart Button */}
       <Link to="/cartPage">
         <button className="go-cart">GO TO CART</button>
       </Link>

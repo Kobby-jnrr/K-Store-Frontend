@@ -18,34 +18,29 @@ function PromoBoard() {
     const fetchData = async () => {
       setLoading(true);
       const token = sessionStorage.getItem("token");
-      let fetchedVendors = [];
-      let promoVendorIds = [];
 
-      // Fetch vendors
-      for (let url of [`${API_BASES[0]}/vendors`, `${API_BASES[1]}/vendors`]) {
-        try {
-          const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
-          fetchedVendors = Array.isArray(res.data) ? res.data : [];
-          break;
-        } catch (err) {
-          console.warn(`Failed to fetch vendors from ${url}:`, err.message);
-        }
+      try {
+        // Fetch vendors
+        const vendorRes = await Promise.any(
+          API_BASES.map(base =>
+            axios.get(`${base}/vendors`, { headers: { Authorization: `Bearer ${token}` } })
+          )
+        );
+        setVendors(Array.isArray(vendorRes.data) ? vendorRes.data : []);
+
+        // Fetch promo
+        const promoRes = await Promise.any(
+          API_BASES.map(base =>
+            axios.get(`${base}/promo`, { headers: { Authorization: `Bearer ${token}` } })
+          )
+        );
+        setActivePromoIds(promoRes.data.vendorIds || []);
+      } catch (err) {
+        console.error("Failed to fetch vendors or promo:", err);
+        toast.error("Failed to fetch vendors or promo");
+      } finally {
+        setLoading(false);
       }
-
-      // Fetch current promo
-      for (let url of [`${API_BASES[0]}/promo`, `${API_BASES[1]}/promo`]) {
-        try {
-          const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
-          promoVendorIds = res.data.vendorIds || [];
-          break;
-        } catch (err) {
-          console.warn(`Failed to fetch promo from ${url}:`, err.message);
-        }
-      }
-
-      setVendors(fetchedVendors);
-      setActivePromoIds(promoVendorIds);
-      setLoading(false);
     };
 
     fetchData();
@@ -53,36 +48,23 @@ function PromoBoard() {
 
   const togglePromo = async (vendorId) => {
     const token = sessionStorage.getItem("token");
-    const promoDurationDays = 14;
+    const promoDurationHours = 14 * 24; // 14 days
 
-    let updatedIds = [...activePromoIds];
-    const isActive = updatedIds.includes(vendorId);
-
-    if (isActive) {
-      // Remove vendor from active promo
-      updatedIds = updatedIds.filter(id => id !== vendorId);
-    } else {
-      // Add vendor to promo
-      updatedIds.push(vendorId);
-    }
-
-    // Create new promo
-    const payload = {
-      vendorIds: updatedIds,
-      durationHours: promoDurationDays * 24,
-    };
+    const isActive = activePromoIds.includes(vendorId);
+    const updatedIds = isActive
+      ? activePromoIds.filter(id => id !== vendorId)
+      : [...activePromoIds, vendorId];
 
     try {
-      for (let base of API_BASES) {
-        try {
-          await axios.post(`${base}/promo`, payload, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          break;
-        } catch (err) {
-          console.warn(`Failed to POST promo at ${base}:`, err.message);
-        }
-      }
+      await Promise.any(
+        API_BASES.map(base =>
+          axios.post(
+            `${base}/promo`,
+            { vendorIds: updatedIds, durationHours: promoDurationHours },
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+        )
+      );
 
       setActivePromoIds(updatedIds);
       toast.success(isActive ? "Promo removed ✅" : "Promo activated 🎉", {
