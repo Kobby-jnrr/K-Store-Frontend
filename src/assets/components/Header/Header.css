@@ -9,7 +9,7 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
-  background: linear-gradient(135deg, #8a6bcc, #1e3a8a); /* Gradient theme */
+  background: linear-gradient(135deg, #8a6bcc, #1e3a8a);
   color: white;
   box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* subtle shadow */
   z-index: 1000;
@@ -117,7 +117,7 @@ header {
   height: 40px;
   border: none;
   border-radius: 0 25px 25px 0;
-  background-color:#ffcc00; 
+  background-color:#00ff0d; 
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -139,7 +139,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 300px;
+  width: 330px;
 }
 
 
@@ -154,7 +154,12 @@ header {
 }
 
 
-.wishlist-button, .cart-button, .profile-button, .exit-button, .allP-button {
+.wishlist-button, 
+.cart-button, 
+.profile-button, 
+.exit-button, 
+.allP-button, 
+.notification-button {
   background: linear-gradient(135deg, #8a6bcc, #1e3a8a);
   border: none;
   cursor: pointer;
@@ -170,7 +175,8 @@ header {
 .cart-button:hover, 
 .profile-button:hover, 
 .exit-button:hover, 
-.allP-button:hover {
+.allP-button:hover,
+.notification-button:hover {
   background: rgba(255,255,255,0.9);
 }
 
@@ -197,7 +203,12 @@ header {
 }
 
 /* Icons inside buttons */
-.exit, .cart, .user-profile, .wishlist, .allP {
+.exit, 
+.cart, 
+.user-profile, 
+.wishlist, 
+.allP,
+.notification{
   width: 20px;
   height: 20px;
 }
@@ -234,6 +245,8 @@ header {
     padding: 6px 10px;
     height: auto;
     gap: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
   }
 
   /* Logo */
@@ -248,7 +261,7 @@ header {
     width: 45px;
     height: auto;
     display: block;
-    margin-right: -10px;
+    margin-right: -100px;
   }
 
   /* Search */
@@ -258,12 +271,12 @@ header {
     display: flex;
     align-items: center; /* vertically center with logo */
     justify-content: center;
-    min-width: 250px;
+    min-width: 300px;
   }
 
   .search {
     width: 100%;
-    max-width: 330px;
+    max-width: 550px;
     border-radius: 20px;
     padding: 8px 10px;
     font-size: 0.8rem;

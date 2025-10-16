@@ -1,6 +1,5 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
-
 import Header from "./assets/components/Header/Header.jsx";
 import Sidebar from "./assets/components/Sidebar/Sidebar.jsx";
 import Footer from "./assets/components/Footer/Footer.jsx";
@@ -16,6 +15,7 @@ import CheckoutPage from "./assets/pages/Body/CheckoutPage.jsx";
 import AdminLayout from "./assets/pages/admin/AdminLayout.jsx";
 import VendorOrders from "./assets/pages/Body/VendorOrders.jsx";
 import VendorProfile from "./assets/pages/Body/VendorProfile";
+
 
 function AppLayout({ cart, setCart, totalItems, logout, user }) {
   const location = useLocation();

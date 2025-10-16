@@ -15,7 +15,8 @@ function AdminSidebar() {
         <NavLink to="/admin/users" className="admin-link">👤 Users</NavLink>
         <NavLink to="/admin/products" className="admin-link">📦 Products</NavLink>
         <NavLink to="/admin/orders" className="admin-link">🧾 Orders</NavLink>
-        <NavLink to="/admin/promo" className="admin-link">🎉 Promo Board</NavLink> {/* NEW */}
+        <NavLink to="/admin/promo" className="admin-link">🎉 Promo Board</NavLink>
+        <NavLink to="/admin/notification" className="admin-link">🔔Notifications</NavLink>
       </nav>
     </aside>
   );

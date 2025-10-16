@@ -1,0 +1,172 @@
+.notification-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 22px;
+  position: relative;
+  color: #1e3a8a;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.notification-icon:hover {
+  transform: scale(1.1);
+  color: #8a6bcc;
+}
+
+.notification-count {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background: #e11d48;
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  box-shadow: 0 0 4px rgba(225, 29, 72, 0.5);
+}
+
+.notification-popup {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 270px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.3s ease;
+  z-index: 1000;
+  backdrop-filter: blur(6px);
+  transition: all 0.2s ease-in-out;
+}
+
+.notification-popup h4 {
+  background: linear-gradient(135deg, #8a6bcc, #1e3a8a);
+  color: white;
+  padding: 10px;
+  border-radius: 12px 12px 0 0;
+  font-size: 15px;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.notification-item {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s ease, transform 0.3s ease;
+  position: relative;
+}
+
+.notification-item:hover {
+  background: rgba(138, 107, 204, 0.08);
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item p {
+  margin: 0;
+  font-size: 14px;
+  color: #1e3a8a;
+  font-weight: 500;
+}
+
+.notification-item .time {
+  font-size: 12px;
+  color: gray;
+  display: block;
+  margin-top: 3px;
+}
+
+.empty {
+  text-align: center;
+  padding: 15px;
+  font-size: 14px;
+  color: #777;
+}
+
+/* Unread notification styling */
+.notification-item.unread {
+  background-color: #f3e8ff; /* light purple for unread */
+  font-weight: 600;
+  animation: slideIn 0.3s ease-out;
+}
+
+.notification-item.unread::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #e11d48; /* red dot */
+  animation: blinkDot 1.2s infinite;
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* Slide in effect for new notifications */
+@keyframes slideIn {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Blinking dot for unread notifications */
+@keyframes blinkDot {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0;
+  }
+}

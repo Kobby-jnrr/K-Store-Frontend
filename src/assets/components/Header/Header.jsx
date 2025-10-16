@@ -9,6 +9,7 @@ import allP from "./head-image/allProducts.png";
 import filter from "./head-image/filter.png";
 import Adder from "./head-image/Add.png";
 import MyOrders from "./head-image/Orders.png";
+import NotificationPopup from "./Notification/Notification.jsx";
 import { useState, useRef, useEffect } from "react";
 
 function Header({ totalItems, logout, user }) {
@@ -152,6 +153,8 @@ function Header({ totalItems, logout, user }) {
 
       {/* Right Section */}
       <div className="right">
+        < NotificationPopup user={user}/>
+
         <Link to="/allProducts">
           <button className="allP-button">
             <img src={allP} className="allP" alt="All Products" />

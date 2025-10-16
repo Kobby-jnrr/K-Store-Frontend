@@ -8,6 +8,8 @@ import Users from "./Users.jsx";
 import Products from "./Products.jsx";
 import Orders from "./Orders.jsx";
 import PromoBoard from "./PromoBoard.jsx";
+import AdminNotification from "./AdminNotification.jsx";
+
 
 import "./AdminLayout.css";
 
@@ -48,6 +50,7 @@ function AdminLayout({ user, logout }) {
           <Route path="products" element={<Products />} />
           <Route path="orders" element={<Orders />} />
           <Route path="promo" element={<PromoBoard />} />
+          <Route path="notification" element={<AdminNotification token={user?.token} />} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Routes>
       </div>
