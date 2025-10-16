@@ -3,134 +3,99 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import "./AdminNotification.css";
 
-const SOCKET_URL = "http://localhost:5000"; // change to your deployed URL
+const SOCKET_URL = "http://localhost:5000"; // Change when deployed
+const API_URLS = [
+  "http://localhost:5000/api/notifications",
+  "https://k-store-backend.onrender.com/api/notifications",
+];
 
 function AdminNotifications() {
   const [notifications, setNotifications] = useState([]);
   const [message, setMessage] = useState("");
   const [target, setTarget] = useState("both");
-  const [loading, setLoading] = useState(true);
   const [popup, setPopup] = useState("");
-  const [modal, setModal] = useState({ show: false, notificationId: null });
-
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState({ show: false, id: null });
   const token = sessionStorage.getItem("token");
 
   // ----- Socket.IO setup -----
   useEffect(() => {
     const socket = io(SOCKET_URL, { transports: ["websocket"] });
 
-    socket.on("connect", () => {
-      console.log("✅ Connected to socket:", socket.id);
-    });
+    socket.on("connect", () => console.log("✅ Connected:", socket.id));
 
-    // Listen for new notifications from the server
     socket.on("new-notification", (data) => {
       setNotifications((prev) => [data, ...prev]);
       setPopup(`New notification: ${data.message}`);
       setTimeout(() => setPopup(""), 3000);
     });
 
-    // Listen for deleted notifications
     socket.on("delete-notification", (id) => {
       setNotifications((prev) => prev.filter((n) => n._id !== id));
-      setPopup("A notification was deleted ❌");
+      setPopup("Notification deleted ❌");
       setTimeout(() => setPopup(""), 2000);
     });
 
     return () => socket.disconnect();
   }, []);
 
-  // ----- Fetch notifications from backend -----
+  // ----- Fetch notifications -----
   useEffect(() => {
+    const fetchNotifications = async () => {
+      for (const url of API_URLS) {
+        try {
+          const res = await axios.get(url, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setNotifications(res.data);
+          break;
+        } catch (err) {
+          console.warn("❌ Fetch failed:", url, err.message);
+        }
+      }
+      setLoading(false);
+    };
     fetchNotifications();
-  }, []);
+  }, [token]);
 
-  const fetchNotifications = async () => {
-    try {
-      const urls = [
-        "https://k-store-backend.onrender.com/api/notifications",
-        "http://localhost:5000/api/notifications",
-      ];
-      let data = [];
-      for (let url of urls) {
-        try {
-          const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
-          data = Array.isArray(res.data) ? res.data : [];
-          break;
-        } catch (err) {
-          console.warn(`Failed to fetch from ${url}:`, err.message);
-        }
-      }
-      setNotifications(data);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error fetching notifications:", err);
-      setLoading(false);
-    }
-  };
-
+  // ----- Send notification -----
   const sendNotification = async () => {
-    if (!message.trim()) return setPopup("Message cannot be empty");
+    if (!message.trim()) return setPopup("Message cannot be empty!");
 
-    try {
-      const urls = [
-        "https://k-store-backend.onrender.com/api/notifications",
-        "http://localhost:5000/api/notifications",
-      ];
-      let sent = false;
-      for (let url of urls) {
-        try {
-          await axios.post(
-            url,
-            { message, target },
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-          sent = true;
-          break;
-        } catch (err) {
-          console.warn(`Failed to send notification to ${url}:`, err.message);
-        }
-      }
-
-      if (sent) {
-        setPopup("Notification sent ✅");
+    for (const url of API_URLS) {
+      try {
+        await axios.post(
+          url,
+          { message, target },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setPopup("✅ Notification sent!");
         setMessage("");
-        fetchNotifications();
+        break;
+      } catch (err) {
+        console.warn("❌ Send failed:", url, err.message);
       }
-    } catch (err) {
-      console.error(err);
-      setPopup("Failed to send notification ❌");
     }
+
     setTimeout(() => setPopup(""), 2000);
   };
 
-  const confirmDeleteNotification = (id) => {
-    setModal({ show: true, notificationId: id });
-  };
-
-  const handleModalConfirm = async () => {
-    if (!modal.notificationId) return;
-    try {
-      const urls = [
-        `https://k-store-backend.onrender.com/api/notifications/${modal.notificationId}`,
-        `http://localhost:5000/api/notifications/${modal.notificationId}`,
-      ];
-      for (let url of urls) {
-        try {
-          await axios.delete(url, { headers: { Authorization: `Bearer ${token}` } });
-          break;
-        } catch (err) {
-          console.warn(`Failed to delete at ${url}:`, err.message);
-        }
+  // ----- Delete notification -----
+  const deleteNotification = async () => {
+    const id = modal.id;
+    for (const url of API_URLS) {
+      try {
+        await axios.delete(`${url}/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setNotifications((prev) => prev.filter((n) => n._id !== id));
+        setPopup("✅ Deleted");
+        break;
+      } catch (err) {
+        console.warn("❌ Delete failed:", url, err.message);
       }
-      // Emit deletion event manually (optional if backend already emits)
-      setNotifications((prev) => prev.filter((n) => n._id !== modal.notificationId));
-      setPopup("Notification deleted ✅");
-    } catch (err) {
-      console.error(err);
-      setPopup("Failed to delete notification ❌");
     }
-    setModal({ show: false, notificationId: null });
+    setModal({ show: false, id: null });
     setTimeout(() => setPopup(""), 2000);
   };
 
@@ -154,35 +119,40 @@ function AdminNotifications() {
           <option value="customer">Customers Only</option>
         </select>
         <button className="send-btn" onClick={sendNotification}>
-          Send Notification
+          Send
         </button>
       </div>
 
       <h2>Sent Notifications</h2>
       {notifications.length === 0 ? (
-        <p>No notifications sent yet.</p>
+        <p>No notifications yet.</p>
       ) : (
         notifications.map((n) => (
           <div key={n._id} className="notification-card">
             <div className="notification-card-header">
               <span className="notification-message">{n.message}</span>
               <span className="notification-target">Target: {n.target}</span>
-              <span className="notification-time">{new Date(n.createdAt).toLocaleString()}</span>
-              <button className="delete-btn" onClick={() => confirmDeleteNotification(n._id)}>Delete</button>
+              <span className="notification-time">
+                {new Date(n.createdAt).toLocaleString()}
+              </span>
+              <button
+                className="delete-btn"
+                onClick={() => setModal({ show: true, id: n._id })}
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))
       )}
 
-      {/* Confirmation Modal */}
       {modal.show && (
         <div className="modal-backdrop">
           <div className="modal">
-            <h2>Confirm Deletion</h2>
-            <p>Are you sure you want to delete this notification?</p>
+            <p>Delete this notification?</p>
             <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-              <button onClick={handleModalConfirm}>Yes</button>
-              <button onClick={() => setModal({ show: false, notificationId: null })}>Cancel</button>
+              <button onClick={deleteNotification}>Yes</button>
+              <button onClick={() => setModal({ show: false, id: null })}>No</button>
             </div>
           </div>
         </div>
