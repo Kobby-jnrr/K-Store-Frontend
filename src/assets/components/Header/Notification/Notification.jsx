@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import axios from "axios";
+import notificationIcon from "./notificationIcon.png";
 import "./Notification.css";
 
 function Notification({ user, token }) {
@@ -74,7 +75,7 @@ function Notification({ user, token }) {
         className={`notification-icon ${open ? "active" : ""}`}
         onClick={() => setOpen(!open)}
       >
-        🔔
+        <img src={notificationIcon} className="notification"/>
         {unreadCount > 0 && <span className="notification-count">{unreadCount}</span>}
       </button>
 

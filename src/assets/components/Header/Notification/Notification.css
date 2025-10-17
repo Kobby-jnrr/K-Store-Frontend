@@ -3,6 +3,12 @@
   display: inline-block;
 }
 
+.notification {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
 .notification-icon {
   background: none;
   border: none;
@@ -11,6 +17,9 @@
   position: relative;
   color: #1e3a8a;
   transition: transform 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .notification-icon:hover {
@@ -37,7 +46,7 @@
 
 .notification-popup {
   position: absolute;
-  top: 40px;
+  top: 45px;
   right: 0;
   width: 270px;
   max-height: 320px;
@@ -98,9 +107,8 @@
   color: #777;
 }
 
-/* Unread notification styling */
 .notification-item.unread {
-  background-color: #f3e8ff; /* light purple for unread */
+  background-color: #f3e8ff;
   font-weight: 600;
   animation: slideIn 0.3s ease-out;
 }
@@ -114,7 +122,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #e11d48; /* red dot */
+  background-color: #e11d48;
   animation: blinkDot 1.2s infinite;
 }
 
@@ -130,26 +138,6 @@
   }
 }
 
-@keyframes fadeInOut {
-  0% {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  10% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  90% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-}
-
-/* Slide in effect for new notifications */
 @keyframes slideIn {
   from {
     transform: translateX(20px);
@@ -161,12 +149,64 @@
   }
 }
 
-/* Blinking dot for unread notifications */
 @keyframes blinkDot {
   0%, 50%, 100% {
     opacity: 1;
   }
   25%, 75% {
     opacity: 0;
+  }
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 768px) {
+  .notification-popup {
+    right: 10px;
+    width: 90vw;
+    max-height: 60vh;
+  }
+
+  .notification-popup h4 {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .notification-item p {
+    font-size: 13px;
+  }
+
+  .notification-item .time {
+    font-size: 11px;
+  }
+
+  .notification {
+    width: 25px;
+    height: 25px;
+  }
+
+  /* Floating bell */
+  .notification-wrapper {
+    position: fixed;
+    top: 20px;
+    right: 25px;
+    z-index: 2000;
+  }
+}
+
+@media (max-width: 480px) {
+  .notification-popup {
+    right: 5px;
+    width: 95vw;
+    max-height: 50vh;
+  }
+
+  .notification {
+    width: 22px;
+    height: 22px;
+  }
+
+  .notification-wrapper {
+    top: 55px;
+    right: 10px;
   }
 }
