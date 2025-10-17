@@ -93,7 +93,7 @@ const VendorProducts = () => {
   const [savingEdit, setSavingEdit] = useState(false);
 
   const categories = [
-    "fashion", "electronics", "home", "grocery", "baby", "beauty",
+    "food","fashion", "electronics", "home", "grocery", "baby", "beauty",
     "sports", "gaming", "books", "toys", "automotive", "jewelry",
     "health", "pets", "office", "tools", "garden", "music", "movies",
     "appliances", "footwear", "accessories", "outdoor", "art", "other",

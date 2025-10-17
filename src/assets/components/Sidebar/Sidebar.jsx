@@ -1,25 +1,48 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
 import "./Sidebar.css";
 
-import fashion from "./side-image/fashion.png";
-import electronics from "./side-image/responsive.png";
-import home from "./side-image/home.png";
-import grocery from "./side-image/restaurant.png";
-import baby from "./side-image/baby.png";
-import beauty from "./side-image/skin-care.png";
-import sports from "./side-image/sports.png";
-import gaming from "./side-image/console.png";
-
 function Sidebar({ user }) {
-  const [open, setOpen] = useState(false); // toggle sidebar
+  const [open, setOpen] = useState(false);
 
-  // If user is admin, hide this sidebar
-  if (user && user.role === "admin") return null;
+  if (user?.role === "admin") return null;
+
+  const categories = [
+    { id: "food", label: "Food", emoji: "🍔" },
+    { id: "fashion", label: "Fashion", emoji: "👗" },
+    { id: "electronics", label: "Electronics", emoji: "📱" },
+    { id: "home", label: "Home", emoji: "🏠" },
+    { id: "grocery", label: "Grocery", emoji: "🛒" },
+    { id: "baby", label: "Baby", emoji: "👶" },
+    { id: "beauty", label: "Beauty", emoji: "💄" },
+    { id: "sports", label: "Sports", emoji: "🏀" },
+    { id: "gaming", label: "Gaming", emoji: "🎮" },
+    { id: "books", label: "Books", emoji: "📚" },
+    { id: "toys", label: "Toys", emoji: "🧸" },
+    { id: "automotive", label: "Automotive", emoji: "🚗" },
+    { id: "jewelry", label: "Jewelry", emoji: "💍" },
+    { id: "office", label: "Office", emoji: "🖇️" },
+    { id: "pet", label: "Pet", emoji: "🐶" },
+    { id: "tools", label: "Tools", emoji: "🛠️" },
+    { id: "music", label: "Music", emoji: "🎵" },
+    { id: "health", label: "Health", emoji: "💊" },
+    { id: "outdoors", label: "Outdoors", emoji: "🌲" },
+    { id: "kitchen", label: "Kitchen", emoji: "🍳" },
+    { id: "shoes", label: "Shoes", emoji: "👟" },
+    { id: "accessories", label: "Accessories", emoji: "👜" },
+    { id: "other", label: "Other", emoji: "❓" },
+  ];
+
+  const scrollToSection = (id) => {
+    const section = document.getElementById(id);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    setOpen(false);
+  };
+
 
   return (
     <>
-      {/* Arrow toggle button */}
       <button
         className={`sidebar-toggle ${open ? "open" : ""}`}
         onClick={() => setOpen(!open)}
@@ -33,45 +56,16 @@ function Sidebar({ user }) {
             <div className="side-head">Categories</div>
           </div>
 
-          <div className="container">
-            <img src={fashion} className="side" />
-            <NavLink to="#fashion">Fashion and Apparel</NavLink>
-          </div>
-
-          <div className="container">
-            <img src={electronics} className="side" />
-            <NavLink to="#electronics">Electronics</NavLink>
-          </div>
-
-          <div className="container">
-            <img src={home} className="side" />
-            <NavLink to="#home-living">Home and Living</NavLink>
-          </div>
-
-          <div className="container">
-            <img src={grocery} className="side" />
-            <NavLink to="#grocery">Grocery and Essentials</NavLink>
-          </div>
-
-          <div className="container">
-            <img src={baby} className="side" />
-            <NavLink to="#baby">Baby and Kids</NavLink>
-          </div>
-
-          <div className="container">
-            <img src={beauty} className="side" />
-            <NavLink to="#beauty">Beauty and Personal Care</NavLink>
-          </div>
-
-          <div className="container">
-            <img src={sports} className="side" />
-            <NavLink to="#sports">Sports and Outdoors</NavLink>
-          </div>
-
-          <div className="container">
-            <img src={gaming} className="side" />
-            <NavLink to="#gaming">Gaming</NavLink>
-          </div>
+          {categories.map((cat) => (
+            <div
+              className="container"
+              key={cat.id}
+              onClick={() => scrollToSection(cat.id)}
+            >
+              <span className="emoji">{cat.emoji}</span>
+              <span>{cat.label}</span>
+            </div>
+          ))}
         </div>
       </aside>
     </>

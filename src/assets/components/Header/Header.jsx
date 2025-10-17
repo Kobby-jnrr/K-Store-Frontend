@@ -22,6 +22,7 @@ function Header({ totalItems, logout, user }) {
   const filterRef = useRef(null);
 
   const categories = [
+    "food",
     "fashion",
     "electronics",
     "home",

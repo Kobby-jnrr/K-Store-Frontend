@@ -83,20 +83,11 @@
   background-color: rgba(255,255,255,0.1);
 }
 
-.side {
-  width: 25px;
-  filter: brightness(0) invert(1);
+.container .emoji {
+  font-size: 22px;
+  margin-right: 10px;
 }
 
-a {
-  text-decoration: none;
-  color: white;
-  font-weight: 500;
-}
-
-a:hover {
-  text-decoration: underline;
-}
 
 /* ------------------- MOBILE & TABLET ------------------- */
 @media(max-width: 1024px) {

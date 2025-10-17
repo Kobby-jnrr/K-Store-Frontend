@@ -14,7 +14,7 @@ function Main({ cart, setCart }) {
   const [promoProducts, setPromoProducts] = useState([]);
 
   const defaultCategories = [
-    "fashion","electronics","home","grocery","baby","beauty","sports",
+    "food","fashion","electronics","home","grocery","baby","beauty","sports",
     "gaming","books","toys","automotive","jewelry","office","pet",
     "tools","music","health","outdoors","kitchen","shoes","accessories","other"
   ];

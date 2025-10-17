@@ -156,9 +156,6 @@
 
 /* Responsive */
 @media(max-width: 1000px){
-  .footer{
-    display: none;
-  }
   .checkout-content { 
     flex-direction: column; 
     gap: 20px; 
