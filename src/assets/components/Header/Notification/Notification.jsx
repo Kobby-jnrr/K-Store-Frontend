@@ -9,78 +9,71 @@ function Notification({ user, token }) {
   const popupRef = useRef(null);
   const socket = useRef(null);
 
-  // Fetch notifications from backend
+  // -------- Fetch notifications for logged-in user --------
   useEffect(() => {
     if (!user || !token) return;
 
-    const fetchNotifications = async () => {
-      try {
-        const res = await axios.get("/api/notifications", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setNotifications(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchNotifications();
+    axios
+      .get("/api/notifications", { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => setNotifications(res.data))
+      .catch(console.error);
   }, [user, token]);
 
-  // Setup Socket.IO
+  // -------- Socket.IO setup --------
   useEffect(() => {
+    if (!user) return;
+
     socket.current = io("http://localhost:5000"); // replace with deployed URL
+    socket.current.emit("join-room", user._id); // join user-specific room
 
     socket.current.on("new-notification", (notif) => {
-      if (notif.target === user.role || notif.target === "both") {
-        setNotifications((prev) => [notif, ...prev]);
-      }
+      setNotifications((prev) => [notif, ...prev]);
     });
 
-    socket.current.on("delete-notification", ({ id }) => {
+    socket.current.on("delete-notification", (id) => {
       setNotifications((prev) => prev.filter((n) => n._id !== id));
     });
 
     return () => socket.current.disconnect();
-  }, [user.role]);
+  }, [user]);
 
-  // Mark notifications as read when opening popup
+  // -------- Mark notifications as read when popup opens --------
   useEffect(() => {
-    if (!open) return;
+    if (!open || !user || !token) return;
 
-    const unread = notifications.filter((n) => !n.readBy?.includes(user._id));
-
-    unread.forEach((notif) => {
-      axios.put(`/api/notifications/${notif._id}/read`, null, {
-        headers: { Authorization: `Bearer ${token}` },
-      }).catch(console.error);
+    notifications.forEach((notif) => {
+      if (!notif.read) {
+        axios
+          .put(`/api/notifications/${notif._id}/read`, null, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then(() =>
+            setNotifications((prev) =>
+              prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n))
+            )
+          )
+          .catch(console.error);
+      }
     });
+  }, [open, notifications, token]);
 
-    setNotifications((prev) =>
-      prev.map((n) =>
-        !n.readBy?.includes(user._id)
-          ? { ...n, readBy: [...(n.readBy || []), user._id] }
-          : n
-      )
-    );
-  }, [open, notifications, token, user._id]);
-
-  // Close popup when clicking outside
+  // -------- Close popup when clicking outside --------
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (popupRef.current && !popupRef.current.contains(e.target)) {
-        setOpen(false);
-      }
+      if (popupRef.current && !popupRef.current.contains(e.target)) setOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const unreadCount = notifications.filter((n) => !n.readBy?.includes(user._id)).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <div className="notification-wrapper" ref={popupRef}>
-      <button className={`notification-icon ${open ? "active" : ""}`} onClick={() => setOpen(!open)}>
+      <button
+        className={`notification-icon ${open ? "active" : ""}`}
+        onClick={() => setOpen(!open)}
+      >
         🔔
         {unreadCount > 0 && <span className="notification-count">{unreadCount}</span>}
       </button>
@@ -94,7 +87,7 @@ function Notification({ user, token }) {
             notifications.map((n) => (
               <div
                 key={n._id}
-                className={`notification-item ${!n.readBy?.includes(user._id) ? "unread" : ""}`}
+                className={`notification-item ${!n.read ? "unread" : ""}`}
               >
                 <p>{n.message}</p>
                 <span className="time">

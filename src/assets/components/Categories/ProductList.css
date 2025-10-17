@@ -154,3 +154,21 @@ h4 {
   transition: text-decoration 0.2s;
   margin: 0 0px 25px 10px;
 }
+.description {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 4px 0;
+  line-height: 1.2rem;
+}
+
+.read-more {
+  color: #0077ff;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: 4px;
+  transition: opacity 0.2s;
+}
+
+.read-more:hover {
+  opacity: 0.8;
+}

@@ -1,0 +1,176 @@
+/* ---------- PROMO WRAPPER ---------- */
+.promo {
+  position: relative;
+  display: flex;             /* make it a flex container */
+  flex-direction: column;
+  justify-content: center;   /* vertical center */
+  align-items: center;       /* horizontal center */
+  text-align: center;
+  padding: 20px 15px;
+  background: linear-gradient(135deg, #8a6bcc, #1e3a8a);
+  color: #fff;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 10px 0 20px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+  min-height: 90px;
+  width: 200vh;
+  height: 180px;
+}
+
+
+/* Text */
+.promo span {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 8px;
+  color: #ffe4ff;
+}
+
+/* ---------- SPARKLE PARTICLES ---------- */
+.promo .particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  animation: sparkle 4s infinite;
+}
+
+/* Randomize initial positions with nth-child */
+.promo .particle:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+.promo .particle:nth-child(2) { top: 20%; left: 80%; animation-delay: 0.5s; }
+.promo .particle:nth-child(3) { top: 60%; left: 10%; animation-delay: 1s; }
+.promo .particle:nth-child(4) { top: 50%; left: 50%; animation-delay: 1.2s; }
+/* Continue for all 15 particles with different top/left and delays */
+
+/* Sparkle animation */
+@keyframes sparkle {
+  0% { transform: translate(0,0) scale(1); opacity: 0.8; }
+  25% { transform: translate(20px, -15px) scale(1.2); opacity: 0.6; }
+  50% { transform: translate(-25px, 10px) scale(0.9); opacity: 0.5; }
+  75% { transform: translate(15px, 20px) scale(1.1); opacity: 0.7; }
+  100% { transform: translate(0,0) scale(1); opacity: 0.8; }
+}
+
+/* ---------- SPINNING FAN ---------- */
+.spinning-fan {
+  position: absolute;
+  width: 250px;       /* bigger size */
+  height: 250px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    rgba(255,255,255,0.15) 20%, 
+    transparent 20% 50%, 
+    rgba(255,255,255,0.15) 50% 70%, 
+    transparent 70% 100%
+  );
+  border-radius: 50%;
+  animation: spin 6s linear infinite; /* faster spin */
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Spin animation */
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+
+/* ---------- BANNER PRODUCT LIST ---------- */
+
+.banner-products {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.banner-products .product-list {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  justify-content: flex-start;
+  min-height: 80px; /* ensures card height is respected */
+  gap: 8px;
+  padding: 10px 8px;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 169, 217, 0.8) rgba(30,58,138,0.1);
+  z-index: 1;
+  position: relative;
+}
+
+.banner-products .product-card {
+  min-width: 80px;
+  max-width: 80px;
+  flex: 0 0 auto;
+  padding: 6px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1;
+}
+
+.banner-products .product-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+}
+
+.banner-products .product-img {
+  width: 100%;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+
+.banner-products .price {
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: #1e3a8a;
+  text-align: center;
+  padding: 2px 4px;
+  background: rgba(30, 58, 138, 0.1);
+  border-radius: 4px;
+  width: 100%;
+}
+/* ---------- CATCH MESSAGE ---------- */
+.catch-message {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  text-align: center;
+  padding: 40px 20px;
+  font-weight: 700;
+  text-shadow: 1px 1px 8px rgba(0,0,0,0.5);
+}
+
+.catch-message h1 {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+  animation: bounce 2s infinite;
+}
+
+.catch-message p {
+  font-size: 1rem;
+  color: #ffe4ff;
+}
+
+/* ---------- Bounce animation for h1 ---------- */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
