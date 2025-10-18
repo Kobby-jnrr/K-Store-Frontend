@@ -43,7 +43,9 @@ function SignUpVendor({ setUser }) {
 
     try {
       const userData = {
-        username: `${form.firstName} ${form.lastName}`,
+        username: form.businessName.trim() !== "" ?  
+        form.businessName.trim() 
+        : `${form.firstName} ${form.lastName}`,
         email: form.email,
         password: form.password,
         role: form.role,
@@ -53,7 +55,6 @@ function SignUpVendor({ setUser }) {
       };
 
       const data = await registerUser(userData);
-
       sessionStorage.setItem("token", data.accessToken);
       sessionStorage.setItem("user", JSON.stringify(data.user));
       setUser(data.user);
@@ -68,39 +69,42 @@ function SignUpVendor({ setUser }) {
   };
 
   return (
-    <div className="signup-container">
-      <img src={logo} alt="Logo" className="signup-logo-top" />
+    <div className="signup-wrapper">
+      <div className="signup-bg"></div>
 
-      <div className="signup-left">
-        <img src={logo} alt="Logo" className="signup-logo" />
-        <h1>Sign Up as Vendor</h1>
-        <p>Create your vendor account to start selling</p>
-      </div>
+      <div className="signup-card">
+        <img src={logo} alt="K-Store Logo" className="signup-logo" />
+        <h1 className="signup-title">Vendor Sign Up</h1>
+        <p className="signup-subtitle">Create your vendor account and start selling today!</p>
 
-      <div className="signup-right">
         <form className="signup-form" onSubmit={handleSubmit}>
-          <input type="text" name="firstName" placeholder="First Name*" value={form.firstName} onChange={handleChange} required />
-          <input type="text" name="lastName" placeholder="Last Name*" value={form.lastName} onChange={handleChange} required />
+          <div className="input-grid">
+            <input type="text" name="firstName" placeholder="First Name*" value={form.firstName} onChange={handleChange} required />
+            <input type="text" name="lastName" placeholder="Last Name*" value={form.lastName} onChange={handleChange} required />
+          </div>
+
           <input type="email" name="email" placeholder="Email*" value={form.email} onChange={handleChange} required />
           <input type="number" name="phone" placeholder="Phone Number*" value={form.phone} onChange={handleChange} required />
-          <input type="text" name="businessName" placeholder="Business Name" value={form.businessName} onChange={handleChange} />
+
+          <input type="text" name="businessName" placeholder="Business Name (optional)" value={form.businessName} onChange={handleChange} />
+          <p className="field-note">If you don’t provide a business name, your full name will be used instead.</p>
+
           <input type="text" name="location" placeholder="Location" value={form.location} onChange={handleChange} />
-          <input type="password" name="password" placeholder="Password*" value={form.password} onChange={handleChange} required />
+
+          <input type="password" name="password" placeholder="Password* (At least 6 characters)" value={form.password} onChange={handleChange} required />
           <input type="password" name="confirmpassword" placeholder="Confirm Password*" value={form.confirmpassword} onChange={handleChange} required />
 
           <button type="submit" disabled={loading} className="signup-button">
-            {loading ? <span className="spinner"></span> : "Create Account"}
+            {loading ? <span className="spinner"></span> : "Create Vendor Account"}
           </button>
 
           {error && <p className="error">{error}</p>}
           {success && <p className="success">{success}</p>}
 
-          <p className="signup-text">
-            Already have an account? <Link to="/login">Sign In</Link>
-          </p>
-          <p className="signup-text">
-            Are you a customer? <Link to="/signup">Click here</Link>
-          </p>
+          <div className="signup-links">
+            <p>Already have an account? <Link to="/login">Sign In</Link></p>
+            <p>Are you a customer? <Link to="/signup">Click here</Link></p>
+          </div>
         </form>
       </div>
     </div>

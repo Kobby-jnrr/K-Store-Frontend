@@ -1,212 +1,148 @@
-.notification-wrapper {
+/* ===== Notification Container & Icon ===== */
+.notification-container {
   position: relative;
   display: inline-block;
-}
-
-.notification {
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
+  cursor: pointer;
 }
 
 .notification-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 22px;
-  position: relative;
-  color: #1e3a8a;
-  transition: transform 0.2s ease, color 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 25px;
+  height: 25px;
+  margin-top: 1px;
 }
 
-.notification-icon:hover {
-  transform: scale(1.1);
-  color: #8a6bcc;
-}
-
-.notification-count {
+.notification-badge {
   position: absolute;
-  top: -4px;
+  top: -6px;
   right: -6px;
-  background: #e11d48;
-  color: white;
-  border-radius: 50%;
-  font-size: 10px;
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-color: #e74c3c;
+  color: #fff;
+  font-size: 12px;
   font-weight: bold;
-  box-shadow: 0 0 4px rgba(225, 29, 72, 0.5);
+  padding: 2px 6px;
+  border-radius: 50%;
+  pointer-events: none;
 }
 
+/* ===== Notification Popup ===== */
 .notification-popup {
   position: absolute;
-  top: 45px;
+  top: 40px;
   right: 0;
-  width: 270px;
-  max-height: 320px;
+  width: 320px;
+  max-height: 400px;
   overflow-y: auto;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-  animation: slideDown 0.3s ease;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  backdrop-filter: blur(6px);
-  transition: all 0.2s ease-in-out;
-}
-
-.notification-popup h4 {
-  background: linear-gradient(135deg, #8a6bcc, #1e3a8a);
-  color: white;
   padding: 10px;
-  border-radius: 12px 12px 0 0;
-  font-size: 15px;
-  margin: 0;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  animation: popupDrop 0.25s ease-out;
 }
 
+/* Popup drop-in animation */
+@keyframes popupDrop {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Notification Item ===== */
 .notification-item {
-  padding: 10px 12px;
-  border-bottom: 1px solid #eee;
-  transition: background 0.2s ease, transform 0.3s ease;
-  position: relative;
+  padding: 12px 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  transition: background 0.2s, transform 0.2s, opacity 0.2s;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: itemFadeUp 0.3s forwards;
 }
 
-.notification-item:hover {
-  background: rgba(138, 107, 204, 0.08);
+.notification-item.unread {
+  background-color: #f0f8ff;
 }
 
-.notification-item:last-child {
-  border-bottom: none;
+.notification-item.read {
+  background-color: #f9f9f9;
+}
+
+@keyframes itemFadeUp {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Title & Message Styling ===== */
+.notification-item h4 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2c3e50;
+  line-height: 1.3;
+  word-break: break-word;
 }
 
 .notification-item p {
-  margin: 0;
+  margin: 0 0 6px;
   font-size: 14px;
-  color: #1e3a8a;
-  font-weight: 500;
+  color: #555;
+  line-height: 1.5;
+  word-break: break-word;
 }
 
-.notification-item .time {
-  font-size: 12px;
-  color: gray;
+.notification-item small {
   display: block;
-  margin-top: 3px;
+  font-size: 11px;
+  color: #999;
+  margin-top: 4px;
 }
 
-.empty {
+/* ===== No Notifications Text ===== */
+.no-notifications {
   text-align: center;
-  padding: 15px;
+  padding: 20px;
   font-size: 14px;
   color: #777;
 }
 
-.notification-item.unread {
-  background-color: #f3e8ff;
-  font-weight: 600;
-  animation: slideIn 0.3s ease-out;
+/* ===== Scrollbar Styling ===== */
+.notification-popup::-webkit-scrollbar {
+  width: 6px;
 }
 
-.notification-item.unread::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 8px;
-  transform: translateY(-50%);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #e11d48;
-  animation: blinkDot 1.2s infinite;
+.notification-popup::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
 }
 
-/* Animations */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.notification-popup::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
+/* ===== RESPONSIVE STYLING ===== */
 
-@keyframes blinkDot {
-  0%, 50%, 100% {
-    opacity: 1;
-  }
-  25%, 75% {
-    opacity: 0;
-  }
-}
-
-/* ---------------- Responsive ---------------- */
-@media (max-width: 768px) {
-  .notification-popup {
-    right: 10px;
-    width: 90vw;
-    max-height: 60vh;
-  }
-
-  .notification-popup h4 {
-    font-size: 14px;
-    padding: 8px;
-  }
-
-  .notification-item p {
-    font-size: 13px;
-  }
-
-  .notification-item .time {
-    font-size: 11px;
-  }
-
-  .notification {
-    width: 25px;
-    height: 25px;
-  }
-
-  /* Floating bell */
-  .notification-wrapper {
-    position: fixed;
-    top: 20px;
-    right: 25px;
-    z-index: 2000;
-  }
-}
-
+/* Mobile: width ≤ 480px */
 @media (max-width: 480px) {
   .notification-popup {
-    right: 5px;
-    width: 95vw;
+    width: 90vw;
+    right: 5vw;
+    max-height: 60vh;
+    padding: 10px;
+  }
+
+  .notification-item h4 { font-size: 14px; }
+  .notification-item p { font-size: 13px; }
+  .notification-item small { font-size: 10px; }
+}
+
+/* Tablet: 481px ≤ width ≤ 768px */
+@media (min-width: 481px) and (max-width: 768px) {
+  .notification-popup {
+    width: 260px;
     max-height: 50vh;
+    padding: 10px;
   }
 
-  .notification {
-    width: 22px;
-    height: 22px;
-  }
-
-  .notification-wrapper {
-    top: 55px;
-    right: 10px;
-  }
+  .notification-item h4 { font-size: 15px; }
+  .notification-item p { font-size: 13px; }
+  .notification-item small { font-size: 11px; }
 }

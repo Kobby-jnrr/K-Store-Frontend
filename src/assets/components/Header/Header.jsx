@@ -154,8 +154,6 @@ function Header({ totalItems, logout, user }) {
 
       {/* Right Section */}
       <div className="right">
-        < NotificationPopup user={user}/>
-
         <Link to="/allProducts">
           <button className="allP-button">
             <img src={allP} className="allP" alt="All Products" />
@@ -176,6 +174,7 @@ function Header({ totalItems, logout, user }) {
             </Link>
           </>
         )}
+        < NotificationPopup user={user}/>
 
         <Link to="/cartPage">
           <button className="cart-button">

@@ -106,7 +106,10 @@ function ProductList({ category, cart, setCart, products: externalProducts, show
                     className="vendor-name"
                     onClick={() => navigate(`/vendor/${item.vendor._id}`)}
                   >
-                    Vendor: {item.vendor.shopName || item.vendor.username}
+                   Vendor:{" "}
+                    {item.vendor.businessName?.trim() ||
+                      item.vendor.username ||
+                      `${item.vendor.firstName || ""} ${item.vendor.lastName || ""}`.trim()}
                   </p>
                 )}
 

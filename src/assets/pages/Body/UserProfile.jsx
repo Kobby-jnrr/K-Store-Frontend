@@ -23,6 +23,10 @@ const UserProfile = () => {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [activeOrder, setActiveOrder] = useState(null);
 
+  // --- Notifications for order status changes ---
+  const [notifications, setNotifications] = useState([]);
+  const [prevOrderStatuses, setPrevOrderStatuses] = useState({});
+
   useEffect(() => {
     const sessionUser = JSON.parse(sessionStorage.getItem("user"));
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -65,11 +69,66 @@ const UserProfile = () => {
     const urls = API_BASES.map(base => `${base}/orders/my-orders`);
     const data = await fetchWithFallback(urls, token);
     setOrders(Array.isArray(data) ? data : []);
+    // Initialize previous order statuses
+    const statusMap = {};
+    (data || []).forEach(order => {
+      statusMap[order._id] = computeOrderStatus(order);
+    });
+    setPrevOrderStatuses(statusMap);
     setLoadingOrders(false);
   };
 
-  const confirmDeleteProduct = (product) => setConfirmDelete(product);
+  // --- Poll orders every 30 seconds to detect status changes ---
+  useEffect(() => {
+    if (!user || !user.token) return;
 
+    const checkOrderStatusChanges = async () => {
+      try {
+        const urls = API_BASES.map(base => `${base}/orders/my-orders`);
+        let ordersData = null;
+
+        for (let url of urls) {
+          try {
+            const res = await axios.get(url, { headers: { Authorization: `Bearer ${user.token}` } });
+            if (res.data) { ordersData = res.data; break; }
+          } catch {}
+        }
+
+        if (!ordersData) return;
+
+        ordersData.forEach(order => {
+          const oldStatus = prevOrderStatuses[order._id];
+          const newStatus = order.items?.length ? computeOrderStatus(order) : "Pending";
+
+          if (oldStatus && oldStatus !== newStatus) {
+            const message = `Your order "${order._id}" status changed to ${newStatus}.`;
+            setNotifications(prev => [
+              { _id: Date.now().toString(), message, createdAt: new Date().toISOString(), readBy: [] },
+              ...prev
+            ]);
+          }
+        });
+
+        // Update previous statuses
+        const newStatusMap = {};
+        ordersData.forEach(o => newStatusMap[o._id] = computeOrderStatus(o));
+        setPrevOrderStatuses(newStatusMap);
+
+        setOrders(ordersData);
+      } catch (err) {
+        console.error("Order status check failed:", err.message);
+      }
+    };
+
+    // Initial check + interval
+    checkOrderStatusChanges();
+    const interval = setInterval(checkOrderStatusChanges, 10000);
+    return () => clearInterval(interval);
+
+  }, [user, prevOrderStatuses]);
+
+  // --- Edit, Delete, Avatar, Utility functions ---
+  const confirmDeleteProduct = (product) => setConfirmDelete(product);
   const handleDelete = async () => {
     if (!confirmDelete) return;
     const token = user.token;
@@ -110,10 +169,7 @@ const UserProfile = () => {
   };
 
   const closeEditModal = () => setEditingItem(null);
-
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const saveEdit = async () => {
     if (!editingItem) return;
     const token = user.token;
@@ -135,8 +191,9 @@ const UserProfile = () => {
             break;
           } catch {}
         }
-        setUser(prev => ({ ...prev, ...formData }));
-        sessionStorage.setItem("user", JSON.stringify({ ...user, ...formData }));
+        const updatedUsername = formData.businessName?.trim() || `${user.firstName} ${user.lastName}`;
+        setUser((prev) => ({ ...prev, ...formData, username: updatedUsername }));
+        sessionStorage.setItem("user", JSON.stringify({ ...user, ...formData, username: updatedUsername }));
       }
       closeEditModal();
       toast.success("Changes saved!");
@@ -166,13 +223,23 @@ const UserProfile = () => {
   };
 
   if (!user) return <div className="loader">Loading profile...</div>;
-
   const isVendor = user.role === "vendor";
-  const isVerified = isVendor ? (verifiedStatus ?? user.verified ?? false): false ;
+  const isVerified = isVendor ? (verifiedStatus ?? user.verified ?? false): false;
 
   return (
     <div className="profile-page">
       <Toaster position="top-right" />
+
+      {/* Notifications */}
+      {notifications.length > 0 && (
+        <div className="notifications-popup">
+          {notifications.map(n => (
+            <div key={n._id} className="notification-item">
+              {n.message} <small>{new Date(n.createdAt).toLocaleTimeString()}</small>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className={`profile-grid ${isVendor ? "vendor-grid" : "customer-grid"}`}>
         {/* Profile Card */}
@@ -183,21 +250,21 @@ const UserProfile = () => {
                 {getInitials(user.username)}
               </div>
             ) : <img src={user.avatar} alt={user.username} className="profile-avatar" />}
-                        <h2>
+            <h2>
               {user.username} {isVendor && isVerified && <span className="green-tick">✅</span>}
-              </h2>
-              {isVendor && (
-                <span className={`vendor-badge ${isVerified ? "verified" : "unverified"}`}>
-                  {isVerified ? "Verified Account" : "Unverified"}
-                </span>
-              )}
+            </h2>
+            {isVendor && (
+              <span className={`vendor-badge ${isVerified ? "verified" : "unverified"}`}>
+                {isVerified ? "Verified Account" : "Unverified"}
+              </span>
+            )}
           </div>
           <div className="profile-section">
             <h3>Account Info</h3>
-            <p><strong>Email:</strong> {user.email || "Not set"}</p>
-            <p><strong>Phone:</strong> {user.phone || "Not added yet"}</p>
+            <p><strong>Email:</strong> {user.email}</p>
+            <p><strong>Phone:</strong> {user.phone || "Phone Not Added"}</p>
             <p><strong>Location:</strong> {user.location || "No location set"}</p>
-            {isVendor && <p><strong>Business Name:</strong> {user.businessName || "Not added yet"}</p>}
+            {isVendor && <p><strong>Business Name:</strong> {user.businessName || "No Business Name"}</p>}
             <p><strong>Role:</strong> {user.role}</p>
             <button className="btn-primary" onClick={() => openEditModal(user, "vendor")}>Edit Info</button>
           </div>

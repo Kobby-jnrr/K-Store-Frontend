@@ -1,182 +1,226 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
+import toast, { Toaster } from "react-hot-toast";
 import "./AdminNotification.css";
 
-const SOCKET_URL = "https://k-store-backend.onrender.com";
-const API_URLS = [
-  "http://localhost:5000/api/notifications",
-  "https://k-store-backend.onrender.com/api/notifications",
+const BACKEND_URLS = [
+  "http://localhost:5000",
+  "https://k-store-backend.onrender.com",
 ];
 
-function AdminNotifications() {
+function AdminNotification() {
   const [notifications, setNotifications] = useState([]);
-  const [message, setMessage] = useState("");
-  const [target, setTarget] = useState("both");
-  const [popup, setPopup] = useState("");
   const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState({ show: false, id: null });
-  const [userCounts, setUserCounts] = useState({ vendor: 0, customer: 0 });
-  const socketRef = useRef(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [recipientFilter, setRecipientFilter] = useState("All");
+
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const [recipientType, setRecipientType] = useState("both");
+
+  const [showModal, setShowModal] = useState(false);
+
   const token = sessionStorage.getItem("token");
+  const backendURL = BACKEND_URLS[0];
 
-  // ---------- Socket.IO ----------
-  useEffect(() => {
-    socketRef.current = io(SOCKET_URL, { transports: ["websocket"] });
-
-    socketRef.current.on("new-notification", (data) => {
-      setNotifications((prev) => [data, ...prev]);
-      setPopup(`New notification: ${data.message}`);
-      setTimeout(() => setPopup(""), 3000);
-    });
-
-    socketRef.current.on("delete-notification", (id) => {
-      setNotifications((prev) => prev.filter((n) => n._id !== id));
-      setPopup("Notification deleted ❌");
-      setTimeout(() => setPopup(""), 2000);
-    });
-
-    return () => socketRef.current.disconnect();
-  }, []);
-
-  // ---------- Fetch notifications & user counts ----------
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch notifications
-        for (const url of API_URLS) {
-          try {
-            const res = await axios.get(url, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            setNotifications(res.data);
-            break;
-          } catch (err) {
-            console.warn("❌ Fetch failed:", url, err.message);
-          }
-        }
-
-        // Fetch vendor & customer counts
-        const [vendorRes, customerRes] = await Promise.all([
-          axios.get("/api/admin/users/count?role=vendor", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get("/api/admin/users/count?role=customer", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-        setUserCounts({ vendor: vendorRes.data.count, customer: customerRes.data.count });
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [token]);
-
-  // ---------- Send notification ----------
-  const sendNotification = async () => {
-    if (!message.trim()) return setPopup("Message cannot be empty!");
-
-    for (const url of API_URLS) {
-      try {
-        const res = await axios.post(
-          url,
-          { message, target },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const notification = res.data.notification; // get created notification
-        // Update local state immediately
-        setNotifications((prev) => [notification, ...prev]);
-
-        setPopup("✅ Notification sent!");
-        setMessage("");
-        break;
-      } catch (err) {
-        console.warn("❌ Send failed:", url, err.message);
-      }
+  const fetchNotifications = async () => {
+    if (!token) return;
+    try {
+      const res = await axios.get(`${backendURL}/api/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const fetchedNotifications = Array.isArray(res.data.notifications)
+        ? res.data.notifications
+        : [];
+      fetchedNotifications.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setNotifications(fetchedNotifications);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setNotifications([]);
+      setLoading(false);
     }
-
-    setTimeout(() => setPopup(""), 2000);
   };
 
+  useEffect(() => {
+    fetchNotifications();
 
-  // ---------- Delete notification ----------
-  const deleteNotification = async () => {
-    const id = modal.id;
-    for (const url of API_URLS) {
-      try {
-        await axios.delete(`${url}/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setNotifications((prev) => prev.filter((n) => n._id !== id));
-        setPopup("✅ Deleted");
-        break;
-      } catch (err) {
-        console.warn("❌ Delete failed:", url, err.message);
-      }
+    const socket = io(backendURL, { query: { role: "admin" } });
+    socket.on("connect", () => console.log("✅ Admin socket connected"));
+    socket.on("new-notification", (n) => {
+      setNotifications((prev) => [n, ...prev]);
+      toast.success(`New notification: ${n.title}`);
+    });
+
+    return () => socket.disconnect();
+  }, []);
+
+  const sendNotification = async (e) => {
+    e.preventDefault();
+    if (!title || !message) return toast.error("Title and message are required");
+
+    try {
+      const res = await axios.post(
+        `${backendURL}/api/notifications`,
+        { title, message, recipientType },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setNotifications((prev) => [res.data.notification, ...prev]);
+      setTitle("");
+      setMessage("");
+      setRecipientType("both");
+      toast.success("Notification sent successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to send notification");
     }
-    setModal({ show: false, id: null });
-    setTimeout(() => setPopup(""), 2000);
+  };
+
+  const deleteAllNotifications = async () => {
+    try {
+      await axios.delete(`${backendURL}/api/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setNotifications([]);
+      setShowModal(false);
+      toast.success("All notifications deleted");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete notifications");
+    }
   };
 
   if (loading) return <div className="loader">Loading notifications...</div>;
 
-  return (
-    <div className="admin-notifications-page">
-      <h1>Admin Notifications 🔔</h1>
-      {popup && <div className="popup">{popup}</div>}
+  const filteredNotifications = notifications.filter((n) => {
+    const matchesSearch =
+      n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      n.message.toLowerCase().includes(searchTerm.toLowerCase());
 
-      <div className="notification-form">
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Enter notification message..."
+    const matchesRecipient =
+      recipientFilter === "All" ||
+      (recipientFilter === "Customer" && n.recipientType === "customer") ||
+      (recipientFilter === "Vendor" && n.recipientType === "vendor") ||
+      (recipientFilter === "Both" && n.recipientType === "both");
+
+    return matchesSearch && matchesRecipient;
+  });
+
+  return (
+    <div className="admin-notification-page">
+      <Toaster />
+      <h1>Admin Notifications 🔔</h1>
+      <p>Send new notifications or manage existing ones.</p>
+
+      {/* Send Notification Form */}
+      <form className="notification-form" onSubmit={sendNotification}>
+        <div className="form-group">
+          <label>Title</label>
+          <input
+            type="text"
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Message</label>
+          <textarea
+            placeholder="Message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            required
+            rows={4}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Recipient</label>
+          <select
+            value={recipientType}
+            onChange={(e) => setRecipientType(e.target.value)}
+          >
+            <option value="both">Both</option>
+            <option value="customer">Customer</option>
+            <option value="vendor">Vendor</option>
+          </select>
+        </div>
+
+        <button type="submit">Send</button>
+      </form>
+
+      {/* Filters & Delete All */}
+      <div className="filters">
+        <input
+          type="text"
+          placeholder="Search by title or message"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <select value={target} onChange={(e) => setTarget(e.target.value)}>
-          <option value="both">Both Customers & Vendors</option>
-          <option value="vendor">Vendors Only</option>
-          <option value="customer">Customers Only</option>
+        <select
+          value={recipientFilter}
+          onChange={(e) => setRecipientFilter(e.target.value)}
+        >
+          <option value="All">All</option>
+          <option value="Customer">Customer</option>
+          <option value="Vendor">Vendor</option>
+          <option value="Both">Both</option>
         </select>
-        <button className="send-btn" onClick={sendNotification}>Send</button>
+
+        <button className="delete-all-btn" onClick={() => setShowModal(true)}>
+          Delete All
+        </button>
       </div>
 
-      <h2>Sent Notifications</h2>
-      {notifications.length === 0 ? <p>No notifications yet.</p> :
-        notifications.map((n) => {
-          // Calculate unread counts per role
-          const vendorUnread = n.target !== "customer"
-            ? Math.max(userCounts.vendor - (n.readBy?.length || 0), 0)
-            : 0;
-          const customerUnread = n.target !== "vendor"
-            ? Math.max(userCounts.customer - (n.readBy?.length || 0), 0)
-            : 0;
+      {/* Notifications Table */}
+      <div className="notifications-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Message</th>
+              <th>Recipient</th>
+              <th>Read By</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredNotifications.length === 0 ? (
+              <tr>
+                <td colSpan="5">No notifications found</td>
+              </tr>
+            ) : (
+              filteredNotifications.map((n) => (
+                <tr key={n._id}>
+                  <td>{n.title}</td>
+                  <td>{n.message}</td>
+                  <td>
+                    {n.recipientType.charAt(0).toUpperCase() +
+                      n.recipientType.slice(1)}
+                  </td>
+                  <td>{n.readBy?.length || 0}</td>
+                  <td>{new Date(n.createdAt).toLocaleString()}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-          return (
-            <div key={n._id} className="notification-card">
-              <div className="notification-card-header">
-                <span className="notification-message">{n.message}</span>
-                <span className="notification-target">Target: {n.target}</span>
-                <span className="notification-time">{new Date(n.createdAt).toLocaleString()}</span>
-                <span className="notification-unread">
-                  Vendor Unread: {vendorUnread} | Customer Unread: {customerUnread}
-                </span>
-                <button className="delete-btn" onClick={() => setModal({ show: true, id: n._id })}>Delete</button>
-              </div>
-            </div>
-          )
-        })
-      }
-
-      {modal.show && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <p>Delete this notification?</p>
-            <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-              <button onClick={deleteNotification}>Yes</button>
-              <button onClick={() => setModal({ show: false, id: null })}>No</button>
+      {/* Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete all notifications?</p>
+            <div className="modal-actions">
+              <button onClick={deleteAllNotifications} className="confirm-btn">Yes, Delete</button>
+              <button onClick={() => setShowModal(false)} className="cancel-btn">Cancel</button>
             </div>
           </div>
         </div>
@@ -185,4 +229,4 @@ function AdminNotifications() {
   );
 }
 
-export default AdminNotifications;
+export default AdminNotification;

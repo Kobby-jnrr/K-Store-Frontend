@@ -1,134 +1,137 @@
 import React, { useState, useEffect, useRef } from "react";
-import { io } from "socket.io-client";
 import axios from "axios";
 import notificationIcon from "./notificationIcon.png";
 import "./Notification.css";
 
-const SOCKET_URL = "https://k-store-backend.onrender.com"; // Replace with deployed URL
+// Backend URLs
+const BACKEND_URLS = [
+  "http://localhost:5000/api/notifications",
+  "https://k-store-backend.onrender.com/api/notifications"
+];
 
-function Notification({ user, token }) {
+const Notification = () => {
   const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const popupRef = useRef(null);
-  const socketRef = useRef(null);
 
-  // -------- Fetch all notifications for logged-in user --------
-  useEffect(() => {
-    if (!user || !token) return;
+  // Get token and userId from sessionStorage
+  const token = sessionStorage.getItem("token");
+  const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+  const userId = user._id || user.id;
+  const userIdStr = userId?.toString();
 
-    const fetchNotifications = async () => {
+  // Try each backend URL in order
+  const tryFetch = async (urls, fn) => {
+    for (const url of urls) {
       try {
-        const res = await axios.get("/api/notifications", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setNotifications(res.data);
-      } catch (err) {
-        console.error("❌ Fetch notifications failed:", err.message);
-      }
-    };
+        return await fn(url);
+      } catch {}
+    }
+    throw new Error("All backends failed");
+  };
 
+  // Fetch notifications
+  const fetchNotifications = async () => {
+    if (!token || !userIdStr) return;
+
+    try {
+      const res = await tryFetch(BACKEND_URLS, url =>
+        axios.get(url, { headers: { Authorization: `Bearer ${token}` } })
+      );
+
+      const fetched = Array.isArray(res.data.notifications) ? res.data.notifications : [];
+      const unread = fetched.filter(n => {
+        const readBy = Array.isArray(n.readBy) ? n.readBy.map(id => id.toString()) : [];
+        return !readBy.includes(userIdStr);
+      }).length;
+
+      setNotifications(fetched);
+      setUnreadCount(unread);
+    } catch {
+      setNotifications([]);
+      setUnreadCount(0);
+    }
+  };
+
+  useEffect(() => {
     fetchNotifications();
-  }, [user, token]);
+    const interval = setInterval(fetchNotifications, 20000);
+    return () => clearInterval(interval);
+  }, []);
 
-  // -------- Socket.IO setup --------
+  // Toggle popup & mark all read
+  const togglePopup = async () => {
+    setOpen(!open);
+    if (!open) await markAllRead();
+  };
+
+  // Mark all notifications as read
+  const markAllRead = async () => {
+    if (!token || !userIdStr) return;
+
+    try {
+      await tryFetch(BACKEND_URLS, url =>
+        axios.put(`${url}/mark-read`, {}, { headers: { Authorization: `Bearer ${token}` } })
+      );
+
+      setNotifications(prev =>
+        prev.map(n => {
+          const readBy = Array.isArray(n.readBy) ? n.readBy.map(id => id.toString()) : [];
+          return {
+            ...n,
+            readBy: readBy.includes(userIdStr) ? readBy : [...readBy, userIdStr]
+          };
+        })
+      );
+      setUnreadCount(0);
+    } catch {}
+  };
+
+  // Close popup when clicking outside
   useEffect(() => {
-    if (!user) return;
-
-    // Connect to Socket.IO with userId and role
-    socketRef.current = io(SOCKET_URL, {
-      transports: ["websocket"],
-      query: { userId: user._id, role: user.role },
-    });
-
-    // Listen for new notifications
-    socketRef.current.on("new-notification", (notif) => {
-      // Only add if relevant to this user
-      if (notif.target === user.role || notif.target === "both") {
-        setNotifications((prev) => [notif, ...prev]);
-      }
-    });
-
-    socketRef.current.on("delete-notification", (id) => {
-      setNotifications((prev) => prev.filter((n) => n._id !== id));
-    });
-
-    return () => socketRef.current.disconnect();
-  }, [user]);
-
-  // -------- Mark notifications as read when popup opens --------
-  useEffect(() => {
-    if (!open || !user || !token) return;
-
-    notifications.forEach((notif) => {
-      if (!notif.readBy?.includes(user._id)) {
-        axios
-          .put(`/api/notifications/${notif._id}/read`, null, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          .then(() => {
-            setNotifications((prev) =>
-              prev.map((n) =>
-                n._id === notif._id
-                  ? { ...n, readBy: [...(n.readBy || []), user._id] }
-                  : n
-              )
-            );
-          })
-          .catch(console.error);
-      }
-    });
-  }, [open, notifications, token, user._id]);
-
-  // -------- Close popup when clicking outside --------
-  useEffect(() => {
-    const handleClickOutside = (e) => {
+    const handleClickOutside = e => {
       if (popupRef.current && !popupRef.current.contains(e.target)) setOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const unreadCount = notifications.filter(
-    (n) => !(n.readBy || []).includes(user._id)
-  ).length;
-
   return (
-    <div className="notification-wrapper" ref={popupRef}>
-      <button
-        className={`notification-icon ${open ? "active" : ""}`}
-        onClick={() => setOpen(!open)}
-      >
-        <img src={notificationIcon} className="notification" alt="notifications" />
-        {unreadCount > 0 && <span className="notification-count">{unreadCount}</span>}
-      </button>
+    <div className="notification-container" ref={popupRef}>
+      <img
+        src={notificationIcon}
+        alt="Notifications"
+        className="notification-icon"
+        onClick={togglePopup}
+      />
+      {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
 
       {open && (
         <div className="notification-popup">
-          <h4>Notifications</h4>
           {notifications.length === 0 ? (
-            <p className="empty">No notifications yet.</p>
+            <p className="no-notifications">No notifications</p>
           ) : (
-            notifications.map((n) => (
-              <div
-                key={n._id}
-                className={`notification-item ${
-                  !(n.readBy || []).includes(user._id) ? "unread" : ""
-                }`}
-              >
-                <p>{n.message}</p>
-                <span className="time">
-                  {new Date(n.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-              </div>
-            ))
+            notifications.map(n => {
+              const readBy = Array.isArray(n.readBy) ? n.readBy.map(id => id.toString()) : [];
+              const isRead = readBy.includes(userIdStr);
+
+              return (
+                <div
+                  key={n._id}
+                  className={`notification-item ${isRead ? "read" : "unread"}`}
+                >
+                  <h4>{n.title}</h4>
+                  <p>{n.message}</p>
+                  <small>{new Date(n.createdAt).toLocaleString()}</small>
+                </div>
+              );
+            })
           )}
         </div>
       )}
     </div>
   );
-}
+};
 
 export default Notification;
