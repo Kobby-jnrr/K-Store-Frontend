@@ -34,7 +34,7 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background-color: #ffb300;
+  background-color: #5d50a0;
   color: white;
   font-weight: bold;
   font-size: 20px;
@@ -52,7 +52,7 @@
 .view-shop-btn {
   margin-top: 0.5rem;
   padding: 0.3rem 0.7rem;
-  background-color: #ffb300;
+  background-color: #5d50a0;
   border: none;
   color: white;
   border-radius: 20px;
@@ -63,7 +63,7 @@
 }
 
 .view-shop-btn:hover {
-  background-color: #e69b00;
+  background-color: #897ec1;
 }
 
 /* ---------- TOGGLE BUTTONS ---------- */
@@ -206,5 +206,6 @@
   .view-shop-btn {
     font-size: 0.85rem;
     padding: 0.25rem 0.5rem;
+    background: #5d50a0;
   }
 }

@@ -23,6 +23,7 @@ const UserProfile = () => {
   const [formData, setFormData] = useState({});
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [activeOrder, setActiveOrder] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   // --- Notifications for order status changes ---
   const [notifications, setNotifications] = useState([]);
@@ -174,6 +175,7 @@ const UserProfile = () => {
   const saveEdit = async () => {
     if (!editingItem) return;
     const token = user.token;
+    setSaving(true);
     try {
       if (editingItem.type === "product") {
         for (let base of API_BASES) {
@@ -200,6 +202,8 @@ const UserProfile = () => {
       toast.success("Changes saved!");
     } catch {
       toast.error("Failed to save changes.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -268,7 +272,7 @@ const UserProfile = () => {
             <p><strong>Email:</strong> {user.email}</p>
             <p><strong>Phone:</strong> {user.phone || "Phone Not Added"}</p>
             <p><strong>Location:</strong> {user.location || "No location set"}</p>
-            {isVendor && <p><strong>Business Name:</strong> {user.businessName || "No BusinessName"}</p>}
+            {isVendor && <p><strong>Business Name:</strong> {user.businessName || "No Business Name"}</p>}
             <p><strong>Role:</strong> {user.role}</p>
             <button className="btn-primary" onClick={() => openEditModal(user, "vendor")}>Edit Info</button>
           </div>
@@ -338,7 +342,7 @@ const UserProfile = () => {
               </>
             )}
             <div className="edit-modal-actions">
-              <button className="btn-primary" onClick={saveEdit}>Save</button>
+              <button className="btn-primary" onClick={saveEdit} disabled={saving}> {saving ? <span className="spinner"></span> : "Save" }</button>
               <button className="btn-cancel" onClick={closeEditModal}>Cancel</button>
             </div>
           </div>

@@ -73,9 +73,6 @@ function Header({ totalItems, logout, user }) {
   const handleSearch = (e) => {
     e.preventDefault();
     applyFilters();
-    setSearchInput("");
-    setSelectedCategory("");
-    setSelectedPrice("");
   };
 
   const handleKeyPress = (e) => {
@@ -174,8 +171,6 @@ function Header({ totalItems, logout, user }) {
             </Link>
           </>
         )}
-        < NotificationPopup user={user}/>
-
         <Link to="/cartPage">
           <button className="cart-button">
             <img src={Cart} className="cart" alt="Cart" />
@@ -188,6 +183,8 @@ function Header({ totalItems, logout, user }) {
             <img src={Profile} className="user-profile" alt="Profile" />
           </button>
         </Link>
+
+        < NotificationPopup user={user}/>
 
         <button className="exit-button" onClick={logout}>
           <img src={exit} className="exit" alt="Logout" />

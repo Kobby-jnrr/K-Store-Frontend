@@ -124,7 +124,7 @@
 @media (max-width: 480px) {
   .notification-popup {
     width: 90vw;
-    right: 5vw;
+    right: -22.5vw;
     max-height: 60vh;
     padding: 10px;
   }

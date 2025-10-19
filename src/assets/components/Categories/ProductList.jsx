@@ -4,13 +4,25 @@ import API from "../../../api/axios.js";
 import axios from "axios";
 import "./ProductList.css";
 
-function ProductList({ category, cart, setCart, products: externalProducts, showVendorHeader = false, fullCount = 0 }) {
+function ProductList({
+  category,
+  searchQuery = "",
+  priceRange = "",
+  vendor = "",
+  location: locationFilter = "",
+  cart,
+  setCart,
+  products: externalProducts,
+  showVendorHeader = false,
+  fullCount = 0,
+}) {
   const [products, setProducts] = useState(externalProducts || []);
   const [loading, setLoading] = useState(!externalProducts);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState({}); // track which descriptions are expanded
   const navigate = useNavigate();
 
+  // Fetch products if not provided externally
   useEffect(() => {
     if (externalProducts) {
       setProducts(externalProducts);
@@ -43,6 +55,7 @@ function ProductList({ category, cart, setCart, products: externalProducts, show
     fetchProducts();
   }, [category, externalProducts]);
 
+  // Cart helpers
   const addToCart = (product) =>
     setCart({ ...cart, [product._id]: { ...product, quantity: 1 } });
 
@@ -66,13 +79,39 @@ function ProductList({ category, cart, setCart, products: externalProducts, show
   if (loading) return <p>Loading products...</p>;
   if (error) return <p className="error">{error}</p>;
 
+  // ----------------------
+  // Client-side filtering
+  // ----------------------
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch = searchQuery
+      ? p.title.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+
+    const matchesPrice = priceRange
+      ? priceRange === "200+"
+        ? p.price >= 200
+        : p.price >= parseInt(priceRange.split("-")[0]) &&
+          p.price <= parseInt(priceRange.split("-")[1])
+      : true;
+
+    const matchesVendor = vendor
+      ? p.vendor?.username === vendor || p.vendor?.businessName === vendor
+      : true;
+
+    const matchesLocation = locationFilter
+      ? (p.location || "Unknown") === locationFilter
+      : true;
+
+    return matchesSearch && matchesPrice && matchesVendor && matchesLocation;
+  });
+
   return (
     <div className="product-list-container">
       <div className="product-list">
-        {products.length === 0 ? (
+        {filteredProducts.length === 0 ? (
           <p>No products found.</p>
         ) : (
-          products.map((item) => {
+          filteredProducts.map((item) => {
             const isExpanded = expanded[item._id];
             const shortDesc =
               item.description && item.description.length > 100
@@ -106,7 +145,7 @@ function ProductList({ category, cart, setCart, products: externalProducts, show
                     className="vendor-name"
                     onClick={() => navigate(`/vendor/${item.vendor._id}`)}
                   >
-                   Vendor:{" "}
+                    Vendor:{" "}
                     {item.vendor.businessName?.trim() ||
                       item.vendor.username ||
                       `${item.vendor.firstName || ""} ${item.vendor.lastName || ""}`.trim()}
@@ -127,9 +166,10 @@ function ProductList({ category, cart, setCart, products: externalProducts, show
           })
         )}
       </div>
-      {showVendorHeader && fullCount > products.length && (
+
+      {showVendorHeader && fullCount > filteredProducts.length && (
         <div className="view-more">
-          +{fullCount - products.length} more
+          +{fullCount - filteredProducts.length} more
         </div>
       )}
     </div>

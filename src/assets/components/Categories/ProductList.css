@@ -128,7 +128,7 @@ h4 {
 }
 
 .view-shop-btn {
-  background: #ffb300;
+  background: #5d50a0;
   color: white;
   border: none;
   padding: 0.4rem 0.8rem;
@@ -139,7 +139,7 @@ h4 {
 }
 
 .view-shop-btn:hover {
-  background: #ffa000;
+  background: #60549b;
 }
 
 .vendor-actions {
@@ -149,8 +149,9 @@ h4 {
 }
 
 .view-more {
-  cursor: pointer;
-  font-weight: 600;
+  font-weight: bolder;
+  font-size: larger;
+  color: #0077ff;
   transition: text-decoration 0.2s;
   margin: 0 0px 25px 10px;
 }

@@ -68,7 +68,7 @@
 .back-btn {
     margin-top: 2rem;
     padding: 10px 15px;
-    background-color: #ffb300;
+    background-color: #5d50a0;
     border: none;
     color: white;
     border-radius: 20px;
@@ -79,7 +79,7 @@
 }
 
 .back-btn:hover {
-    background-color: #e69b00;
+    background-color: #8e83c1;
 }
 
 /* Reuse product list grid from main.css */

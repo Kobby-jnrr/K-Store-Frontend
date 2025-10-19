@@ -5,8 +5,9 @@ import "./Notification.css";
 
 // Backend URLs
 const BACKEND_URLS = [
-  "http://localhost:5000/api/notifications",
-  "https://k-store-backend.onrender.com/api/notifications"
+  "https://k-store-backend.onrender.com/api/notifications",
+  "http://localhost:5000/api/notifications"
+  
 ];
 
 const Notification = () => {
