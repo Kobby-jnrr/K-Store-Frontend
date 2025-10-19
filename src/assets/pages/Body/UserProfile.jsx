@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import OrderItemDisplay from "./OrderItemDisplay.jsx";
 import "./UserProfile.css";
 
 const API_BASES = [
@@ -251,7 +252,10 @@ const UserProfile = () => {
               </div>
             ) : <img src={user.avatar} alt={user.username} className="profile-avatar" />}
             <h2>
-              {user.username} {isVendor && isVerified && <span className="green-tick">✅</span>}
+              {user.username} {isVendor && isVerified && (
+                <img src="/verify.png" alt="Verified" className="green-tick" />
+                )}
+
             </h2>
             {isVendor && (
               <span className={`vendor-badge ${isVerified ? "verified" : "unverified"}`}>
@@ -264,7 +268,7 @@ const UserProfile = () => {
             <p><strong>Email:</strong> {user.email}</p>
             <p><strong>Phone:</strong> {user.phone || "Phone Not Added"}</p>
             <p><strong>Location:</strong> {user.location || "No location set"}</p>
-            {isVendor && <p><strong>Business Name:</strong> {user.businessName || "No Business Name"}</p>}
+            {isVendor && <p><strong>Business Name:</strong> {user.businessName || "No BusinessName"}</p>}
             <p><strong>Role:</strong> {user.role}</p>
             <button className="btn-primary" onClick={() => openEditModal(user, "vendor")}>Edit Info</button>
           </div>
@@ -367,7 +371,7 @@ const UserProfile = () => {
                 <div key={item._id || Math.random()} className={`order-item-new ${item.status === "rejected" ? "rejected-item" : ""}`}>
                   <img src={item.product?.image || "/placeholder.png"} alt={item.product?.title || "Product"} />
                   <div className="item-info">
-                    <p>{item.product?.title || "Untitled"}</p>
+                    <p>{item.product?.title || "Deleted Product"}</p>
                     <p>Vendor: {item.vendor?.username || "Unknown"}</p>
                   </div>
                   <div className="item-details-new">

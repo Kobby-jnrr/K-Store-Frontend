@@ -60,8 +60,10 @@
   font-size: 2rem;
 }
 .green-tick {
+  margin-top: 4px;
   margin-left: 0.5rem;
   color: #16a34a;
+  width: 30px;
 }
 
 /* Vendor Badge */

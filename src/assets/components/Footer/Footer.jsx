@@ -91,7 +91,7 @@ function Footer() {
         <a href="https://twitter.com/yourlink" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
         <a href="https://instagram.com/yourlink" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
         <a href="https://linkedin.com/yourlink" target="_blank" rel="noopener noreferrer"><FaLinkedinIn /></a>
-        <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer"><FaWhatsapp /></a>
+        <a href="https://wa.me/0204465537" target="_blank" rel="noopener noreferrer"><FaWhatsapp /></a>
       </div>
 
       <div className="footer-bottom">

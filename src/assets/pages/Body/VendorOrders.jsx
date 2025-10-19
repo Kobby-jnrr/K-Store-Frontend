@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import OrderItemDisplay from "./OrderItemDisplay.jsx";
 import "./VendorOrders.css";
 
 const STATUS_SEQUENCE = ["accepted", "preparing", "ready", "delivered"];
@@ -188,9 +189,7 @@ function VendorOrders() {
         <div className="vendor-order-items">
           {order.items.map(item => (
             <div key={item._id} className="vendor-order-item">
-              <span>
-                {item.product.title} × {item.quantity}
-              </span>
+              <OrderItemDisplay key={item._id} item={item} />
               <span
                 style={{
                   color: "#fff",
