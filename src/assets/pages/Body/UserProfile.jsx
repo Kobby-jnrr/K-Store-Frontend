@@ -269,6 +269,7 @@ const UserProfile = () => {
           </div>
           <div className="profile-section">
             <h3>Account Info</h3>
+            <p><strong>Name:</strong> {user.name}</p>
             <p><strong>Email:</strong> {user.email}</p>
             <p><strong>Phone:</strong> {user.phone || "Phone Not Added"}</p>
             <p><strong>Location:</strong> {user.location || "No location set"}</p>
