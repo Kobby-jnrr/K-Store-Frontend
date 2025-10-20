@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
 import API from "../../../api/axios.js";
 import axios from "axios";
@@ -19,7 +19,7 @@ function ProductList({
   const [products, setProducts] = useState(externalProducts || []);
   const [loading, setLoading] = useState(!externalProducts);
   const [error, setError] = useState("");
-  const [expanded, setExpanded] = useState({}); // track which descriptions are expanded
+  const [expanded, setExpanded] = useState({});
   const navigate = useNavigate();
 
   // Fetch products if not provided externally
@@ -118,6 +118,9 @@ function ProductList({
                 ? item.description.substring(0, 100) + "…"
                 : item.description;
 
+            // Determine if vendor is verified
+            const isVerified = item.vendor?.verified ?? false;
+
             return (
               <div key={item._id} id={`product-${item._id}`} className="product-card">
                 <img src={item.image} alt={item.title} className="product-img" />
@@ -139,7 +142,7 @@ function ProductList({
                   </p>
                 )}
 
-                {/* Vendor Name */}
+                {/* Vendor Name with verification tick */}
                 {item.vendor && (
                   <p
                     className="vendor-name"
@@ -149,6 +152,9 @@ function ProductList({
                     {item.vendor.businessName?.trim() ||
                       item.vendor.username ||
                       `${item.vendor.firstName || ""} ${item.vendor.lastName || ""}`.trim()}
+                    {isVerified && (
+                      <img src="/verify.png" alt="Verified" className="green-tick" />
+                    )}
                   </p>
                 )}
 

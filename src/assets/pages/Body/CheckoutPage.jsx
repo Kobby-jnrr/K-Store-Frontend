@@ -201,13 +201,13 @@ function CheckoutPage({ cart, setCart }) {
                   checked={paymentMethod === "momo"}
                   onChange={() => setPaymentMethod("momo")}
                 />{" "}
-                Mobile Money
+                Mobile Money (Coming Soon!)
               </label>
 
               {paymentMethod === "momo" && (
                 <div className="momo-details">
                   <input
-                    placeholder="Mobile Money Number"
+                    placeholder="Mobile Money Number(Coming Soon!)"
                     value={momoNumber}
                     onChange={(e) => setMomoNumber(e.target.value)}
                   />
@@ -217,7 +217,7 @@ function CheckoutPage({ cart, setCart }) {
 
             <div className="checkout-actions-vertical">
               <button
-                className="confirm-btn"
+                className="confirm-checkout"
                 onClick={confirmOrder}
                 disabled={loading}
               >
@@ -268,7 +268,7 @@ function CheckoutPage({ cart, setCart }) {
           <div className="order-modal">
             {fulfillmentType === "pickup" ? (
               <>
-                <h2>🎉 Order for Pickup!</h2>
+                <h2 className="checkout-head2">🎉 Order for Pickup!</h2>
                 <p>
                   Your order has been placed successfully! We’ll notify you once
                   it’s ready for pickup. 😊
@@ -276,7 +276,7 @@ function CheckoutPage({ cart, setCart }) {
               </>
             ) : (
               <>
-                <h2>🚚 Order for Delivery</h2>
+                <h2 className="checkout-head2">🚚 Order for Delivery</h2>
                 <p>
                   Your order has been placed successfully! We’ll notify you once
                   it’s confirmed and on its way. 📦

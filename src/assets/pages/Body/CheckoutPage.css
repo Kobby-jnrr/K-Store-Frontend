@@ -81,7 +81,7 @@
   border: 1px solid #ccc;
 }
 
-.confirm-btn, .continue-btn {
+.confirm-checkout, .continue-btn {
   width: 100%;
   padding: 12px;
   font-size: 16px;
@@ -91,8 +91,8 @@
   margin-top: 12px;
 }
 
-.confirm-btn { background: #1ca51c; color: white; }
-.confirm-btn:hover { background: #148a14; }
+.confirm-checkout { background: #1ca51c; color: white; }
+.confirm-checkout:hover { background: #148a14; }
 
 .continue-btn { background: #007bff; color: white; }
 .continue-btn:hover { background: #0056b3; }
@@ -120,7 +120,7 @@
   gap: 15px;
 }
 
-.order-modal h2 { color: #16a34a; }
+.checkout-head2 { color: #16a34a; }
 
 .order-modal button {
   padding: 10px 20px;

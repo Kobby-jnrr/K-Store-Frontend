@@ -188,6 +188,8 @@ function Orders() {
           <div className="order-header">
             <strong>Order:</strong> {order._id.slice(0, 6)}... | 
             <strong>Customer:</strong> {order.user.username} | 
+            <strong>Location:</strong> {order.user.location || "N/A"} |
+            <strong>Phone:</strong> {order.user.phone || "N/A"} |
             <strong>Total:</strong> GH₵{order.total} | 
             <strong>Fulfillment:</strong> {order.fulfillmentType || "N/A"} | 
             <span className={`order-badge ${orderStatus === "Pending" ? "badge-pending" : orderStatus === "Completed" ? "badge-completed" : "badge-rejected"}`}>

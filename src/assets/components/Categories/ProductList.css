@@ -50,10 +50,21 @@ h4 {
   color: #11ec44;
   cursor: pointer;
   transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #1f2937; 
 }
 
 .vendor-name:hover {
   opacity: 0.8;
+}
+
+.vendor-name .green-tick {
+  width: 16px;  
+  height: 16px;
+  margin-left: -1px;
+  margin-top: 11px;
 }
 
 .add-btn {

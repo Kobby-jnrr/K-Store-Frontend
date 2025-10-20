@@ -184,6 +184,8 @@ function VendorOrders() {
         </div>
 
         <p>Customer: {order.user.username}</p>
+        <p>Location: {order.user.location || "N/A"}</p>
+        <p>Phone: {order.user.phone || "N/A"}</p>
         <p>{renderFulfillment(order.fulfillmentMethod)}</p>
 
         <div className="vendor-order-items">
