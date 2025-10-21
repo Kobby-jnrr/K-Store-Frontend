@@ -123,8 +123,8 @@
 /* Mobile: width ≤ 480px */
 @media (max-width: 480px) {
   .notification-popup {
-    width: 90vw;
-    right: -22.5vw;
+    width: 80vw;
+    right: -18vw;
     max-height: 60vh;
     padding: 10px;
   }
@@ -137,7 +137,7 @@
 /* Tablet: 481px ≤ width ≤ 768px */
 @media (min-width: 481px) and (max-width: 768px) {
   .notification-popup {
-    width: 260px;
+    width: 240px;
     max-height: 50vh;
     padding: 10px;
   }

@@ -149,6 +149,18 @@
   width: 90%;
   text-align: center;
   box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  max-height: 80vh; /* limit height to 80% of viewport */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-items-container {
+  overflow-y: auto;
+  flex: 1; /* take remaining space */
+  margin-top: 15px;
+  margin-bottom: 15px;
+  padding-right: 5px; /* optional: for scrollbar spacing */
 }
 
 .modal-content h3 {
@@ -205,16 +217,37 @@
     padding: 1rem;
     margin-top: 80px; 
   }
-  .vendor-order-card { padding: 0.8rem 1rem; }
-  .vendor-order-item { flex-direction: column; align-items: flex-start; gap: 5px; }
-  .modal-content { padding: 20px; }
-  .modal-item { flex-direction: column; gap: 5px; }
+  .vendor-order-card { 
+    padding: 0.8rem 1rem; 
+  }
+  .vendor-order-item { 
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: 5px; 
+  }
+  .modal-content { 
+    padding: 20px;
+    max-width: 95%;       /* almost full width */
+    width: 85%;
+    max-height: 85vh;     /* slightly higher to fill screen but still scrollable */
+    padding: 15px 20px;
+  } 
+
+  .modal-item { 
+    flex-direction: column; 
+    gap: 5px; }
 }
 
 @media (max-width: 600px) {
-  .vendor-orders-page h1 { font-size: 1.5rem; }
-  .vendor-order-item span { font-size: 0.9rem; }
-  .modal-content h3 { font-size: 1.2rem; }
+  .vendor-orders-page h1 { 
+    font-size: 1.5rem; 
+  }
+  .vendor-order-item span { 
+    font-size: 0.9rem; 
+  }
+  .modal-content h3 { 
+    font-size: 1.2rem; 
+  }
   .modal-item button { width: 100%; }
   .modal-buttons { flex-direction: column; }
 }
@@ -226,4 +259,20 @@
   border-radius: 10px;
   font-size: 0.9rem;
   margin-top: 5px;
+}
+.spinner {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

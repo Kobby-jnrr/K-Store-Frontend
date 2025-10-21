@@ -41,7 +41,7 @@ function Main({ cart, setCart }) {
       try {
         const res = await axios.get(`${base}/promo`);
         if (res.data?.products?.length) {
-          setPromoProducts(res.data.products.slice(0, 16));
+          setPromoProducts(res.data.products.slice(0, 20));
         } else {
           setPromoProducts([]);
         }

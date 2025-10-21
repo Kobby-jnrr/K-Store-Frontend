@@ -26,6 +26,7 @@ function VendorOrders() {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [itemStatuses, setItemStatuses] = useState({});
+  const [loadingItems, setLoadingItems] = useState({});
 
   useEffect(() => {
     fetchOrders();
@@ -93,6 +94,7 @@ function VendorOrders() {
 
   const updateStatus = async (itemId, status) => {
     if (!selectedOrder) return;
+    setLoadingItems(prev => ({ ...prev, [itemId]: true }));
     const token = sessionStorage.getItem("token");
     const urls = [
       `${import.meta.env.VITE_API_BASE_URL || "https://k-store-backend.onrender.com"}/api/orders/vendor-orders/${selectedOrder._id}/item/${itemId}`,
@@ -122,6 +124,7 @@ function VendorOrders() {
         };
       })
     );
+     setLoadingItems(prev => ({ ...prev, [itemId]: false }));
   };
 
   const updateAllDelivered = () => {
@@ -165,6 +168,7 @@ function VendorOrders() {
       : allCompleted
       ? "Completed"
       : "Pending";
+      const vendorTotal = order.items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0);
 
     return (
       <div key={order._id} className="vendor-order-card">
@@ -183,9 +187,10 @@ function VendorOrders() {
           </span>
         </div>
 
-        <p>Customer: {order.user.username}</p>
-        <p>Location: {order.user.location || "N/A"}</p>
-        <p>Phone: {order.user.phone || "N/A"}</p>
+        <p>Customer: <b>{order.user.username}</b></p>
+        <p>Location: <b>{order.user.location || "N/A"}</b></p>
+        <p>Phone: <b>{order.user.phone || "N/A"}</b></p>
+        <p>Total: <b>GH₵{vendorTotal.toFixed(2)}</b></p>
         <p>{renderFulfillment(order.fulfillmentMethod)}</p>
 
         <div className="vendor-order-items">
@@ -220,6 +225,7 @@ function VendorOrders() {
       </div>
     );
   };
+  
 
   return (
     <div className="vendor-orders-page">
@@ -243,7 +249,21 @@ function VendorOrders() {
           <div className="modal-content">
             <h3>Update Order: {selectedOrder._id.slice(0, 8)}</h3>
 
+            <div className="modal-items-container">
             {/* --- Accept/Reject Section --- */}
+            {selectedOrder.items.some(i => itemStatuses[i._id] === "pending") && (
+              <button
+                onClick={() => {
+                  selectedOrder.items
+                    .filter(i => itemStatuses[i._id] === "pending")
+                    .forEach(i => handleAccept(i._id));
+                }}
+                className="btn-secondary"
+                style={{ marginBottom: "10px" }}
+              >
+                Accept All
+              </button>
+            )}
             <div style={{ marginBottom: "15px" }}>
               <h4>Pending Items - Accept or Reject</h4>
               {selectedOrder.items
@@ -258,7 +278,9 @@ function VendorOrders() {
                         color: "#fff",
                         ...buttonStyles,
                       }}
+                      disabled={loadingItems[item._id]}
                     >
+                      {loadingItems[item._id] && <span className="spinner"></span>}
                       Accept
                     </button>
                     <button
@@ -274,6 +296,7 @@ function VendorOrders() {
                   </div>
                 ))}
             </div>
+            
 
             {/* --- Status Update Section --- */}
             <div>
@@ -299,6 +322,7 @@ function VendorOrders() {
                     </button>
                   </div>
                 ))}
+            </div>
             </div>
 
             <div className="modal-buttons" style={{ marginTop: "12px" }}>

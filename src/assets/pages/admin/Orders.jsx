@@ -217,7 +217,10 @@ function Orders() {
               return (
                 <div key={vendorId} className="vendor-section">
                   <div className="vendor-header" onClick={() => toggleVendor(order._id, vendorId)}>
-                    <span>{group.vendor?.username || "Unknown"} ({vendorId.slice(0,6)}...) - Status: {vendorStatus}</span>
+                    <span>
+                      {group.vendor?.username || "Unknown"}
+                      ({group.vendor?.phone || "N/A"})
+                      ({vendorId.slice(0,6)}...) - Status: {vendorStatus}</span>
                     <span>{isExpanded ? "▲" : "▼"}</span>
                   </div>
 
