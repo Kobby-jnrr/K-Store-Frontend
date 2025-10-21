@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import AdminHeader from "./AdminHeader.jsx";
 import AdminSidebar from "./AdminSidebar.jsx";
@@ -9,40 +9,30 @@ import Products from "./Products.jsx";
 import Orders from "./Orders.jsx";
 import PromoBoard from "./PromoBoard.jsx";
 import AdminNotification from "./AdminNotification.jsx";
-
-
 import "./AdminLayout.css";
 
 function AdminLayout({ user, logout }) {
+  const [showSidebar, setShowSidebar] = useState(true);
+
   if (!user || user.role !== "admin") {
     return <Navigate to="/login" replace />;
   }
 
-  const handleAddUser = () => {
-    // Navigate to create user page or open modal
-    console.log("Add User clicked");
-  };
-
-  const handleAddProduct = () => {
-    // Navigate to add product page
-    console.log("Add Product clicked");
-  };
+  const handleAddUser = () => console.log("Add User clicked");
+  const handleAddProduct = () => console.log("Add Product clicked");
 
   return (
     <div className="admin-layout">
-      {/* Admin Header */}
       <AdminHeader
         user={user}
-        logout={logout}           // matches AdminHeader's logout prop
+        logout={logout}
         onAddUser={handleAddUser}
         onAddProduct={handleAddProduct}
       />
 
-      {/* Sidebar */}
-      <AdminSidebar />
+      {showSidebar && <AdminSidebar />}
 
-      {/* Main Content */}
-      <div className="admin-content">
+      <div className={`admin-content ${showSidebar ? "sidebar-visible" : "sidebar-hidden"}`}>
         <Routes>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="vendors" element={<Vendors />} />
@@ -54,6 +44,14 @@ function AdminLayout({ user, logout }) {
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Routes>
       </div>
+
+      {/* Floating Sidebar Toggle Button */}
+      <button
+        className="sidebar-toggle-floating"
+        onClick={() => setShowSidebar(prev => !prev)}
+      >
+        {showSidebar ? "←" : "☰"}
+      </button>
     </div>
   );
 }

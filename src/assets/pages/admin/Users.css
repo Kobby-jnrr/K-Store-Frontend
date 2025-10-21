@@ -257,36 +257,118 @@
   background-color: #dc2626;
 }
 
-/* ------------------ RESPONSIVE ------------------ */
-@media (max-width: 768px) {
+/* ------------------ TABLE & LAYOUT RESPONSIVENESS ------------------ */
+
+/* Tablets <= 1024px */
+@media (max-width: 1024px) {
   .users-page {
     padding: 15px;
   }
 
+  .add-user-form input,
+  .add-user-form select {
+    width: 140px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  .add-user-form button.add-btn {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+
+  .toggle-btn,
+  .delete-btn {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Phones <= 768px */
+@media (max-width: 768px) {
+  .users-page {
+    padding: 10px 5px;
+  }
+
+  /* Stack add-user form inputs vertically */
   .add-user-form {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 8px;
   }
 
   .add-user-form input,
   .add-user-form select,
   .add-user-form button.add-btn {
     width: 100%;
-    margin-bottom: 8px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
   }
 
-  .search-input {
-    width: 100%;
-  }
-
-  .filter-buttons {
-    width: 100%;
-    justify-content: flex-start;
+  /* Table responsive */
+  .users-table-wrapper {
+    overflow-x: auto;
+    max-height: calc(100vh - 250px);
   }
 
   .users-table th,
   .users-table td {
-    padding: 10px 8px;
-    font-size: 0.9rem;
+    padding: 6px 8px;
+    font-size: 0.75rem;
+  }
+
+  /* Hide Status column */
+  .users-table th:nth-child(4),
+  .users-table td:nth-child(4) {
+    display: none;
+  }
+
+  /* Make action buttons smaller */
+  .toggle-btn,
+  .delete-btn {
+    padding: 3px 6px;
+    font-size: 0.7rem;
+    margin-right: 4px;
+  }
+
+  /* Search & filter inputs smaller */
+  .search-input {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .filter-buttons {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .filter-buttons button {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+
+  /* Modal smaller */
+  .modal-content {
+    padding: 15px 10px;
+  }
+
+  .modal-content p {
+    font-size: 0.85rem;
+  }
+
+  .modal-actions {
+    gap: 10px;
+  }
+
+  .confirm-btn,
+  .cancel-btn {
+    font-size: 0.75rem;
+    padding: 4px 8px;
   }
 }

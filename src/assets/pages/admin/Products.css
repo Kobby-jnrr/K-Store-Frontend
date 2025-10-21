@@ -68,37 +68,71 @@
   background-color: #312e81;
 }
 
-@media (max-width: 768px) {
+/* ------------------ TABLE & LAYOUT RESPONSIVENESS ------------------ */
+
+/* Tablets <= 1024px */
+@media (max-width: 1024px) {
   .products-page {
-    padding: 10px;
+    padding: 15px;
+  }
+
+  .filters input,
+  .filters select {
+    padding: 6px 10px;
+    font-size: 0.85rem;
   }
 
   .products-table th,
   .products-table td {
-    padding: 8px;
+    padding: 8px 10px;
+    font-size: 0.85rem;
   }
 
   .products-table button {
     padding: 4px 8px;
+    font-size: 0.8rem;
   }
 }
-.filters {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-}
 
-.filters input, .filters select {
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-  outline: none;
-  transition: 0.2s ease;
-}
+/* Phones <= 768px */
+@media (max-width: 768px) {
+  .products-page {
+    padding: 10px 5px;
+  }
 
-.filters input:focus, .filters select:focus {
-  border-color: #1e3a8a;
-  box-shadow: 0 0 5px rgba(30, 58, 138, 0.3);
+  /* Filters stack vertically */
+  .filters {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filters input,
+  .filters select {
+    width: 100%;
+    padding: 5px 8px;
+    font-size: 0.8rem;
+  }
+
+  /* Table responsive */
+  .products-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .products-table th,
+  .products-table td {
+    padding: 6px 8px;
+    font-size: 0.75rem;
+  }
+
+  /* Buttons smaller */
+  .products-table button {
+    padding: 3px 6px;
+    font-size: 0.7rem;
+  }
+
+  /* Optional: hide description column on phones */
+  .products-table th:nth-child(3),
+  .products-table td:nth-child(3) {
+    display: none;
+  }
 }

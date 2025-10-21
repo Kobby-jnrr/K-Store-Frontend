@@ -110,3 +110,73 @@
   border-color: #1e3a8a;
   box-shadow: 0 0 5px rgba(30, 58, 138, 0.3);
 }
+/* ------------------ TABLE & LAYOUT RESPONSIVENESS ------------------ */
+
+/* Tablets <= 1024px */
+@media (max-width: 1024px) {
+  .vendors-page {
+    padding: 15px;
+  }
+
+  .filters input,
+  .filters select {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  .verify-btn {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+
+  .vendors-table th,
+  .vendors-table td {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Phones <= 768px */
+@media (max-width: 768px) {
+  .vendors-page {
+    padding: 10px 5px;
+  }
+
+  /* Filters stack vertically */
+  .filters {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filters input,
+  .filters select {
+    width: 100%;
+    padding: 5px 8px;
+    font-size: 0.8rem;
+  }
+
+  /* Table responsive */
+  .vendors-table {
+    overflow-x: auto;
+  }
+
+  .vendors-table th,
+  .vendors-table td {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
+
+  /* Hide Status column */
+  .vendors-table th:nth-child(4),
+  .vendors-table td:nth-child(4),
+  .vendors-table th:nth-child(3),
+  .vendors-table td:nth-child(3) {
+    display: none;
+  }
+
+  /* Buttons smaller */
+  .verify-btn {
+    padding: 7px 9px;
+    font-size: 0.7rem;
+  }
+}

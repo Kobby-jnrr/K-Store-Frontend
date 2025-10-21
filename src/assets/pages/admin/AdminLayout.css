@@ -49,7 +49,28 @@
     padding: 10px;
   }
 
-  .admin-sidebar {
-    display: none; /* hide sidebar on mobile if needed */
-  }
+  .sidebar-toggle-floating {
+  position: fixed;
+  top: 80px; /* below header */
+  left: 10px;
+  z-index: 300;
+  background: #1e3a8a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.admin-content.sidebar-visible {
+  margin-left: 270px;
+}
+
+.admin-content.sidebar-hidden {
+  margin-left: 0;
+}
+
+
 }

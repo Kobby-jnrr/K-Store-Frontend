@@ -228,3 +228,47 @@
 .cancel-btn:hover {
   opacity: 0.85;
 }
+
+/* Tablets <= 1024px */
+@media (max-width: 1024px) {
+  .filters {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .notifications-table th,
+  .notifications-table td {
+    padding: 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .notification-form input,
+  .notification-form textarea,
+  .notification-form select {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .notification-form button,
+  .delete-all-btn {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* Phones <= 768px */
+@media (max-width: 768px) {
+  .notifications-table {
+    overflow-x: auto;
+  }
+
+  .notifications-table th:nth-child(5),
+  .notifications-table td:nth-child(5) {
+    display: none; /* Hide Created At column for small screens */
+  }
+
+  .notifications-table th:nth-child(4),
+  .notifications-table td:nth-child(4) {
+    font-size: 0.8rem; /* shrink Read By column */
+  }
+}
