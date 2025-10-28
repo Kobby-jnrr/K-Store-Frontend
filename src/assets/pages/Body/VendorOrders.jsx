@@ -187,7 +187,7 @@ function VendorOrders() {
           </span>
         </div>
 
-        <p>Customer: <b>{order.user.username}</b></p>
+        <p>Customer: <b>{order.user.username  || "Unknown user"}</b></p>
         <p>Location: <b>{order.user.location || "N/A"}</b></p>
         <p>Phone: <b>{order.user.phone || "N/A"}</b></p>
         <p>Total: <b>GH₵{vendorTotal.toFixed(2)}</b></p>

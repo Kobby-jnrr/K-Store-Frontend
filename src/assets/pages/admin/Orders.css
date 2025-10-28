@@ -216,7 +216,7 @@
 }
 
 .order-modal h2 {
-  color: #dc2626; /* red for alert */
+  color: #16a34a;; /* red for alert */
   margin-bottom: 0.5rem;
 }
 
@@ -240,7 +240,7 @@
 }
 
 .order-modal button:last-of-type {
-  background-color: #f44336; /* cancel - red */
+  background-color: #16a34a; /* cancel - red */
   color: white;
 }
 

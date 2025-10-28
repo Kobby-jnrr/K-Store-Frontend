@@ -120,7 +120,9 @@
   gap: 15px;
 }
 
-.checkout-head2 { color: #16a34a; }
+.checkout-head2 { 
+  color: #16a34a; 
+}
 
 .order-modal button {
   padding: 10px 20px;

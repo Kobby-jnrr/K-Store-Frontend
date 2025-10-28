@@ -8,7 +8,7 @@ import "./Main-body.css";
 function Main({ cart, setCart }) {
   const [productsByGroup, setProductsByGroup] = useState({});
   const [loading, setLoading] = useState(true);
-  const [viewType, setViewType] = useState("category");
+  const [viewType, setViewType] = useState("vendor");
   const [categories, setCategories] = useState([]);
   const [groupFullCount, setGroupFullCount] = useState({});
   const [promoProducts, setPromoProducts] = useState([]);
@@ -112,16 +112,16 @@ function Main({ cart, setCart }) {
     <main className="main">
       <div className="view-toggle-tabs">
         <button
-          className={`tab-btn ${viewType === "category" ? "active" : ""}`}
-          onClick={() => setViewType("category")}
-        >
-          By Category
-        </button>
-        <button
           className={`tab-btn ${viewType === "vendor" ? "active" : ""}`}
           onClick={() => setViewType("vendor")}
         >
           By Vendor
+        </button>
+        <button
+          className={`tab-btn ${viewType === "category" ? "active" : ""}`}
+          onClick={() => setViewType("category")}
+        >
+          By Category
         </button>
       </div>
 

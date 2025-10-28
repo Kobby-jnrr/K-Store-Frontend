@@ -188,6 +188,9 @@ function SignUpVendor({ setUser }) {
             onChange={handleChange}
             required
           />
+          <p className="field-note">
+            A verification code will be sent within 24 hours.
+          </p>
 
           <input
             type="text"
@@ -247,7 +250,7 @@ function SignUpVendor({ setUser }) {
           <input
             type="password"
             name="password"
-            placeholder="Password* (At least 6 characters)"
+            placeholder="Password* (At least 5 characters)"
             value={form.password}
             onChange={handleChange}
             required
