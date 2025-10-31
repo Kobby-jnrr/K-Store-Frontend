@@ -1,49 +1,67 @@
 import axios from "axios";
 
-// Base URLs
 const DEPLOYED_BASE_URL = `${
   import.meta.env.VITE_API_URL || "https://k-store-backend.onrender.com"
 }/api`;
 const LOCAL_BASE_URL = "http://localhost:5000/api";
 
-// Create main Axios instance
 const API = axios.create({
   baseURL: DEPLOYED_BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 
-// Automatically attach token from sessionStorage
+// === Attach Access Token on Every Request ===
 API.interceptors.request.use((config) => {
-  const token = sessionStorage.getItem("token"); // use sessionStorage consistently
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  const token = sessionStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Helper: fallback to local if deployed request fails
-API.fallbackRequest = async (method, url, data = null) => {
-  try {
-    return await API({ method, url, data });
-  } catch (err) {
-    console.warn(`Deployed backend failed, trying localhost: ${err.message}`);
+// === Handle Expired Access Token ===
+API.interceptors.response.use(
+  (res) => res, // normal response
+  async (err) => {
+    const originalRequest = err.config;
 
-    const localAPI = axios.create({
-      baseURL: LOCAL_BASE_URL,
-      headers: { "Content-Type": "application/json" },
-    });
+    // If unauthorized (401) and we haven’t retried yet
+    if (err.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
 
-    // Attach token to local request as well
-    localAPI.interceptors.request.use((config) => {
-      const token = sessionStorage.getItem("token");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      try {
+        const refreshToken = sessionStorage.getItem("refreshToken");
+        if (!refreshToken) throw new Error("No refresh token found");
+
+        // Call refresh endpoint
+        const { data } = await axios.post(`${DEPLOYED_BASE_URL}/auth/refresh`, { refreshToken });
+
+        // Save new tokens
+        sessionStorage.setItem("token", data.accessToken);
+        sessionStorage.setItem("refreshToken", data.refreshToken);
+
+        // Update header and retry original request
+        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        return API(originalRequest);
+      } catch (refreshErr) {
+        console.error("🔒 Token refresh failed:", refreshErr.message);
+        sessionStorage.clear();
+        window.location.href = "/login"; // force re-login
       }
-      return config;
-    });
+    }
 
-    return await localAPI({ method, url, data });
+    // If backend unavailable → fallback to localhost
+    if (err.message.includes("Network Error") || err.code === "ERR_NETWORK") {
+      const localAPI = axios.create({
+        baseURL: LOCAL_BASE_URL,
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const token = sessionStorage.getItem("token");
+      if (token) localAPI.defaults.headers.Authorization = `Bearer ${token}`;
+      return localAPI(originalRequest);
+    }
+
+    return Promise.reject(err);
   }
-};
+);
 
 export default API;

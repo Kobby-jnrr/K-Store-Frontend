@@ -23,6 +23,7 @@ function LoginPage({ setUser }) {
       const data = await loginUser(form.email, form.password);
 
       sessionStorage.setItem("token", data.accessToken);
+      sessionStorage.setItem("refreshToken", data.refreshToken);
       sessionStorage.setItem("user", JSON.stringify(data.user));
       setUser(data.user);
 
