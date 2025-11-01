@@ -130,7 +130,8 @@
 .delete-btn,
 .add-btn,
 .confirm-btn,
-.cancel-btn {
+.cancel-btn,
+.clear-btn {
   padding: 6px 12px;
   border: none;
   border-radius: 8px;
@@ -156,6 +157,10 @@
 
 .add-btn {
   background-color: #16a34a;
+}
+
+.clear-btn{
+  background-color: darkcyan;
 }
 
 .toggle-btn:hover,
@@ -284,7 +289,8 @@
   }
 
   .toggle-btn,
-  .delete-btn {
+  .delete-btn,
+  .clear-btn {
     padding: 4px 8px;
     font-size: 0.8rem;
   }

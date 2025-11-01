@@ -5,6 +5,7 @@ import Sidebar from "./assets/components/Sidebar/Sidebar.jsx";
 import Footer from "./assets/components/Footer/Footer.jsx";
 import Main from "./assets/pages/Body/Main-body.jsx";
 import LoginPage from "./assets/pages/Login.jsx";
+import ForgotPassword from "./ForgotPassword.jsx";
 import SignUpCustomer from "./assets/pages/SignUpCustomer.jsx";
 import SignUpVendor from "./assets/pages/SignUpVendor.jsx";
 import CartPage from "./assets/pages/Body/CartPage.jsx";
@@ -75,6 +76,7 @@ function Store() {
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage setUser={setUser} />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/signup" element={<SignUpCustomer setUser={setUser} />} />
         <Route path="/vendor-signup" element={<SignUpVendor setUser={setUser} />} />
 

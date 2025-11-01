@@ -29,8 +29,18 @@ function LoginPage({ setUser }) {
 
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.msg || "Invalid credentials. Please try again.");
+      if (err.response) {
+        // Server responded with an error (e.g. wrong password, missing fields)
+        setError(err.response.data?.msg || "Login failed. Please try again.");
+      } else if (err.request) {
+        // Request was made but no response (network/server down)
+        setError("Internet Error. Please check your internet connection or try again later.");
+      } else {
+        // Other unexpected errors
+        setError("An unexpected error occurred. Please try again.");
+      }
     }
+
 
     setLoading(false);
   };
@@ -76,7 +86,9 @@ function LoginPage({ setUser }) {
           </button>
 
           {error && <p className="error">{error}</p>}
-
+          <p className="forgot-password">
+            <Link to="/forgot-password">Forgot Password?</Link>
+          </p>
           <div className="login-links">
             <p>
               Don’t have an account? <Link to="/signup">Sign Up</Link>

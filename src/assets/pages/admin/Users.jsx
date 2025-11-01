@@ -99,6 +99,34 @@ function Users() {
     });
   };
 
+  const handleClearPassword = (id, username) => {
+    setModal({
+      visible: true,
+      message: `Clear password for ${username}? They will need to set a new one.`,
+      action: async () => {
+        const urls = [
+          "https://k-store-backend.onrender.com/api/admin/users/",
+          "http://localhost:5000/api/admin/users/",
+        ];
+        const token = sessionStorage.getItem("token");
+
+        for (let url of urls) {
+          try {
+            await axios.put(`${url}${id}/clear-password`, {}, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            break;
+          } catch (err) {
+            console.warn(`Failed to clear password at ${url}:`, err.message);
+          }
+        }
+
+        setModal({ visible: false, message: "", action: null });
+      },
+    });
+  };
+
+
   // Add User
   const handleAddUser = async () => {
     if (!newUser.username || !newUser.email || !newUser.password) {
@@ -191,6 +219,7 @@ function Users() {
                   <td>
                     <button className={`toggle-btn ${u.active ? "deactivate" : "activate"}`} onClick={() => toggleActive(u._id, u.active)}>{u.active ? "Deactivate" : "Activate"}</button>
                     <button className="delete-btn" onClick={() => handleDeleteUser(u._id, u.role)}>Delete</button>
+                    <button className="clear-btn" onClick={() => handleClearPassword(u._id, u.username)}>Clear Password</button>
                   </td>
                 </tr>
               ))

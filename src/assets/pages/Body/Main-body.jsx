@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import ProductList from "../../components/Categories/ProductList";
 import BannerProductList from "../../components/Categories/BannerProductList";
+import FloatingWhatsApp from "./FloatingWhatsApp";
 import "./Main-body.css";
 
 function Main({ cart, setCart }) {
@@ -175,6 +176,7 @@ function Main({ cart, setCart }) {
       <Link to="/cartPage">
         <button className="go-cart">GO TO CART</button>
       </Link>
+      <FloatingWhatsApp />
     </main>
   );
 }

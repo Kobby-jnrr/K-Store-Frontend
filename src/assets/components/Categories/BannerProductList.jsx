@@ -22,7 +22,7 @@ const BannerProductList = ({ products }) => {
       {showCatchMessage ? (
         <div className="catch-message">
           <h1>🎉 Welcome to K-Store! 🎉</h1>
-          <p>Activate vendor promos in the admin panel to display products here.</p>
+          <p>Your products deserve the spotlight — activate a promo plan to feature them here and reach more buyers.</p>
         </div>
       ) : (
         <div className="banner-products">
