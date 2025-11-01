@@ -6,7 +6,6 @@ import axios from "axios";
 
 function AllProducts({ cart, setCart }) {
   const location = useLocation();
-
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState("");
   const [vendor, setVendor] = useState("");
@@ -20,6 +19,11 @@ function AllProducts({ cart, setCart }) {
     "books","toys","automotive","jewelry","office","pet","tools","music","health",
     "outdoors","kitchen","shoes","accessories","other",
   ];
+  const mainAreas = [
+    "Amamoma","Ayensu","Old Site","New Site","UCC Campus",
+    "Science","Kwaprow","School Bus Rd.","Apewosika",
+];
+
 
   // Get filters from URL
   useEffect(() => {
@@ -82,8 +86,8 @@ function AllProducts({ cart, setCart }) {
         {/* Location */}
         <select value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)}>
           <option value="">All Locations</option>
-          {locations.map((loc) => (
-            <option key={loc} value={loc}>{loc}</option>
+          {mainAreas.map((area) => (
+            <option key={area} value={area}>{area}</option>
           ))}
         </select>
 

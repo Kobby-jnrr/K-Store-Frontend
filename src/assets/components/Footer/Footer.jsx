@@ -1,5 +1,11 @@
 import React from "react";
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
+import {
+  FaFacebookF,
+  FaTwitter,
+  FaInstagram,
+  FaLinkedinIn,
+  FaWhatsapp,
+} from "react-icons/fa";
 import "./Footer.css";
 
 function Footer() {
@@ -29,69 +35,52 @@ function Footer() {
     { id: "other", label: "Other", emoji: "🔧" },
   ];
 
-  const scrollToSection = (id) => {
-    const section = document.getElementById(id);
-    if (section) {
-      const yOffset = -30;
-      const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: "smooth" });
-    }
-  };
-
-  const columns = 4;
-  const chunkSize = Math.ceil(categories.length / columns);
-  const categoryColumns = [];
-  for (let i = 0; i < categories.length; i += chunkSize) {
-    categoryColumns.push(categories.slice(i, i + chunkSize));
-  }
-
   return (
     <footer className="footer">
-      <div className="footer-top">
+      <div className="footer-container">
+        {/* About */}
+        <div className="footer-about">
+          <h2 className="footer-logo">K-Store</h2>
+          <p>
+            K-Store is the ultimate campus shopping platform 🏫🛍️,
+            designed to bring convenience ⚡, affordability 💰, and reliability ✅
+            directly to your screen. Whether you’re looking for the latest fashion 👗👟,
+            electronics 💻📱, or everyday supplies 📝🍎, K-Store connects students
+            to trusted vendors 🤝. Shopping made effortless 😎, enjoyable 🎉, and safe 🛡️.
+          </p>
+        </div>
+
         {/* Quick Links */}
-        <div className="footer-section quick-links">
+        <div className="footer-links">
           <h4>Quick Links</h4>
-          <div onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Home</div>
-          <div onClick={() => scrollToSection("allProducts")}>All Products</div>
-          <div onClick={() => scrollToSection("cartPage")}>Cart</div>
-          <div onClick={() => scrollToSection("userProfile")}>Profile</div>
+          <ul>
+            <li onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Home</li>
+            <li>All Products</li>
+            <li>Cart</li>
+            <li>Profile</li>
+          </ul>
         </div>
 
         {/* Categories */}
-        <div className="footer-section categories">
-          <div className="category-columns">
-            {categoryColumns.map((col, idx) => (
-              <div key={idx} className="category-column">
-                {col.map(cat => (
-                  <div
-                    key={cat.id}
-                    className="footer-category"
-                    onClick={() => scrollToSection(cat.id)}
-                  >
-                    <span className="emoji">{cat.emoji}</span> {cat.label}
-                  </div>
-                ))}
+        <div className="footer-categories">
+          <h4>Popular Categories</h4>
+          <div className="category-grid">
+            {categories.map((cat) => (
+              <div key={cat.id} className="footer-category">
+                <span>{cat.emoji}</span> {cat.label}
               </div>
             ))}
           </div>
         </div>
-
-        {/* Support */}
-        <div className="footer-section support">
-          <h4>Support</h4>
-          <div>Contact Us</div>
-          <div>FAQ</div>
-          <div>Privacy Policy</div>
-        </div>
       </div>
 
-      {/* Social Media */}
+      {/* Social Icons */}
       <div className="footer-social">
-        <a href="https://facebook.com/yourlink" target="_blank" rel="noopener noreferrer"><FaFacebookF /></a>
-        <a href="https://twitter.com/yourlink" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
-        <a href="https://instagram.com/yourlink" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
-        <a href="https://linkedin.com/yourlink" target="_blank" rel="noopener noreferrer"><FaLinkedinIn /></a>
-        <a href="https://wa.me/0204465537" target="_blank" rel="noopener noreferrer"><FaWhatsapp /></a>
+        <a href="https://facebook.com" target="_blank" rel="noreferrer"><FaFacebookF /></a>
+        <a href="https://twitter.com" target="_blank" rel="noreferrer"><FaTwitter /></a>
+        <a href="https://instagram.com" target="_blank" rel="noreferrer"><FaInstagram /></a>
+        <a href="https://linkedin.com" target="_blank" rel="noreferrer"><FaLinkedinIn /></a>
+        <a href="https://wa.me/233204465537" target="_blank" rel="noreferrer"><FaWhatsapp /></a>
       </div>
 
       <div className="footer-bottom">

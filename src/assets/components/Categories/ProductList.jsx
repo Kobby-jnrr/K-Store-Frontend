@@ -99,7 +99,7 @@ function ProductList({
       : true;
 
     const matchesLocation = locationFilter
-      ? (p.location || "Unknown") === locationFilter
+      ? (p.location || "Unknown").startsWith(locationFilter)
       : true;
 
     return matchesSearch && matchesPrice && matchesVendor && matchesLocation;

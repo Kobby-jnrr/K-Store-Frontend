@@ -23,7 +23,7 @@ function Users() {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [newUser, setNewUser] = useState({ username: "", email: "", password: "", role: "customer" });
-
+  const [selectedUser, setSelectedUser] = useState(null);
   const [modal, setModal] = useState({ visible: false, message: "", action: null });
 
   useEffect(() => {
@@ -164,6 +164,64 @@ function Users() {
 
   if (loading) return <div className="loader">Loading users...</div>;
 
+ // User Detail Modal with Icons
+function UserDetailModal({ user, onClose }) {
+  if (!user) return null;
+
+  return (
+    <div className="modal-backdrop">
+      <div className="modal-content user-detail-modal">
+        <h2>{user.username}'s Details</h2>
+
+        <div className="user-detail-row">
+          {user.firstName && user.lastName && (
+            <p className="user-detail">
+              <span>👤 Full Name:</span> {user.firstName} {user.lastName}
+            </p>
+          )}
+
+          {user.role === "vendor" && user.businessName && (
+            <p className="user-detail">
+              <span>🏢 Business Name:</span> {user.businessName}
+            </p>
+          )}
+
+          {user.email && (
+            <p className="user-detail">
+              <span>✉️ Email:</span> {user.email}
+            </p>
+          )}
+
+          {user.phone && (
+            <p className="user-detail">
+              <span>📞 Phone:</span> {user.phone}
+            </p>
+          )}
+
+          {user.location && (
+            <p className="user-detail">
+              <span>📍 Location:</span> {user.location}
+            </p>
+          )}
+
+          <p className="user-detail">
+            <span>🛠 Role:</span> {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+          </p>
+
+          <p className="user-detail">
+            <span>✅ Status:</span> {user.active ? "Active" : "Inactive"}
+          </p>
+        </div>
+
+        <button className="close-btn" onClick={onClose}>
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
   return (
     <div className="users-page">
       <h1>Users Management 👤</h1>
@@ -212,7 +270,11 @@ function Users() {
             ) : (
               filteredUsers.map(u => (
                 <tr key={u._id}>
-                  <td>{u.username}</td>
+                  <td>
+                    <span className="username-link" onClick={() => setSelectedUser(u)}>
+                      {u.username}
+                    </span>
+                  </td>
                   <td>{u.email}</td>
                   <td>{u.role}</td>
                   <td><span className={`status ${u.active ? "active" : "inactive"}`}>{u.active ? "Active" : "Inactive"}</span></td>
@@ -229,6 +291,11 @@ function Users() {
       </div>
 
       {/* Modal */}
+      {selectedUser && 
+      ( <UserDetailModal user={selectedUser} 
+        onClose={() => setSelectedUser(null)} />
+        )}
+
       {modal.visible && <Modal message={modal.message} onConfirm={modal.action} onCancel={() => setModal({ visible: false, message: "", action: null })} />}
     </div>
   );
