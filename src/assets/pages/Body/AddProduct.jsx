@@ -116,6 +116,7 @@ const VendorProducts = () => {
     setVendor({ ...user, token });
     fetchProducts(token);
   }, [navigate]);
+  
 
   const fetchProducts = async (token) => {
     setLoadingProducts(true);
@@ -296,7 +297,6 @@ const VendorProducts = () => {
               }
               required
             />
-            {vendor?.verified && (
             <input
               type="number"
               placeholder="Old Price (optional)"
@@ -305,7 +305,6 @@ const VendorProducts = () => {
                 setFormData({ ...formData, oldPrice: e.target.value })
               }
             />
-          )}
             <SearchableDropdown
               options={categories}
               value={formData.category}
@@ -393,7 +392,6 @@ const VendorProducts = () => {
                   setEditData({ ...editData, price: e.target.value })
                 }
               />
-              {vendor?.verified && (
               <input
                 type="number"
                 placeholder="Old Price (optional)"
@@ -402,7 +400,6 @@ const VendorProducts = () => {
                   setEditData({ ...editData, oldPrice: e.target.value })
                 }
               />
-            )}
               <SearchableDropdown
                 options={categories}
                 value={editData.category}

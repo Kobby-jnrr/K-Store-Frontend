@@ -13,7 +13,12 @@ const API = axios.create({
 // === Attach Access Token on Every Request ===
 API.interceptors.request.use((config) => {
   const token = sessionStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+    console.log("🟢 Request with access token →", config.url);
+  } else {
+    console.log("⚪ Request without token →", config.url);
+  }
   return config;
 });
 
@@ -23,20 +28,24 @@ API.interceptors.response.use(
   async (err) => {
     const originalRequest = err.config;
 
-    // If unauthorized (401) and we haven’t retried yet
-    if (err.response?.status === 401 && !originalRequest._retry) {
+    // Detect expired token
+    if (
+      err.response?.status === 401 &&
+      !originalRequest._retry &&
+      err.response.data?.message === "TokenExpired"
+    ) {
+      console.warn("⚠️ Access token expired! Trying to refresh...");
       originalRequest._retry = true;
 
       try {
         const refreshToken = sessionStorage.getItem("refreshToken");
         if (!refreshToken) throw new Error("No refresh token found");
 
-        console.warn("🔁 Access token expired — trying to refresh...");
-
-        // Call refresh endpoint
-        const { data } = await axios.post(`${DEPLOYED_BASE_URL}/auth/refresh`, { refreshToken });
+        console.log("🔄 Calling refresh endpoint...");
+        const { data } = await API.post("/auth/refresh", { refreshToken });
 
         console.log("✅ Token refreshed successfully");
+        console.log("🆕 New access token:", data.accessToken.slice(0, 20) + "...");
 
         // Save new tokens
         sessionStorage.setItem("token", data.accessToken);
@@ -44,16 +53,20 @@ API.interceptors.response.use(
 
         // Update header and retry original request
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        console.log("🔁 Retrying original request:", originalRequest.url);
         return API(originalRequest);
       } catch (refreshErr) {
         console.error("🔒 Token refresh failed:", refreshErr.message);
         sessionStorage.clear();
-        window.location.href = "/login"; // force re-login
+        console.warn("🚪 Redirecting to login...");
+        window.location.href = "/login";
       }
     }
 
-    // If backend unavailable → fallback to localhost
+    // Handle network fallback
     if (err.message.includes("Network Error") || err.code === "ERR_NETWORK") {
+      console.warn("🌐 Network issue, switching to localhost...");
+
       const localAPI = axios.create({
         baseURL: LOCAL_BASE_URL,
         headers: { "Content-Type": "application/json" },
@@ -61,6 +74,7 @@ API.interceptors.response.use(
 
       const token = sessionStorage.getItem("token");
       if (token) localAPI.defaults.headers.Authorization = `Bearer ${token}`;
+
       return localAPI(originalRequest);
     }
 

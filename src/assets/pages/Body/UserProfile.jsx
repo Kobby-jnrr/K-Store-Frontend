@@ -56,6 +56,11 @@ const UserProfile = () => {
     const data = await fetchWithFallback(urls, token);
     setVerifiedStatus(data?.verified ?? false);
     if (data) setUser(prev => ({ ...prev, ...data }));
+    if (data?.verified !== undefined) {
+      const updatedUser = { ...JSON.parse(sessionStorage.getItem("user")), verified: data.verified };
+      sessionStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+
   };
 
   const fetchVendorProducts = async (token) => {
