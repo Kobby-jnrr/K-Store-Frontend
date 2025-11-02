@@ -156,16 +156,36 @@ const VendorProducts = () => {
       const payload = new FormData();
       payload.append("title", formData.title);
       payload.append("price", formData.price);
+      if (formData.oldPrice) payload.append("oldPrice", formData.oldPrice);
       payload.append("category", formData.category);
       payload.append("description", formData.description || "");
       payload.append("image", selectedFile);
 
-      await axios.post(API_BASE, payload, {
+       // 🔹 Log FormData being sent
+    console.log("=== FormData being sent ===");
+    for (let [key, value] of payload.entries()) {
+      console.log(key, ":", value);
+    }
+    console.log("==========================");
+
+      const res = await axios.post(API_BASE, payload, {
         headers: {
           Authorization: `Bearer ${vendor.token}`,
           "Content-Type": "multipart/form-data",
         },
       });
+
+       // 🔹 Log backend response in readable format
+    const product = res.data.product;
+    console.log("=== Backend stored product ===");
+    console.log(`Title: ${product.title}`);
+    console.log(`Price: GH₵${product.price}`);
+    if (product.oldPrice) console.log(`Old Price: GH₵${product.oldPrice}`);
+    console.log(`Category: ${product.category}`);
+    console.log(`Description: ${product.description}`);
+    console.log(`Image URL: ${product.image}`);
+    console.log("==============================");
+
 
       setFormData({ title: "", price: "", category: "", description: "" });
       setSelectedFile(null);
@@ -200,6 +220,7 @@ const VendorProducts = () => {
       const payload = new FormData();
       payload.append("title", editData.title);
       payload.append("price", editData.price);
+      if (editData.oldPrice) payload.append("oldPrice", editData.oldPrice);
       payload.append("category", editData.category);
       payload.append("description", editData.description || "");
       if (editFile) payload.append("image", editFile);
@@ -275,6 +296,16 @@ const VendorProducts = () => {
               }
               required
             />
+            {vendor?.verified && (
+            <input
+              type="number"
+              placeholder="Old Price (optional)"
+              value={formData.oldPrice || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, oldPrice: e.target.value })
+              }
+            />
+          )}
             <SearchableDropdown
               options={categories}
               value={formData.category}
@@ -362,6 +393,16 @@ const VendorProducts = () => {
                   setEditData({ ...editData, price: e.target.value })
                 }
               />
+              {vendor?.verified && (
+              <input
+                type="number"
+                placeholder="Old Price (optional)"
+                value={editData.oldPrice || ""}
+                onChange={(e) =>
+                  setEditData({ ...editData, oldPrice: e.target.value })
+                }
+              />
+            )}
               <SearchableDropdown
                 options={categories}
                 value={editData.category}

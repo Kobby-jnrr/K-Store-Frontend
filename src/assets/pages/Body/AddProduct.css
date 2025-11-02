@@ -2,7 +2,7 @@
   padding: 30px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f5f6fa;
-  height: 150vh;
+  height: 165vh;
   margin-top: 50px;
   box-sizing: border-box;
 }
@@ -123,7 +123,6 @@
 .product-card p {
   margin: 2px 0;
   font-size: 0.95rem;
-  color: #555;
 }
 
 .product-actions {

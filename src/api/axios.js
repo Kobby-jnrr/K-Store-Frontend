@@ -31,8 +31,12 @@ API.interceptors.response.use(
         const refreshToken = sessionStorage.getItem("refreshToken");
         if (!refreshToken) throw new Error("No refresh token found");
 
+        console.warn("🔁 Access token expired — trying to refresh...");
+
         // Call refresh endpoint
         const { data } = await axios.post(`${DEPLOYED_BASE_URL}/auth/refresh`, { refreshToken });
+
+        console.log("✅ Token refreshed successfully");
 
         // Save new tokens
         sessionStorage.setItem("token", data.accessToken);

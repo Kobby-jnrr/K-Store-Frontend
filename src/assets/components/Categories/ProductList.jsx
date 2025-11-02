@@ -120,12 +120,26 @@ function ProductList({
 
             // Determine if vendor is verified
             const isVerified = item.vendor?.verified ?? false;
+            const discount =
+              item.oldPrice && item.oldPrice > item.price
+                ? Math.round(((item.oldPrice - item.price) / item.oldPrice) * 100)
+                : null;
 
             return (
               <div key={item._id} id={`product-${item._id}`} className="product-card">
-                <img src={item.image} alt={item.title} className="product-img" />
+                <div className="product-image-wrapper">
+                  {discount && <span className="discount-badge">-{discount}%</span>}
+                  <img src={item.image} alt={item.title} className="product-img" />
+                </div>
                 <h4>{item.title}</h4>
-                <p className="price">GH₵{item.price}</p>
+
+                 {/* Price with optional oldPrice */}
+                <p className="price">
+                  {item.oldPrice && (
+                    <span className="old-price">GH₵{item.oldPrice}</span>
+                  )}
+                  GH₵{item.price}
+                </p>
 
                 {/* Description with toggle */}
                 {item.description && (
