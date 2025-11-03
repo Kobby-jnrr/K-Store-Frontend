@@ -81,20 +81,17 @@ function VendorProfile({ cart, setCart }) {
         )}
 
         <div className="vendor-profile-details">
-          <h2>
-            {vendor.shopName || vendor.username}{" "}
-            {vendor.verified && <span className="green-tick">✅</span>}
+          <h2 className="vendor-name">
+            {vendor.shopName || vendor.username}
+            {vendor.verified && (
+              <img
+                src="/verify.png"
+                alt="Verified Vendor"
+                className="greener"
+              />
+            )}
           </h2>
           {vendor.bio && <p>{vendor.bio}</p>}
-          {vendor.verified !== undefined && (
-            <span
-              className={`vendor-badge ${
-                vendor.verified ? "verified" : "unverified"
-              }`}
-            >
-              {vendor.verified ? "Verified Account" : "Unverified"}
-            </span>
-          )}
         </div>
       </div>
 

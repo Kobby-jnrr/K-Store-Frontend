@@ -51,13 +51,17 @@
   font-size: 0.9rem;
   font-weight: 500;
 }
-.verified {
-  background-color: #16a34a;
-  color: white;
+
+.vendor-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
-.unverified {
-  background-color: #dc2626;
-  color: white;
+
+.greener {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
 }
 
 .vendor-products {

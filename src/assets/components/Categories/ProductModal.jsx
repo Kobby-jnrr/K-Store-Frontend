@@ -11,6 +11,7 @@ const ProductModal = ({ product, onClose }) => {
           ((product.oldPrice - product.price) / product.oldPrice) * 100
         )
       : null;
+  console.log("Vendor data:", product.vendor);
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -60,7 +61,10 @@ const ProductModal = ({ product, onClose }) => {
             )}
 
             <p className="modal-location">
-              Location: {product.location || "Unknown"}
+              Location: {product.vendor?.location || "Unknown"}
+            </p>
+            <p className="modal-location">
+              Phone: {product.vendor?.phone || "N/A"}
             </p>
           </div>
         </div>
