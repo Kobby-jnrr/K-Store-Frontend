@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../../api/axios.js"; // centralized API
+import ProductModal from "./ProductModal"; // import your modal
 import "./ProductList.css";
 
 function ProductList({
@@ -19,6 +20,7 @@ function ProductList({
   const [loading, setLoading] = useState(!externalProducts);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState({});
+  const [selectedProduct, setSelectedProduct] = useState(null); // new
   const navigate = useNavigate();
 
   // Fetch products if not provided externally
@@ -54,11 +56,17 @@ function ProductList({
     setCart({ ...cart, [product._id]: { ...product, quantity: 1 } });
 
   const increase = (id) =>
-    setCart({ ...cart, [id]: { ...cart[id], quantity: cart[id].quantity + 1 } });
+    setCart({
+      ...cart,
+      [id]: { ...cart[id], quantity: cart[id].quantity + 1 },
+    });
 
   const decrease = (id) => {
     if (cart[id].quantity > 1) {
-      setCart({ ...cart, [id]: { ...cart[id], quantity: cart[id].quantity - 1 } });
+      setCart({
+        ...cart,
+        [id]: { ...cart[id], quantity: cart[id].quantity - 1 },
+      });
     } else {
       const newCart = { ...cart };
       delete newCart[id];
@@ -113,36 +121,37 @@ function ProductList({
             const isVerified = item.vendor?.verified ?? false;
             const discount =
               item.oldPrice && item.oldPrice > item.price
-                ? Math.round(((item.oldPrice - item.price) / item.oldPrice) * 100)
+                ? Math.round(
+                    ((item.oldPrice - item.price) / item.oldPrice) * 100
+                  )
                 : null;
 
             return (
-              <div key={item._id} id={`product-${item._id}`} className="product-card">
+              <div
+                key={item._id}
+                id={`product-${item._id}`}
+                className="product-card"
+              >
                 <div className="product-image-wrapper">
-                  {discount && <span className="discount-badge">-{discount}%</span>}
-                  <img src={item.image} alt={item.title} className="product-img" />
+                  {discount && (
+                    <span className="discount-badge">-{discount}%</span>
+                  )}
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="product-img"
+                    onClick={() => setSelectedProduct(item)}
+                  />
                 </div>
 
                 <h4>{item.title}</h4>
 
                 <p className="price">
-                  {item.oldPrice && <span className="old-price">GH₵{item.oldPrice}</span>}
+                  {item.oldPrice && (
+                    <span className="old-price">GH₵{item.oldPrice}</span>
+                  )}
                   GH₵{item.price}
                 </p>
-
-                {item.description && (
-                  <p className="description">
-                    {isExpanded ? item.description : shortDesc}
-                    {item.description.length > 100 && (
-                      <span
-                        className="read-more"
-                        onClick={() => toggleDescription(item._id)}
-                      >
-                        {isExpanded ? " Read less" : " Read more"}
-                      </span>
-                    )}
-                  </p>
-                )}
 
                 {item.vendor && (
                   <p
@@ -152,15 +161,23 @@ function ProductList({
                     Vendor:{" "}
                     {item.vendor.businessName?.trim() ||
                       item.vendor.username ||
-                      `${item.vendor.firstName || ""} ${item.vendor.lastName || ""}`.trim()}
+                      `${item.vendor.firstName || ""} ${
+                        item.vendor.lastName || ""
+                      }`.trim()}
                     {isVerified && (
-                      <img src="/verify.png" alt="Verified" className="green-tick" />
+                      <img
+                        src="/verify.png"
+                        alt="Verified"
+                        className="green-tick"
+                      />
                     )}
                   </p>
                 )}
 
                 {!cart[item._id] ? (
-                  <button className="add-btn" onClick={() => addToCart(item)}>Add to Cart</button>
+                  <button className="add-btn" onClick={() => addToCart(item)}>
+                    Add to Cart
+                  </button>
                 ) : (
                   <div className="counter">
                     <button onClick={() => decrease(item._id)}>-</button>
@@ -178,6 +195,12 @@ function ProductList({
         <div className="view-more">
           +{fullCount - filteredProducts.length} more
         </div>
+      )}
+      {selectedProduct && (
+        <ProductModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
       )}
     </div>
   );

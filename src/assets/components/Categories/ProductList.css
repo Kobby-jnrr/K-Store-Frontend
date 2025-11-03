@@ -10,7 +10,7 @@
   border-radius: 12px;
   padding: 12px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s;
   display: flex;
   flex-direction: column;
@@ -27,6 +27,7 @@
   object-fit: cover;
   border-radius: 10px;
   margin-bottom: 8px;
+  cursor: pointer;
 }
 
 h4 {
@@ -69,7 +70,6 @@ h4 {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-
 /* --- Vendor name gradient theme --- */
 .vendor-name {
   font-size: 0.85rem;
@@ -81,7 +81,7 @@ h4 {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #1f2937; 
+  color: #1f2937;
 }
 
 .vendor-name:hover {
@@ -89,7 +89,7 @@ h4 {
 }
 
 .vendor-name .green-tick {
-  width: 16px;  
+  width: 16px;
   height: 16px;
   margin-left: -1px;
   margin-top: 11px;
@@ -143,7 +143,7 @@ h4 {
   border-radius: 1rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .vendor-banner-img {
