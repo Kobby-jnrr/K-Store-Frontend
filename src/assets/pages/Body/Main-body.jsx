@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import API from "../../../api/axios.js";
 import ProductList from "../../components/Categories/ProductList";
@@ -7,6 +7,7 @@ import FloatingWhatsApp from "./FloatingWhatsApp";
 import "./Main-body.css";
 
 function Main({ cart, setCart }) {
+  const [allProducts, setAllProducts] = useState([]); // All products fetched once
   const [productsByGroup, setProductsByGroup] = useState({});
   const [loading, setLoading] = useState(true);
   const [viewType, setViewType] = useState("vendor");
@@ -51,70 +52,73 @@ function Main({ cart, setCart }) {
     }
   }, []);
 
-  // Fetch promo products
-  const fetchPromo = useCallback(async () => {
-    try {
-      const res = await API.get("/promo");
-      if (res.data?.products?.length)
-        setPromoProducts(res.data.products.slice(0, 20));
-      else setPromoProducts([]);
-    } catch (err) {
-      console.error("Error fetching promo:", err);
-      setPromoProducts([]);
-    }
+  // Fetch promo products once
+  useEffect(() => {
+    const fetchPromo = async () => {
+      try {
+        const res = await API.get("/promo");
+        setPromoProducts(res.data?.products?.slice(0, 20) || []);
+      } catch (err) {
+        console.error("Error fetching promo:", err);
+        setPromoProducts([]);
+      }
+    };
+    fetchPromo();
   }, []);
 
+  // Fetch all products once
   useEffect(() => {
-    fetchPromo();
-  }, [fetchPromo]);
-
-  // Fetch main products grouped by category or vendor
-  useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchAllProducts = async () => {
       setLoading(true);
-      const newProducts = {};
-      const fullCountObj = {};
-
-      if (viewType === "category") {
-        await Promise.all(
-          categories.map(async (cat) => {
-            try {
-              const res = await API.get(`/products/${cat}`);
-              if (res.data?.length) newProducts[cat] = res.data;
-            } catch {}
-          })
-        );
-      } else {
-        const tempVendorMap = {};
-        try {
-          const res = await API.get("/products");
-          if (res.data?.length) {
-            res.data.forEach((prod) => {
-              const vendorName =
-                prod.vendorName || prod.vendor?.username || "Unknown Vendor";
-              if (!tempVendorMap[vendorName]) tempVendorMap[vendorName] = [];
-              tempVendorMap[vendorName].push({
-                ...prod,
-                vendorVerified: prod.vendor?.verified || false,
-                vendorId: prod.vendor?._id || null,
-              });
-              fullCountObj[vendorName] = (fullCountObj[vendorName] || 0) + 1;
-            });
-            Object.keys(tempVendorMap).forEach(
-              (v) => (tempVendorMap[v] = tempVendorMap[v].slice(0, 4))
-            );
-            Object.assign(newProducts, tempVendorMap);
-          }
-        } catch {}
+      try {
+        const res = await API.get("/products");
+        setAllProducts(res.data || []);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        setAllProducts([]);
       }
-
-      setProductsByGroup(newProducts);
-      setGroupFullCount(fullCountObj);
       setLoading(false);
     };
+    fetchAllProducts();
+  }, []);
 
-    fetchProducts();
-  }, [viewType, categories]);
+  // Organize products by vendor or category whenever viewType changes
+  useEffect(() => {
+    const newProducts = {};
+    const fullCountObj = {};
+
+    if (viewType === "category") {
+      categories.forEach((cat) => {
+        const filtered = allProducts.filter((p) => p.category === cat);
+        if (filtered.length) {
+          newProducts[cat] = filtered;
+          fullCountObj[cat] = filtered.length;
+        }
+      });
+    } else {
+      const tempVendorMap = {};
+      allProducts.forEach((prod) => {
+        const vendorName =
+          prod.vendorName || prod.vendor?.username || "Unknown Vendor";
+        if (!tempVendorMap[vendorName]) tempVendorMap[vendorName] = [];
+        tempVendorMap[vendorName].push({
+          ...prod,
+          vendorVerified: prod.vendor?.verified || false,
+          vendorId: prod.vendor?._id || null,
+        });
+        fullCountObj[vendorName] = (fullCountObj[vendorName] || 0) + 1;
+      });
+
+      // Limit to 4 products per vendor for display
+      Object.keys(tempVendorMap).forEach(
+        (v) => (tempVendorMap[v] = tempVendorMap[v].slice(0, 4))
+      );
+      Object.assign(newProducts, tempVendorMap);
+    }
+
+    setProductsByGroup(newProducts);
+    setGroupFullCount(fullCountObj);
+  }, [viewType, allProducts, categories]);
 
   const getInitials = (name) =>
     name
