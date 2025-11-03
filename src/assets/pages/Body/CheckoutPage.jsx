@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import API from "../../../api/axios.js";
 import "./CheckoutPage.css";
 
 function CheckoutPage({ cart, setCart }) {
@@ -45,46 +46,10 @@ function CheckoutPage({ cart, setCart }) {
       ...(paymentMethod === "momo" ? { momoNumber } : {}),
     };
 
-    // --- Hardcoded API with fallback ---
-    const API_BASES = [
-      "https://k-store-backend.onrender.com",
-      "http://localhost:5000",
-    ];
-    let API_BASE = API_BASES[0];
-
     try {
-      // Try to reach live backend first
-      const res = await fetch(`${API_BASE}/api/orders`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(orderData),
+      await API.post("/orders", orderData, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!res.ok) {
-        // If live fails, try localhost
-        console.warn("Falling back to localhost backend...");
-        API_BASE = API_BASES[1];
-
-        const localRes = await fetch(`${API_BASE}/api/orders`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(orderData),
-        });
-
-        if (!localRes.ok) throw new Error("Order failed");
-        const localData = await localRes.json();
-        setCart({});
-        setOrderModal(true);
-        return;
-      }
-
-      const data = await res.json();
       setCart({});
       setOrderModal(true);
     } catch (err) {
@@ -131,7 +96,6 @@ function CheckoutPage({ cart, setCart }) {
         </div>
       ) : (
         <div className="checkout-content">
-          {/* Cart Items */}
           <div className="checkout-items">
             {cartItems.map((item) => (
               <div key={item._id} className="checkout-card">
@@ -153,7 +117,6 @@ function CheckoutPage({ cart, setCart }) {
             ))}
           </div>
 
-          {/* Order Summary */}
           <div className="checkout-summary">
             <h2>Order Summary</h2>
             <p>Subtotal: GH₵{subtotal.toFixed(2)}</p>
@@ -237,11 +200,9 @@ function CheckoutPage({ cart, setCart }) {
           <div className="order-modal">
             <h2>⚠️ Multiple Vendors Detected</h2>
             <p>
-              You selected <strong>Pickup</strong>, but your order contains items
-              from <strong>different vendors</strong>. Each vendor may have a
-              different pickup location.
+              You selected <strong>Pickup</strong>, but your order contains
+              items from <strong>different vendors</strong>.
             </p>
-            <p>Are you sure you want to continue?</p>
             <div
               style={{ display: "flex", gap: "10px", justifyContent: "center" }}
             >
@@ -266,23 +227,17 @@ function CheckoutPage({ cart, setCart }) {
       {orderModal && (
         <div className="order-modal-backdrop">
           <div className="order-modal">
-            {fulfillmentType === "pickup" ? (
-              <>
-                <h2 className="checkout-head2">🎉 Order for Pickup!</h2>
-                <p>
-                  Your order has been placed successfully! We’ll notify you once
-                  it’s ready for pickup. 😊
-                </p>
-              </>
-            ) : (
-              <>
-                <h2 className="checkout-head2">🚚 Order for Delivery</h2>
-                <p>
-                  Your order has been placed successfully! We’ll notify you once
-                  it’s confirmed and on its way. 📦
-                </p>
-              </>
-            )}
+            <h2 className="checkout-head2">
+              {fulfillmentType === "pickup"
+                ? "🎉 Order for Pickup!"
+                : "🚚 Order for Delivery"}
+            </h2>
+            <p>
+              Your order has been placed successfully!{" "}
+              {fulfillmentType === "pickup"
+                ? "We’ll notify you once it’s ready for pickup."
+                : "We’ll notify you once it’s confirmed and on its way."}
+            </p>
             <button onClick={handleCloseModal}>Okay</button>
           </div>
         </div>

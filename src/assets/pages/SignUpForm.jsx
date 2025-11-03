@@ -51,7 +51,9 @@ function SignUpForm({ setUser, role = "customer" }) {
       setSuccess("Account created! Redirecting...");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setError(err.response?.data?.msg || err.message || "Signup failed. Try again.");
+      setError(
+        err.response?.data?.msg || err.message || "Signup failed. Try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -132,8 +134,7 @@ function SignUpForm({ setUser, role = "customer" }) {
                 </>
               ) : (
                 <>
-                  Are you a vendor?{" "}
-                  <Link to="/vendor-signup">Click here</Link>
+                  Are you a vendor? <Link to="/vendor-signup">Click here</Link>
                 </>
               )}
             </p>

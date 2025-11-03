@@ -1,7 +1,7 @@
 /* -------------------- General Page -------------------- */
 .profile-page {
   padding: 2rem 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f5f5f7;
   min-height: 100vh;
   margin-top: 60px;
@@ -25,7 +25,7 @@
 .profile-card {
   background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   min-height: 80vh;
   padding: 2rem;
   display: flex;
@@ -75,8 +75,14 @@
   font-size: 1rem;
   font-weight: 500;
 }
-.verified { background-color: #16a34a; color: white; }
-.unverified { background-color: #dc2626; color: white; }
+.verified {
+  background-color: #16a34a;
+  color: white;
+}
+.unverified {
+  background-color: #dc2626;
+  color: white;
+}
 
 .profile-section {
   margin-top: 1rem;
@@ -93,7 +99,9 @@
 }
 
 /* Buttons */
-.btn-primary, .btn-danger, .btn-cancel {
+.btn-primary,
+.btn-danger,
+.btn-cancel {
   padding: 0.5rem 1rem;
   border-radius: 8px;
   font-weight: 600;
@@ -102,25 +110,30 @@
   margin: 0.25rem;
   transition: all 0.2s;
 }
-.btn-primary { 
-  background-color: #2563eb; 
-  color: white; 
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
 }
-.btn-primary:hover { 
-  opacity: 0.85; 
+.btn-primary:hover {
+  opacity: 0.85;
 }
-.btn-danger { 
-  background-color: #dc2626; 
+.btn-danger {
+  background-color: #dc2626;
   color: white;
   width: 70px;
   height: 34px;
-  margin-top: 9px; 
+  margin-top: 9px;
 }
-.btn-danger:hover { 
-  opacity: 0.85; 
+.btn-danger:hover {
+  opacity: 0.85;
 }
-.btn-cancel { background-color: #9ca3af; color: white; }
-.btn-cancel:hover { opacity: 0.85; }
+.btn-cancel {
+  background-color: #9ca3af;
+  color: white;
+}
+.btn-cancel:hover {
+  opacity: 0.85;
+}
 
 /* Vendor Product Grid */
 .vendor-product-grid {
@@ -137,9 +150,20 @@
   align-items: center;
   transition: transform 0.2s;
 }
-.vendor-product-card:hover { transform: translateY(-2px); }
-.vendor-product-card img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; }
-.product-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.vendor-product-card:hover {
+  transform: translateY(-2px);
+}
+.vendor-product-card img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.product-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
 
 /* Orders */
 .order-header-new {
@@ -155,14 +179,29 @@
   font-size: 0.85rem;
   color: white;
 }
-.order-status.pending { background-color: #f59e0b; }
-.order-status.processing { background-color: #2563eb; }
-.order-status.delivered { background-color: #16a34a; }
-.order-total { font-weight: 500; }
-.order-date-new small { color: #555; }
+.order-status.pending {
+  background-color: #f59e0b;
+}
+.order-status.processing {
+  background-color: #2563eb;
+}
+.order-status.delivered {
+  background-color: #16a34a;
+}
+.order-total {
+  font-weight: 500;
+}
+.order-date-new small {
+  color: #555;
+}
 
 /* Order Items Modal */
-.order-items-new { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem; }
+.order-items-new {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
 .order-item-new {
   display: flex;
   align-items: center;
@@ -171,29 +210,64 @@
   border-radius: 8px;
   background-color: #f5f5f5;
 }
-.order-item-new img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
-.item-info { flex: 1; }
-.item-info p { margin: 0; font-weight: 500; }
-.item-details-new { text-align: right; display: flex; flex-direction: column; gap: 0.25rem; }
-.rejected-item { border-left: 4px solid #dc2626; background-color: #fee2e2; }
-.rejected-msg { color: #dc2626; font-weight: 600; font-size: 0.85rem; }
+.order-item-new img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.item-info {
+  flex: 1;
+}
+.item-info p {
+  margin: 0;
+  font-weight: 500;
+}
+.item-details-new {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.rejected-item {
+  border-left: 4px solid #dc2626;
+  background-color: #fee2e2;
+}
+.rejected-msg {
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
 
 /* Modals */
-.edit-modal, .confirm-modal {
+.edit-modal,
+.confirm-modal {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
 }
-.fade-in { animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
 /* -------------------- Edit & Confirm Modals -------------------- */
-.edit-modal, .confirm-modal {
+.edit-modal,
+.confirm-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -212,11 +286,18 @@
   animation: fadeIn 0.25s ease-out forwards;
 }
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-.edit-modal-content, .confirm-modal-content {
+.edit-modal-content,
+.confirm-modal-content {
   background-color: #ffffff;
   border-radius: 16px;
   padding: 2rem;
@@ -231,7 +312,8 @@
 }
 
 /* Modal Headings */
-.edit-modal-content h3, .confirm-modal-content h3 {
+.edit-modal-content h3,
+.confirm-modal-content h3 {
   margin-top: 0;
   font-size: 1.5rem;
   font-weight: 600;
@@ -262,7 +344,8 @@
 }
 
 /* Modal Actions */
-.edit-modal-actions, .confirm-buttons {
+.edit-modal-actions,
+.confirm-buttons {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
@@ -270,7 +353,8 @@
 }
 
 /* Buttons inside Modals */
-.edit-modal-actions button, .confirm-buttons button {
+.edit-modal-actions button,
+.confirm-buttons button {
   min-width: 90px;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
@@ -323,23 +407,27 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
-
 
 /* Responsive */
 @media (max-width: 640px) {
-  .edit-modal-content, .confirm-modal-content {
+  .edit-modal-content,
+  .confirm-modal-content {
     max-width: 95%;
     padding: 1.5rem;
   }
 
-  .edit-modal-content h3, .confirm-modal-content h3 {
+  .edit-modal-content h3,
+  .confirm-modal-content h3 {
     font-size: 1.25rem;
   }
 }
-
 
 /* -------------------- Responsive -------------------- */
 
@@ -353,7 +441,8 @@
     margin-left: -30px;
   }
 
-  .vendor-grid, .customer-grid {
+  .vendor-grid,
+  .customer-grid {
     grid-template-columns: 1fr !important;
   }
 
@@ -376,7 +465,7 @@
     align-items: flex-start;
   }
 
-  .order-status{
+  .order-status {
     font-size: 14px;
     padding: 10px 8px 10px 14px;
     margin-right: 10px;
@@ -447,7 +536,9 @@
   font-size: 0.85rem;
 }
 
-.btn-primary, .btn-danger, .btn-cancel {
+.btn-primary,
+.btn-danger,
+.btn-cancel {
   font-size: 0.85rem;
   padding: 0.4rem 0.8rem;
 }

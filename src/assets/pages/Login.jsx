@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./Login.css"; 
+import "./Login.css";
 import logo from "../components/Header/head-image/Web-logo.png";
 import { loginUser } from "../../api/authService";
 
@@ -34,13 +34,14 @@ function LoginPage({ setUser }) {
         setError(err.response.data?.msg || "Login failed. Please try again.");
       } else if (err.request) {
         // Request was made but no response (network/server down)
-        setError("Internet Error. Please check your internet connection or try again later.");
+        setError(
+          "Internet Error. Please check your internet connection or try again later."
+        );
       } else {
         // Other unexpected errors
         setError("An unexpected error occurred. Please try again.");
       }
     }
-
 
     setLoading(false);
   };

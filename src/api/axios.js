@@ -34,18 +34,15 @@ API.interceptors.response.use(
       !originalRequest._retry &&
       err.response.data?.message === "TokenExpired"
     ) {
-      console.warn("⚠️ Access token expired! Trying to refresh...");
       originalRequest._retry = true;
 
       try {
         const refreshToken = sessionStorage.getItem("refreshToken");
         if (!refreshToken) throw new Error("No refresh token found");
 
-        console.log("🔄 Calling refresh endpoint...");
         const { data } = await API.post("/auth/refresh", { refreshToken });
 
-        console.log("✅ Token refreshed successfully");
-        console.log("🆕 New access token:", data.accessToken.slice(0, 20) + "...");
+        console.log("✅ Refreshed successfully");
 
         // Save new tokens
         sessionStorage.setItem("token", data.accessToken);

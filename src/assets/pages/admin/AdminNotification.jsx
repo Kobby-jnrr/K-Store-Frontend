@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { io } from "socket.io-client";
+import API from "../../../api/axios.js";
 import toast, { Toaster } from "react-hot-toast";
 import "./AdminNotification.css";
-
-const BACKEND_URLS = [
-  "http://localhost:5000",
-  "https://k-store-backend.onrender.com",
-];
 
 function AdminNotification() {
   const [notifications, setNotifications] = useState([]);
@@ -22,24 +17,20 @@ function AdminNotification() {
   const [showModal, setShowModal] = useState(false);
 
   const token = sessionStorage.getItem("token");
-  const backendURL = BACKEND_URLS[0];
 
   const fetchNotifications = async () => {
     if (!token) return;
     try {
-      const res = await axios.get(`${backendURL}/api/notifications`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const fetchedNotifications = Array.isArray(res.data.notifications)
-        ? res.data.notifications
+      const { data } = await API.get("/notifications");
+      const fetchedNotifications = Array.isArray(data.notifications)
+        ? data.notifications
         : [];
       fetchedNotifications.sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
       setNotifications(fetchedNotifications);
       setLoading(false);
-    } catch (err) {
-      console.error(err);
+    } catch {
       setNotifications([]);
       setLoading(false);
     }
@@ -48,7 +39,7 @@ function AdminNotification() {
   useEffect(() => {
     fetchNotifications();
 
-    const socket = io(backendURL, { query: { role: "admin" } });
+    const socket = io(undefined, { query: { role: "admin" } }); // uses same origin
     socket.on("connect", () => console.log("✅ Admin socket connected"));
     socket.on("new-notification", (n) => {
       setNotifications((prev) => [n, ...prev]);
@@ -60,35 +51,32 @@ function AdminNotification() {
 
   const sendNotification = async (e) => {
     e.preventDefault();
-    if (!title || !message) return toast.error("Title and message are required");
+    if (!title || !message)
+      return toast.error("Title and message are required");
 
     try {
-      const res = await axios.post(
-        `${backendURL}/api/notifications`,
-        { title, message, recipientType },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setNotifications((prev) => [res.data.notification, ...prev]);
+      const { data } = await API.post("/notifications", {
+        title,
+        message,
+        recipientType,
+      });
+      setNotifications((prev) => [data.notification, ...prev]);
       setTitle("");
       setMessage("");
       setRecipientType("both");
       toast.success("Notification sent successfully");
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("Failed to send notification");
     }
   };
 
   const deleteAllNotifications = async () => {
     try {
-      await axios.delete(`${backendURL}/api/notifications`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await API.delete("/notifications");
       setNotifications([]);
       setShowModal(false);
       toast.success("All notifications deleted");
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("Failed to delete notifications");
     }
   };
@@ -115,7 +103,6 @@ function AdminNotification() {
       <h1>Admin Notifications 🔔</h1>
       <p>Send new notifications or manage existing ones.</p>
 
-      {/* Send Notification Form */}
       <form className="notification-form" onSubmit={sendNotification}>
         <div className="form-group">
           <label>Title</label>
@@ -154,7 +141,6 @@ function AdminNotification() {
         <button type="submit">Send</button>
       </form>
 
-      {/* Filters & Delete All */}
       <div className="filters">
         <input
           type="text"
@@ -171,13 +157,11 @@ function AdminNotification() {
           <option value="Vendor">Vendor</option>
           <option value="Both">Both</option>
         </select>
-
         <button className="delete-all-btn" onClick={() => setShowModal(true)}>
           Delete All
         </button>
       </div>
 
-      {/* Notifications Table */}
       <div className="notifications-table">
         <table>
           <thead>
@@ -212,15 +196,21 @@ function AdminNotification() {
         </table>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Confirm Delete</h3>
             <p>Are you sure you want to delete all notifications?</p>
             <div className="modal-actions">
-              <button onClick={deleteAllNotifications} className="confirm-btn">Yes, Delete</button>
-              <button onClick={() => setShowModal(false)} className="cancel-btn">Cancel</button>
+              <button onClick={deleteAllNotifications} className="confirm-btn">
+                Yes, Delete
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="cancel-btn"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>

@@ -56,7 +56,7 @@
   background: white;
   padding: 30px;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   height: fit-content;
   max-height: calc(100vh - 100px);
 }
@@ -81,7 +81,8 @@
   border: 1px solid #ccc;
 }
 
-.confirm-checkout, .continue-btn {
+.confirm-checkout,
+.continue-btn {
   width: 100%;
   padding: 12px;
   font-size: 16px;
@@ -91,17 +92,27 @@
   margin-top: 12px;
 }
 
-.confirm-checkout { background: #1ca51c; color: white; }
-.confirm-checkout:hover { background: #148a14; }
+.confirm-checkout {
+  background: #1ca51c;
+  color: white;
+}
+.confirm-checkout:hover {
+  background: #148a14;
+}
 
-.continue-btn { background: #007bff; color: white; }
-.continue-btn:hover { background: #0056b3; }
+.continue-btn {
+  background: #007bff;
+  color: white;
+}
+.continue-btn:hover {
+  background: #0056b3;
+}
 
 /* Modal */
 .order-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -120,8 +131,8 @@
   gap: 15px;
 }
 
-.checkout-head2 { 
-  color: #16a34a; 
+.checkout-head2 {
+  color: #16a34a;
 }
 
 .order-modal button {
@@ -133,7 +144,9 @@
   border: none;
 }
 
-.order-modal button:hover { background: #0056b3; }
+.order-modal button:hover {
+  background: #0056b3;
+}
 
 /* Empty Cart */
 .empty-checkout {
@@ -154,29 +167,43 @@
   background: #007bff;
   color: white;
 }
-.back-home-btn:hover { background: #0056b3; }
+.back-home-btn:hover {
+  background: #0056b3;
+}
 
 /* Responsive */
-@media(max-width: 1000px){
-  .checkout-content { 
-    flex-direction: column; 
-    gap: 20px; 
+@media (max-width: 1000px) {
+  .checkout-content {
+    flex-direction: column;
+    gap: 20px;
   }
-  .checkout-items { 
-    grid-template-columns: repeat(2, 1fr); 
-    max-height: 60vh; 
+  .checkout-items {
+    grid-template-columns: repeat(2, 1fr);
+    max-height: 60vh;
   }
-  .checkout-card { 
+  .checkout-card {
     padding: 12px;
   }
   .checkout-summary {
-  padding: 30px;
-  margin-left: -19px;
-  margin-right: -19px;
-}
-  .checkout-image { height: 150px; }
-  .checkout-details h3 { font-size: 14px; }
-  .checkout-details p { font-size: 12px; }
-  .card-details input, .momo-details input { font-size: 12px; padding: 6px; }
-  .payment-section label { font-size: 13px; }
+    padding: 30px;
+    margin-left: -19px;
+    margin-right: -19px;
+  }
+  .checkout-image {
+    height: 150px;
+  }
+  .checkout-details h3 {
+    font-size: 14px;
+  }
+  .checkout-details p {
+    font-size: 12px;
+  }
+  .card-details input,
+  .momo-details input {
+    font-size: 12px;
+    padding: 6px;
+  }
+  .payment-section label {
+    font-size: 13px;
+  }
 }

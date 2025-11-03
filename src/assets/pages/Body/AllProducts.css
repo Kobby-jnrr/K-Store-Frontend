@@ -72,10 +72,10 @@
   .all-products-main h1,
   .filters label,
   .filters select,
-  .filters select option{
+  .filters select option {
     font-size: 0.6rem;
   }
-  
+
   .product-card h4,
   .product-card p,
   .product-actions button {

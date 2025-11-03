@@ -10,7 +10,10 @@ export const registerUser = async (userData) => {
     return res.data;
   } catch (err) {
     // fallback to localhost
-    const localRes = await axios.post("http://localhost:5000/api/auth/register", userData);
+    const localRes = await axios.post(
+      "http://localhost:5000/api/auth/register",
+      userData
+    );
     return localRes.data;
   }
 };
@@ -21,7 +24,10 @@ export const loginUser = async (email, password) => {
     const res = await API.post("/auth/login", { email, password });
     return res.data;
   } catch (err) {
-    const localRes = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+    const localRes = await axios.post("http://localhost:5000/api/auth/login", {
+      email,
+      password,
+    });
     return localRes.data;
   }
 };
@@ -34,9 +40,13 @@ export const updateUser = async (userId, userData, token) => {
     });
     return res.data;
   } catch (err) {
-    const localRes = await axios.put(`http://localhost:5000/api/auth/update/${userId}`, userData, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const localRes = await axios.put(
+      `http://localhost:5000/api/auth/update/${userId}`,
+      userData,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     return localRes.data;
   }
 };
@@ -60,7 +70,10 @@ export const updateUserRole = async (userId, role) => {
     const res = await API.put(`/admin/update-user-role/${userId}`, { role });
     return res.data;
   } catch (err) {
-    const localRes = await axios.put(`http://localhost:5000/api/admin/update-user-role/${userId}`, { role });
+    const localRes = await axios.put(
+      `http://localhost:5000/api/admin/update-user-role/${userId}`,
+      { role }
+    );
     return localRes.data;
   }
 };

@@ -50,7 +50,6 @@ function SignUpVendor({ setUser }) {
     "Apewosika - Nyame Nti Hostel",
   ];
 
-
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -125,7 +124,9 @@ function SignUpVendor({ setUser }) {
       setSuccess("Vendor account created! Redirecting...");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setError(err.response?.data?.msg || err.message || "Signup failed. Try again.");
+      setError(
+        err.response?.data?.msg || err.message || "Signup failed. Try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -209,7 +210,8 @@ function SignUpVendor({ setUser }) {
             onChange={handleChange}
           />
           <p className="field-note">
-            If you don’t provide a business name, your full name will be used instead.
+            If you don’t provide a business name, your full name will be used
+            instead.
           </p>
 
           {/* 🔍 Searchable input dropdown for location */}
@@ -231,13 +233,14 @@ function SignUpVendor({ setUser }) {
             />
             {showDropdown && (
               <ul className="dropdown-list">
-                {(form.location.trim() === "" ? uccLocations : filteredLocations).map(
-                  (loc) => (
-                    <li key={loc} onClick={() => handleLocationSelect(loc)}>
-                      {loc}
-                    </li>
-                  )
-                )}
+                {(form.location.trim() === ""
+                  ? uccLocations
+                  : filteredLocations
+                ).map((loc) => (
+                  <li key={loc} onClick={() => handleLocationSelect(loc)}>
+                    {loc}
+                  </li>
+                ))}
                 {form.location.trim() && filteredLocations.length === 0 && (
                   <li className="no-results">
                     Press Enter to add "{form.location}"
@@ -265,7 +268,11 @@ function SignUpVendor({ setUser }) {
           />
 
           <button type="submit" disabled={loading} className="signup-button">
-            {loading ? <span className="spinner"></span> : "Create Vendor Account"}
+            {loading ? (
+              <span className="spinner"></span>
+            ) : (
+              "Create Vendor Account"
+            )}
           </button>
 
           {error && <p className="error">{error}</p>}

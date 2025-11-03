@@ -30,7 +30,6 @@ function SignUpCustomer({ setUser }) {
     "Amamoma - Oceana Hostel",
     "Amamoma - Kwesipra Hostel",
 
-
     "Ayensu - First Love Hostel",
     "Ayensu - Adoration Home Hostel",
     "Ayensu - Success City Hostel",
@@ -222,7 +221,7 @@ function SignUpCustomer({ setUser }) {
           {/* 🔍 Searchable input dropdown for location */}
           <div className="dropdown-container" ref={dropdownRef}>
             <input
-            className="location-input"
+              className="location-input"
               type="text"
               name="location"
               placeholder="Location - Hostel Name. Eg. Amamoma-A hostel"
@@ -238,17 +237,20 @@ function SignUpCustomer({ setUser }) {
             />
             {showDropdown && (
               <ul className="dropdown-list">
-                {(form.location.trim() === "" ? uccLocations : filteredLocations)
-                  .map((loc) => (
-                    <li key={loc} onClick={() => handleLocationSelect(loc)}>
-                      {loc}
-                    </li>
-                  ))}
+                {(form.location.trim() === ""
+                  ? uccLocations
+                  : filteredLocations
+                ).map((loc) => (
+                  <li key={loc} onClick={() => handleLocationSelect(loc)}>
+                    {loc}
+                  </li>
+                ))}
                 {/* If user typed something not found */}
-                {form.location.trim() &&
-                  filteredLocations.length === 0 && (
-                    <li className="no-results">Press Enter to add "{form.location}"</li>
-                  )}
+                {form.location.trim() && filteredLocations.length === 0 && (
+                  <li className="no-results">
+                    Press Enter to add "{form.location}"
+                  </li>
+                )}
               </ul>
             )}
           </div>

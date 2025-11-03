@@ -10,44 +10,44 @@
 .admin-logo h2 {
   margin: 0;
 }
-.quick-action{
-    width: 400px;
-    height: 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.quick-action {
+  width: 400px;
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.quick-btn{
-    background: linear-gradient(90deg, #16a34a, #059669);
-    border: none;
-    border-radius: 30px;
-    color: white;
-    width: 160px;
-    height: 40px;
+.quick-btn {
+  background: linear-gradient(90deg, #16a34a, #059669);
+  border: none;
+  border-radius: 30px;
+  color: white;
+  width: 160px;
+  height: 40px;
 }
 
-.quick-btn:hover{
-    background: rgb(9, 154, 9);
-    cursor: pointer;
+.quick-btn:hover {
+  background: rgb(9, 154, 9);
+  cursor: pointer;
 }
 
-.logOut{
-    background: linear-gradient(90deg, #dc2626, #b91c1c);
-    border: none;
-    border-radius: 30px;
-    color: white;
-    width: 160px;
-    height: 40px;
+.logOut {
+  background: linear-gradient(90deg, #dc2626, #b91c1c);
+  border: none;
+  border-radius: 30px;
+  color: white;
+  width: 160px;
+  height: 40px;
 }
 
-.logOut:hover{
-    background: rgb(215, 39, 39);
-    cursor: pointer;
+.logOut:hover {
+  background: rgb(215, 39, 39);
+  cursor: pointer;
 }
 
 @media (max-width: 768px) {
-    .admin-header{
-        display: none;
-    }
+  .admin-header {
+    display: none;
+  }
 }

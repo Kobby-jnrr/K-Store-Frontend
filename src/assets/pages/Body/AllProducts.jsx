@@ -15,15 +15,41 @@ function AllProducts({ cart, setCart }) {
   const [locations, setLocations] = useState([]);
 
   const categories = [
-    "fashion","electronics","home","grocery","baby","beauty","sports","gaming",
-    "books","toys","automotive","jewelry","office","pet","tools","music","health",
-    "outdoors","kitchen","shoes","accessories","other",
+    "fashion",
+    "electronics",
+    "home",
+    "grocery",
+    "baby",
+    "beauty",
+    "sports",
+    "gaming",
+    "books",
+    "toys",
+    "automotive",
+    "jewelry",
+    "office",
+    "pet",
+    "tools",
+    "music",
+    "health",
+    "outdoors",
+    "kitchen",
+    "shoes",
+    "accessories",
+    "other",
   ];
-  const mainAreas = [
-    "Amamoma","Ayensu","Old Site","New Site","UCC Campus",
-    "Science","Kwaprow","School Bus Rd.","Apewosika",
-];
 
+  const mainAreas = [
+    "Amamoma",
+    "Ayensu",
+    "Old Site",
+    "New Site",
+    "UCC Campus",
+    "Science",
+    "Kwaprow",
+    "School Bus Rd.",
+    "Apewosika",
+  ];
 
   // Get filters from URL
   useEffect(() => {
@@ -35,13 +61,19 @@ function AllProducts({ cart, setCart }) {
     setPriceRange(params.get("price") || "");
   }, [location.search]);
 
-  // Fetch all products to get dynamic vendors and locations
+  // Fetch all products to populate dynamic vendors and locations
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("https://k-store-backend.onrender.com/api/products");
-        const uniqueVendors = [...new Set(res.data.map(p => p.vendor?.username).filter(Boolean))];
-        const uniqueLocations = [...new Set(res.data.map(p => p.location || "Unknown"))];
+        const res = await axios.get(
+          "https://k-store-backend.onrender.com/api/products"
+        );
+        const uniqueVendors = [
+          ...new Set(res.data.map((p) => p.vendor?.username).filter(Boolean)),
+        ];
+        const uniqueLocations = [
+          ...new Set(res.data.map((p) => p.location || "Unknown")),
+        ];
         setVendors(uniqueVendors);
         setLocations(uniqueLocations);
       } catch (err) {
@@ -70,7 +102,7 @@ function AllProducts({ cart, setCart }) {
           <option value="">All Categories</option>
           {categories.map((cat) => (
             <option key={cat} value={cat}>
-              {cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </option>
           ))}
         </select>
@@ -79,20 +111,33 @@ function AllProducts({ cart, setCart }) {
         <select value={vendor} onChange={(e) => setVendor(e.target.value)}>
           <option value="">All Vendors</option>
           {vendors.map((v) => (
-            <option key={v} value={v}>{v}</option>
+            <option key={v} value={v}>
+              {v}
+            </option>
           ))}
         </select>
 
         {/* Location */}
-        <select value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)}>
+        <select
+          value={locationFilter}
+          onChange={(e) => setLocationFilter(e.target.value)}
+        >
           <option value="">All Locations</option>
-          {mainAreas.map((area) => (
-            <option key={area} value={area}>{area}</option>
+          {[
+            ...mainAreas,
+            ...locations.filter((loc) => !mainAreas.includes(loc)),
+          ].map((area) => (
+            <option key={area} value={area}>
+              {area}
+            </option>
           ))}
         </select>
 
         {/* Price */}
-        <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)}>
+        <select
+          value={priceRange}
+          onChange={(e) => setPriceRange(e.target.value)}
+        >
           <option value="">All Prices</option>
           <option value="0-50">GH₵0 - GH₵50</option>
           <option value="50-100">GH₵50 - GH₵100</option>

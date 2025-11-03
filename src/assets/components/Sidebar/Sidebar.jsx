@@ -40,7 +40,6 @@ function Sidebar({ user }) {
     setOpen(false);
   };
 
-
   return (
     <>
       <button

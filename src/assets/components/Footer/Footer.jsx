@@ -42,11 +42,12 @@ function Footer() {
         <div className="footer-about">
           <h2 className="footer-logo">K-Store</h2>
           <p>
-            K-Store is the ultimate campus shopping platform 🏫🛍️,
-            designed to bring convenience ⚡, affordability 💰, and reliability ✅
-            directly to your screen. Whether you’re looking for the latest fashion 👗👟,
-            electronics 💻📱, or everyday supplies 📝🍎, K-Store connects students
-            to trusted vendors 🤝. Shopping made effortless 😎, enjoyable 🎉, and safe 🛡️.
+            K-Store is the ultimate campus shopping platform 🏫🛍️, designed to
+            bring convenience ⚡, affordability 💰, and reliability ✅ directly
+            to your screen. Whether you’re looking for the latest fashion 👗👟,
+            electronics 💻📱, or everyday supplies 📝🍎, K-Store connects
+            students to trusted vendors 🤝. Shopping made effortless 😎,
+            enjoyable 🎉, and safe 🛡️.
           </p>
         </div>
 
@@ -54,7 +55,9 @@ function Footer() {
         <div className="footer-links">
           <h4>Quick Links</h4>
           <ul>
-            <li onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Home</li>
+            <li onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+              Home
+            </li>
             <li>All Products</li>
             <li>Cart</li>
             <li>Profile</li>
@@ -66,7 +69,19 @@ function Footer() {
           <h4>Popular Categories</h4>
           <div className="category-grid">
             {categories.map((cat) => (
-              <div key={cat.id} className="footer-category">
+              <div
+                key={cat.id}
+                className="footer-category"
+                onClick={() => {
+                  const section = document.getElementById(cat.id);
+                  if (section) {
+                    section.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                  }
+                }}
+              >
                 <span>{cat.emoji}</span> {cat.label}
               </div>
             ))}
@@ -76,11 +91,21 @@ function Footer() {
 
       {/* Social Icons */}
       <div className="footer-social">
-        <a href="https://facebook.com" target="_blank" rel="noreferrer"><FaFacebookF /></a>
-        <a href="https://twitter.com" target="_blank" rel="noreferrer"><FaTwitter /></a>
-        <a href="https://instagram.com" target="_blank" rel="noreferrer"><FaInstagram /></a>
-        <a href="https://linkedin.com" target="_blank" rel="noreferrer"><FaLinkedinIn /></a>
-        <a href="https://wa.me/233204465537" target="_blank" rel="noreferrer"><FaWhatsapp /></a>
+        <a href="https://facebook.com" target="_blank" rel="noreferrer">
+          <FaFacebookF />
+        </a>
+        <a href="https://twitter.com" target="_blank" rel="noreferrer">
+          <FaTwitter />
+        </a>
+        <a href="https://instagram.com" target="_blank" rel="noreferrer">
+          <FaInstagram />
+        </a>
+        <a href="https://linkedin.com" target="_blank" rel="noreferrer">
+          <FaLinkedinIn />
+        </a>
+        <a href="https://wa.me/233204465537" target="_blank" rel="noreferrer">
+          <FaWhatsapp />
+        </a>
       </div>
 
       <div className="footer-bottom">

@@ -32,7 +32,11 @@ function AdminLayout({ user, logout }) {
 
       {showSidebar && <AdminSidebar />}
 
-      <div className={`admin-content ${showSidebar ? "sidebar-visible" : "sidebar-hidden"}`}>
+      <div
+        className={`admin-content ${
+          showSidebar ? "sidebar-visible" : "sidebar-hidden"
+        }`}
+      >
         <Routes>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="vendors" element={<Vendors />} />
@@ -40,7 +44,10 @@ function AdminLayout({ user, logout }) {
           <Route path="products" element={<Products />} />
           <Route path="orders" element={<Orders />} />
           <Route path="promo" element={<PromoBoard />} />
-          <Route path="notification" element={<AdminNotification token={user?.token} />} />
+          <Route
+            path="notification"
+            element={<AdminNotification token={user?.token} />}
+          />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Routes>
       </div>
@@ -48,7 +55,7 @@ function AdminLayout({ user, logout }) {
       {/* Floating Sidebar Toggle Button */}
       <button
         className="sidebar-toggle-floating"
-        onClick={() => setShowSidebar(prev => !prev)}
+        onClick={() => setShowSidebar((prev) => !prev)}
       >
         {showSidebar ? "←" : "☰"}
       </button>

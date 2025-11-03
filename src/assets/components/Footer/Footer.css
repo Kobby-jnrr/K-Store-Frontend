@@ -118,7 +118,8 @@
     text-align: center;
   }
 
-  .footer-about, .footer-categories {
+  .footer-about,
+  .footer-categories {
     max-width: 500px;
   }
 

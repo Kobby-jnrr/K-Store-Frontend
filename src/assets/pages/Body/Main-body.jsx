@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import API from "../../../api/axios.js";
 import ProductList from "../../components/Categories/ProductList";
 import BannerProductList from "../../components/Categories/BannerProductList";
 import FloatingWhatsApp from "./FloatingWhatsApp";
@@ -15,14 +15,29 @@ function Main({ cart, setCart }) {
   const [promoProducts, setPromoProducts] = useState([]);
 
   const defaultCategories = [
-    "food","fashion","electronics","home","grocery","baby","beauty","sports",
-    "gaming","books","toys","automotive","jewelry","office","pet",
-    "tools","music","health","outdoors","kitchen","shoes","accessories","other"
-  ];
-
-  const API_BASES = [
-    "https://k-store-backend.onrender.com/api",
-    "http://localhost:5000/api",
+    "food",
+    "fashion",
+    "electronics",
+    "home",
+    "grocery",
+    "baby",
+    "beauty",
+    "sports",
+    "gaming",
+    "books",
+    "toys",
+    "automotive",
+    "jewelry",
+    "office",
+    "pet",
+    "tools",
+    "music",
+    "health",
+    "outdoors",
+    "kitchen",
+    "shoes",
+    "accessories",
+    "other",
   ];
 
   // Shuffle categories once
@@ -38,22 +53,20 @@ function Main({ cart, setCart }) {
 
   // Fetch promo products
   const fetchPromo = useCallback(async () => {
-    for (const base of API_BASES) {
-      try {
-        const res = await axios.get(`${base}/promo`);
-        if (res.data?.products?.length) {
-          setPromoProducts(res.data.products.slice(0, 20));
-        } else {
-          setPromoProducts([]);
-        }
-        break;
-      } catch(err) {
-        console.error("Error fetching promo:", err);
-      }
+    try {
+      const res = await API.get("/promo");
+      if (res.data?.products?.length)
+        setPromoProducts(res.data.products.slice(0, 20));
+      else setPromoProducts([]);
+    } catch (err) {
+      console.error("Error fetching promo:", err);
+      setPromoProducts([]);
     }
   }, []);
 
-  useEffect(() => { fetchPromo(); }, [fetchPromo]);
+  useEffect(() => {
+    fetchPromo();
+  }, [fetchPromo]);
 
   // Fetch main products grouped by category or vendor
   useEffect(() => {
@@ -63,39 +76,36 @@ function Main({ cart, setCart }) {
       const fullCountObj = {};
 
       if (viewType === "category") {
-        await Promise.all(categories.map(async cat => {
-          for (const base of API_BASES) {
+        await Promise.all(
+          categories.map(async (cat) => {
             try {
-              const res = await axios.get(`${base}/products/${cat}`);
-              if (res.data?.length) {
-                newProducts[cat] = res.data;
-                break;
-              }
+              const res = await API.get(`/products/${cat}`);
+              if (res.data?.length) newProducts[cat] = res.data;
             } catch {}
-          }
-        }));
+          })
+        );
       } else {
         const tempVendorMap = {};
-        for (const base of API_BASES) {
-          try {
-            const res = await axios.get(`${base}/products`);
-            if (res.data?.length) {
-              res.data.forEach(prod => {
-                const vendorName = prod.vendorName || prod.vendor?.username || "Unknown Vendor";
-                if (!tempVendorMap[vendorName]) tempVendorMap[vendorName] = [];
-                tempVendorMap[vendorName].push({
-                  ...prod,
-                  vendorVerified: prod.vendor?.verified || false,
-                  vendorId: prod.vendor?._id || null
-                });
-                fullCountObj[vendorName] = (fullCountObj[vendorName] || 0) + 1;
+        try {
+          const res = await API.get("/products");
+          if (res.data?.length) {
+            res.data.forEach((prod) => {
+              const vendorName =
+                prod.vendorName || prod.vendor?.username || "Unknown Vendor";
+              if (!tempVendorMap[vendorName]) tempVendorMap[vendorName] = [];
+              tempVendorMap[vendorName].push({
+                ...prod,
+                vendorVerified: prod.vendor?.verified || false,
+                vendorId: prod.vendor?._id || null,
               });
-              Object.keys(tempVendorMap).forEach(v => tempVendorMap[v] = tempVendorMap[v].slice(0, 4));
-              Object.assign(newProducts, tempVendorMap);
-              break;
-            }
-          } catch {}
-        }
+              fullCountObj[vendorName] = (fullCountObj[vendorName] || 0) + 1;
+            });
+            Object.keys(tempVendorMap).forEach(
+              (v) => (tempVendorMap[v] = tempVendorMap[v].slice(0, 4))
+            );
+            Object.assign(newProducts, tempVendorMap);
+          }
+        } catch {}
       }
 
       setProductsByGroup(newProducts);
@@ -106,8 +116,12 @@ function Main({ cart, setCart }) {
     fetchProducts();
   }, [viewType, categories]);
 
-  const getInitials = name =>
-    name.split(" ").map(w => w[0]?.toUpperCase()).join("").slice(0, 2);
+  const getInitials = (name) =>
+    name
+      .split(" ")
+      .map((w) => w[0]?.toUpperCase())
+      .join("")
+      .slice(0, 2);
 
   return (
     <main className="main">
@@ -126,24 +140,19 @@ function Main({ cart, setCart }) {
         </button>
       </div>
 
-      
-
       {loading ? (
         <div className="loading-container">
           <h3 className="loading-text">Loading products...</h3>
         </div>
       ) : Object.keys(productsByGroup).length ? (
-        Object.keys(productsByGroup).map(group => (
+        Object.keys(productsByGroup).map((group) => (
           <section key={group} id={group}>
-             {promoProducts.length > 0 ? (
-                <div className="banner-wrapper">
-                  <BannerProductList products={promoProducts} />
-                </div>
-              ) : (
-                <div className="banner-wrapper">
-                  <BannerProductList products={[]} />
-                </div>
-              )}
+            <div className="banner-wrapper">
+              <BannerProductList
+                products={promoProducts.length > 0 ? promoProducts : []}
+              />
+            </div>
+
             {viewType === "category" && <h2>{group.toUpperCase()}</h2>}
 
             {viewType === "vendor" && productsByGroup[group][0] && (
@@ -158,7 +167,6 @@ function Main({ cart, setCart }) {
               </div>
             )}
 
-            {/* Main Product List */}
             <ProductList
               category={group}
               cart={cart}
@@ -170,7 +178,9 @@ function Main({ cart, setCart }) {
           </section>
         ))
       ) : (
-        <div className="no-products"><p>No products available.</p></div>
+        <div className="no-products">
+          <p>No products available.</p>
+        </div>
       )}
 
       <Link to="/cartPage">

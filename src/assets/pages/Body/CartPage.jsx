@@ -3,7 +3,10 @@ import "./CartPage.css";
 
 function CartPage({ cart, setCart }) {
   const cartItems = Object.values(cart);
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   const removeItem = (id) => {
     const updatedCart = { ...cart };
@@ -52,13 +55,20 @@ function CartPage({ cart, setCart }) {
               <img src={item.image} alt={item.title} className="cart-image" />
               <div className="cart-info">
                 <h3>{item.title}</h3>
-                <p className="vendor">Vendor: {item.vendor.username}</p>
+                <p className="vendor">
+                  Vendor: {item.vendor?.username || "N/A"}
+                </p>
                 <div className="quantity-controls">
                   <button onClick={() => decrease(item._id)}>-</button>
                   <input type="text" value={item.quantity} readOnly />
                   <button onClick={() => increase(item._id)}>+</button>
                 </div>
-                <button className="remove-btn" onClick={() => removeItem(item._id)}>Remove</button>
+                <button
+                  className="remove-btn"
+                  onClick={() => removeItem(item._id)}
+                >
+                  Remove
+                </button>
               </div>
               <div className="cart-price">
                 Price: GH₵{item.price.toFixed(2)}
@@ -92,7 +102,7 @@ function CartPage({ cart, setCart }) {
           <div className="promo-section">
             <h4>Have a promo code?</h4>
             <input type="text" placeholder="Enter code" />
-            <button>Apply</button>
+            <button disabled>Apply</button>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 /* -------------------- General Styles -------------------- */
 .vendor-orders-page {
   padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f9f9f9;
   min-height: 100vh;
   margin-top: 35px;
@@ -26,13 +26,13 @@
   padding: 1rem 1.5rem;
   margin-bottom: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .vendor-order-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .order-header {
@@ -51,9 +51,15 @@
   text-transform: capitalize;
 }
 
-.badge-pending { background-color: #f59e0b; }
-.badge-completed { background-color: #16a34a; }
-.badge-rejected { background-color: #dc2626; }
+.badge-pending {
+  background-color: #f59e0b;
+}
+.badge-completed {
+  background-color: #16a34a;
+}
+.badge-rejected {
+  background-color: #dc2626;
+}
 
 .vendor-order-items {
   margin-top: 1rem;
@@ -91,7 +97,9 @@
   transition: background 0.2s ease;
 }
 
-.btn-primary:hover { background-color: #1d4ed8; }
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
 
 .btn-secondary {
   background-color: #10b981;
@@ -108,7 +116,9 @@
   margin-right: 20px;
 }
 
-.btn-secondary:hover { background-color: #0f766e; }
+.btn-secondary:hover {
+  background-color: #0f766e;
+}
 
 .btn-cancel {
   background-color: #e5e7eb;
@@ -124,7 +134,9 @@
   margin-left: 5px;
 }
 
-.btn-cancel:hover { background-color: #d1d5db; }
+.btn-cancel:hover {
+  background-color: #d1d5db;
+}
 
 /* -------------------- Modal Styles -------------------- */
 .modal-backdrop {
@@ -133,7 +145,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(31,41,55,0.75);
+  background-color: rgba(31, 41, 55, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -148,7 +160,7 @@
   max-width: 500px;
   width: 90%;
   text-align: center;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   max-height: 80vh; /* limit height to 80% of viewport */
   overflow: hidden;
   display: flex;
@@ -207,49 +219,60 @@
 
 /* Fade-in Animation */
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* -------------------- Responsive Styles -------------------- */
 @media (max-width: 900px) {
-  .vendor-orders-page { 
+  .vendor-orders-page {
     padding: 1rem;
-    margin-top: 80px; 
+    margin-top: 80px;
   }
-  .vendor-order-card { 
-    padding: 0.8rem 1rem; 
+  .vendor-order-card {
+    padding: 0.8rem 1rem;
   }
-  .vendor-order-item { 
-    flex-direction: column; 
-    align-items: flex-start; 
-    gap: 5px; 
+  .vendor-order-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
   }
-  .modal-content { 
+  .modal-content {
     padding: 20px;
-    max-width: 95%;       /* almost full width */
+    max-width: 95%; /* almost full width */
     width: 85%;
-    max-height: 85vh;     /* slightly higher to fill screen but still scrollable */
+    max-height: 85vh; /* slightly higher to fill screen but still scrollable */
     padding: 15px 20px;
-  } 
+  }
 
-  .modal-item { 
-    flex-direction: column; 
-    gap: 5px; }
+  .modal-item {
+    flex-direction: column;
+    gap: 5px;
+  }
 }
 
 @media (max-width: 600px) {
-  .vendor-orders-page h1 { 
-    font-size: 1.5rem; 
+  .vendor-orders-page h1 {
+    font-size: 1.5rem;
   }
-  .vendor-order-item span { 
-    font-size: 0.9rem; 
+  .vendor-order-item span {
+    font-size: 0.9rem;
   }
-  .modal-content h3 { 
-    font-size: 1.2rem; 
+  .modal-content h3 {
+    font-size: 1.2rem;
   }
-  .modal-item button { width: 100%; }
-  .modal-buttons { flex-direction: column; }
+  .modal-item button {
+    width: 100%;
+  }
+  .modal-buttons {
+    flex-direction: column;
+  }
 }
 
 .fulfillment-badge {
@@ -273,6 +296,10 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

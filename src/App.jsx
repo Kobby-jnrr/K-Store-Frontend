@@ -1,11 +1,11 @@
-import Store from "./K-Store.jsx"
+import Store from "./K-Store.jsx";
 
 function App() {
-  return(
+  return (
     <>
-      <Store/>
+      <Store />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

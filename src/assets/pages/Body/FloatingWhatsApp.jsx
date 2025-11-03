@@ -26,7 +26,9 @@ function FloatingWhatsApp() {
 
   const handleMouseUp = () => setDragging(false);
 
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+    message
+  )}`;
 
   return (
     <div

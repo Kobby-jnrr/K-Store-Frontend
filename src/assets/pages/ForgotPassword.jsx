@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { FaWhatsapp } from "react-icons/fa";
+import API from "./../../api/axios";
 import "./ForgotPassword.css";
 
 function ForgotPassword() {
@@ -14,41 +14,30 @@ function ForgotPassword() {
     e.preventDefault();
     setMessage("");
 
-    if (newPassword !== confirmPassword)
+    if (newPassword !== confirmPassword) {
       return setMessage("❌ Passwords do not match.");
+    }
 
     try {
-      const urls = [
-        "https://k-store-backend.onrender.com/api/auth/reset-password",
-        "http://localhost:5000/api/auth/reset-password",
-      ];
-
-      let success = false;
-
-      for (let url of urls) {
-        try {
-          const res = await axios.post(url, { email, newPassword });
-          setMessage(`✅ ${res.data.message}`);
-          success = true;
-          break;
-        } catch (err) {
-          // If backend gave a clear message, show it
-          if (err.response) {
-            setMessage(`❌ ${err.response.data.message || "Reset failed. Try again."}`);
-          } else if (err.request) {
-            setMessage("⚠️ Cannot connect to server. Please check your internet or try again later.");
-          } else {
-            setMessage("❗ Unexpected error occurred. Please try again.");
-          }
-        }
-      }
-
-      if (!success) console.warn("All API attempts failed.");
+      const res = await API.post("/auth/reset-password", {
+        email,
+        newPassword,
+      });
+      setMessage(`✅ ${res.data.message}`);
     } catch (err) {
-      setMessage("🚫 Error resetting password. Please try again later.");
+      if (err.response) {
+        setMessage(
+          `❌ ${err.response.data.message || "Reset failed. Try again."}`
+        );
+      } else if (err.request) {
+        setMessage(
+          "⚠️ Cannot connect to server. Please check your internet or try again later."
+        );
+      } else {
+        setMessage("❗ Unexpected error occurred. Please try again.");
+      }
     }
   };
-
 
   return (
     <div className="forgot-password-page">

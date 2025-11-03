@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import API from "../../../api/axios.js";
 import OrderItemDisplay from "./OrderItemDisplay.jsx";
 import "./VendorOrders.css";
 
@@ -35,42 +35,31 @@ function VendorOrders() {
   }, []);
 
   const fetchOrders = async () => {
-    const token = sessionStorage.getItem("token");
-    const urls = [
-      `${import.meta.env.VITE_API_BASE_URL || "https://k-store-backend.onrender.com"}/api/orders/vendor-orders`,
-      "http://localhost:5000/api/orders/vendor-orders",
-    ];
-
-    let fetchedOrders = [];
-    for (let url of urls) {
-      try {
-        const res = await axios.get(url, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (Array.isArray(res.data)) {
-          fetchedOrders = res.data.map(order => ({
-            ...order,
-            items: order.items.map(item => ({
-              ...item,
-              status: item.status.toLowerCase(),
-            })),
-          }));
-          break;
-        }
-      } catch (err) {
-        console.warn(`Failed to fetch orders from ${url}:`, err.message);
-      }
+    try {
+      const { data } = await API.get("/orders/vendor-orders");
+      const fetchedOrders = data.map((order) => ({
+        ...order,
+        items: order.items.map((item) => ({
+          ...item,
+          status: item.status.toLowerCase(),
+        })),
+      }));
+      fetchedOrders.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setOrders(fetchedOrders);
+    } catch (err) {
+      console.error("Failed to fetch vendor orders:", err);
+      setOrders([]);
+    } finally {
+      setLoading(false);
     }
-
-    fetchedOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    setOrders(fetchedOrders);
-    setLoading(false);
   };
 
   const openModal = (order) => {
     setSelectedOrder(order);
     const statuses = {};
-    order.items.forEach(item => (statuses[item._id] = item.status));
+    order.items.forEach((item) => (statuses[item._id] = item.status));
     setItemStatuses(statuses);
   };
 
@@ -87,60 +76,53 @@ function VendorOrders() {
       : STATUS_SEQUENCE[idx + 1];
   };
 
+  const updateStatus = async (itemId, status) => {
+    if (!selectedOrder) return;
+    setLoadingItems((prev) => ({ ...prev, [itemId]: true }));
+
+    try {
+      await API.put(
+        `/orders/vendor-orders/${selectedOrder._id}/item/${itemId}`,
+        { status }
+      );
+      setItemStatuses((prev) => ({ ...prev, [itemId]: status }));
+      setOrders((prev) =>
+        prev.map((order) => {
+          if (order._id !== selectedOrder._id) return order;
+          return {
+            ...order,
+            items: order.items.map((item) =>
+              item._id === itemId ? { ...item, status } : item
+            ),
+          };
+        })
+      );
+    } catch (err) {
+      console.error(`Failed to update status for item ${itemId}:`, err);
+    } finally {
+      setLoadingItems((prev) => ({ ...prev, [itemId]: false }));
+    }
+  };
+
   const handleNextStatus = (itemId) =>
     updateStatus(itemId, nextStatus(itemStatuses[itemId]));
   const handleAccept = (itemId) => updateStatus(itemId, "accepted");
   const handleReject = (itemId) => updateStatus(itemId, "rejected");
 
-  const updateStatus = async (itemId, status) => {
-    if (!selectedOrder) return;
-    setLoadingItems(prev => ({ ...prev, [itemId]: true }));
-    const token = sessionStorage.getItem("token");
-    const urls = [
-      `${import.meta.env.VITE_API_BASE_URL || "https://k-store-backend.onrender.com"}/api/orders/vendor-orders/${selectedOrder._id}/item/${itemId}`,
-      `http://localhost:5000/api/orders/vendor-orders/${selectedOrder._id}/item/${itemId}`,
-    ];
-
-    for (let url of urls) {
-      try {
-        await axios.put(
-          url,
-          { status },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        break;
-      } catch {}
-    }
-
-    setItemStatuses(prev => ({ ...prev, [itemId]: status }));
-    setOrders(prev =>
-      prev.map(order => {
-        if (order._id !== selectedOrder._id) return order;
-        return {
-          ...order,
-          items: order.items.map(item =>
-            item._id === itemId ? { ...item, status } : item
-          ),
-        };
-      })
-    );
-     setLoadingItems(prev => ({ ...prev, [itemId]: false }));
-  };
-
   const updateAllDelivered = () => {
-    selectedOrder.items.forEach(item => {
+    selectedOrder.items.forEach((item) => {
       if (!["rejected", "pending"].includes(itemStatuses[item._id]))
         handleNextStatus(item._id);
     });
   };
 
   const isOrderCompleted = (order) =>
-    order.items.every(i => ["delivered", "rejected"].includes(i.status));
+    order.items.every((i) => ["delivered", "rejected"].includes(i.status));
 
   if (loading) return <div className="loader">Loading vendor orders...</div>;
 
-  const activeOrders = orders.filter(o => !isOrderCompleted(o));
-  const completedOrders = orders.filter(o => isOrderCompleted(o));
+  const activeOrders = orders.filter((o) => !isOrderCompleted(o));
+  const completedOrders = orders.filter((o) => isOrderCompleted(o));
 
   const renderFulfillment = (method) => {
     if (!method) method = "pickup";
@@ -159,8 +141,8 @@ function VendorOrders() {
   };
 
   const renderOrderCard = (order) => {
-    const allRejected = order.items.every(i => i.status === "rejected");
-    const allCompleted = order.items.every(i =>
+    const allRejected = order.items.every((i) => i.status === "rejected");
+    const allCompleted = order.items.every((i) =>
       ["delivered", "rejected"].includes(i.status)
     );
     const orderStatus = allRejected
@@ -168,7 +150,10 @@ function VendorOrders() {
       : allCompleted
       ? "Completed"
       : "Pending";
-      const vendorTotal = order.items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0);
+    const vendorTotal = order.items.reduce(
+      (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
+      0
+    );
 
     return (
       <div key={order._id} className="vendor-order-card">
@@ -187,16 +172,24 @@ function VendorOrders() {
           </span>
         </div>
 
-        <p>Customer: <b>{order.user.username  || "Unknown user"}</b></p>
-        <p>Location: <b>{order.user.location || "N/A"}</b></p>
-        <p>Phone: <b>{order.user.phone || "N/A"}</b></p>
-        <p>Total: <b>GH₵{vendorTotal.toFixed(2)}</b></p>
+        <p>
+          Customer: <b>{order.user.username || "Unknown user"}</b>
+        </p>
+        <p>
+          Location: <b>{order.user.location || "N/A"}</b>
+        </p>
+        <p>
+          Phone: <b>{order.user.phone || "N/A"}</b>
+        </p>
+        <p>
+          Total: <b>GH₵{vendorTotal.toFixed(2)}</b>
+        </p>
         <p>{renderFulfillment(order.fulfillmentMethod)}</p>
 
         <div className="vendor-order-items">
-          {order.items.map(item => (
+          {order.items.map((item) => (
             <div key={item._id} className="vendor-order-item">
-              <OrderItemDisplay key={item._id} item={item} />
+              <OrderItemDisplay item={item} />
               <span
                 style={{
                   color: "#fff",
@@ -225,7 +218,6 @@ function VendorOrders() {
       </div>
     );
   };
-  
 
   return (
     <div className="vendor-orders-page">
@@ -250,79 +242,83 @@ function VendorOrders() {
             <h3>Update Order: {selectedOrder._id.slice(0, 8)}</h3>
 
             <div className="modal-items-container">
-            {/* --- Accept/Reject Section --- */}
-            {selectedOrder.items.some(i => itemStatuses[i._id] === "pending") && (
-              <button
-                onClick={() => {
-                  selectedOrder.items
-                    .filter(i => itemStatuses[i._id] === "pending")
-                    .forEach(i => handleAccept(i._id));
-                }}
-                className="btn-secondary"
-                style={{ marginBottom: "10px" }}
-              >
-                Accept All
-              </button>
-            )}
-            <div style={{ marginBottom: "15px" }}>
-              <h4>Pending Items - Accept or Reject</h4>
-              {selectedOrder.items
-                .filter(i => itemStatuses[i._id] === "pending")
-                .map(item => (
-                  <div key={item._id} className="modal-item">
-                    <span>{item.product.title}</span>
-                    <button
-                      onClick={() => handleAccept(item._id)}
-                      style={{
-                        backgroundColor: STATUS_COLORS["accepted"],
-                        color: "#fff",
-                        ...buttonStyles,
-                      }}
-                      disabled={loadingItems[item._id]}
-                    >
-                      {loadingItems[item._id] && <span className="spinner"></span>}
-                      Accept
-                    </button>
-                    <button
-                      onClick={() => handleReject(item._id)}
-                      style={{
-                        backgroundColor: STATUS_COLORS["rejected"],
-                        color: "#fff",
-                        ...buttonStyles,
-                      }}
-                    >
-                      Reject
-                    </button>
-                  </div>
-                ))}
-            </div>
-            
+              {/* --- Accept/Reject Section --- */}
+              {selectedOrder.items.some(
+                (i) => itemStatuses[i._id] === "pending"
+              ) && (
+                <button
+                  onClick={() => {
+                    selectedOrder.items
+                      .filter((i) => itemStatuses[i._id] === "pending")
+                      .forEach((i) => handleAccept(i._id));
+                  }}
+                  className="btn-secondary"
+                  style={{ marginBottom: "10px" }}
+                >
+                  Accept All
+                </button>
+              )}
+              <div style={{ marginBottom: "15px" }}>
+                <h4>Pending Items - Accept or Reject</h4>
+                {selectedOrder.items
+                  .filter((i) => itemStatuses[i._id] === "pending")
+                  .map((item) => (
+                    <div key={item._id} className="modal-item">
+                      <span>{item.product.title}</span>
+                      <button
+                        onClick={() => handleAccept(item._id)}
+                        style={{
+                          backgroundColor: STATUS_COLORS["accepted"],
+                          color: "#fff",
+                          ...buttonStyles,
+                        }}
+                        disabled={loadingItems[item._id]}
+                      >
+                        {loadingItems[item._id] && (
+                          <span className="spinner"></span>
+                        )}
+                        Accept
+                      </button>
+                      <button
+                        onClick={() => handleReject(item._id)}
+                        style={{
+                          backgroundColor: STATUS_COLORS["rejected"],
+                          color: "#fff",
+                          ...buttonStyles,
+                        }}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  ))}
+              </div>
 
-            {/* --- Status Update Section --- */}
-            <div>
-              <h4>Accepted Items - Update Status</h4>
-              {selectedOrder.items
-                .filter(i =>
-                  ["accepted", "preparing", "ready"].includes(
-                    itemStatuses[i._id]
+              {/* --- Status Update Section --- */}
+              <div>
+                <h4>Accepted Items - Update Status</h4>
+                {selectedOrder.items
+                  .filter((i) =>
+                    ["accepted", "preparing", "ready"].includes(
+                      itemStatuses[i._id]
+                    )
                   )
-                )
-                .map(item => (
-                  <div key={item._id} className="modal-item">
-                    <span>{item.product.title}</span>
-                    <button
-                      onClick={() => handleNextStatus(item._id)}
-                      style={{
-                        backgroundColor: STATUS_COLORS[itemStatuses[item._id]],
-                        color: "#fff",
-                        ...buttonStyles,
-                      }}
-                    >
-                      {itemStatuses[item._id]}
-                    </button>
-                  </div>
-                ))}
-            </div>
+                  .map((item) => (
+                    <div key={item._id} className="modal-item">
+                      <span>{item.product.title}</span>
+                      <button
+                        onClick={() => handleNextStatus(item._id)}
+                        style={{
+                          backgroundColor:
+                            STATUS_COLORS[itemStatuses[item._id]],
+                          color: "#fff",
+                          ...buttonStyles,
+                        }}
+                      >
+                        {itemStatuses[item._id]}
+                      </button>
+                    </div>
+                  ))}
+              </div>
             </div>
 
             <div className="modal-buttons" style={{ marginTop: "12px" }}>

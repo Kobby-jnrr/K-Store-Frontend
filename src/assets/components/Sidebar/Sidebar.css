@@ -8,7 +8,7 @@
   padding: 10px;
   overflow-y: auto;
   background: linear-gradient(180deg, #8a6bcc, #1e3a8a);
-  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
   color: white;
   z-index: 100;
   transition: left 0.3s ease, background 0.3s ease;
@@ -66,7 +66,7 @@
   font-size: 22px;
   font-weight: bold;
   padding-left: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .container {
@@ -80,7 +80,7 @@
 }
 
 .container:hover {
-  background-color: rgba(255,255,255,0.1);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .container .emoji {
@@ -88,9 +88,8 @@
   margin-right: 10px;
 }
 
-
 /* ------------------- MOBILE & TABLET ------------------- */
-@media(max-width: 1024px) {
+@media (max-width: 1024px) {
   .sidebar {
     display: none !important; /* completely hide sidebar */
   }

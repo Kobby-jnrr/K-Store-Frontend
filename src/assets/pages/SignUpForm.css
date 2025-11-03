@@ -22,9 +22,15 @@
 }
 
 @keyframes gradientMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* Main Card */
@@ -41,8 +47,14 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* Logo and Titles */
@@ -117,7 +129,6 @@
   width: 480px; /* slightly expand on focus */
 }
 
-
 .dropdown-container {
   position: relative;
   width: 100%;
@@ -156,7 +167,6 @@
   font-style: italic;
 }
 
-
 /* Button */
 .signup-button {
   background-color: #8a6bcc;
@@ -183,20 +193,28 @@
   animation: spin 1s linear infinite;
 }
 
-
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Feedback */
-.error, .success {
+.error,
+.success {
   margin-top: 10px;
   font-weight: 500;
   text-align: center;
 }
-.error { color: red; }
-.success { color: green; }
+.error {
+  color: red;
+}
+.success {
+  color: green;
+}
 
 /* Links */
 .signup-links {
@@ -214,7 +232,6 @@
 .signup-links a:hover {
   text-decoration: underline;
 }
-
 
 /* Tablets (max-width: 1024px) */
 @media (max-width: 1024px) {
@@ -283,7 +300,6 @@
   .signup-links {
     font-size: 0.85rem;
   }
-
 }
 
 /* Very Small Screens (max-width: 480px) */
@@ -316,7 +332,8 @@
     padding: 0.75em;
   }
 
-  .error, .success {
+  .error,
+  .success {
     font-size: 0.85rem;
   }
 

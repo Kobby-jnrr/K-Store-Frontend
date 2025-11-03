@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
-import API from "../../../api/axios.js";
-import axios from "axios";
+import API from "../../../api/axios.js"; // centralized API
 import "./ProductList.css";
 
 function ProductList({
@@ -36,17 +35,12 @@ function ProductList({
       const url = category ? `/products/${category}` : "/products";
 
       try {
-        const res = await API.fallbackRequest("get", url);
+        const res = await API.get(url);
         setProducts(res.data || []);
-      } catch {
-        try {
-          const localRes = await axios.get(`http://localhost:5000/api${url}`);
-          setProducts(localRes.data || []);
-        } catch (err) {
-          console.error(err);
-          setError("Failed to load products. Please try again later.");
-          setProducts([]);
-        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load products. Please try again later.");
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -55,7 +49,7 @@ function ProductList({
     fetchProducts();
   }, [category, externalProducts]);
 
-  // Cart helpers
+  // -------------------- Cart helpers --------------------
   const addToCart = (product) =>
     setCart({ ...cart, [product._id]: { ...product, quantity: 1 } });
 
@@ -79,9 +73,7 @@ function ProductList({
   if (loading) return <p>Loading products...</p>;
   if (error) return <p className="error">{error}</p>;
 
-  // ----------------------
-  // Client-side filtering
-  // ----------------------
+  // -------------------- Client-side filtering --------------------
   const filteredProducts = products.filter((p) => {
     const matchesSearch = searchQuery
       ? p.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -118,7 +110,6 @@ function ProductList({
                 ? item.description.substring(0, 100) + "…"
                 : item.description;
 
-            // Determine if vendor is verified
             const isVerified = item.vendor?.verified ?? false;
             const discount =
               item.oldPrice && item.oldPrice > item.price
@@ -131,17 +122,14 @@ function ProductList({
                   {discount && <span className="discount-badge">-{discount}%</span>}
                   <img src={item.image} alt={item.title} className="product-img" />
                 </div>
+
                 <h4>{item.title}</h4>
 
-                 {/* Price with optional oldPrice */}
                 <p className="price">
-                  {item.oldPrice && (
-                    <span className="old-price">GH₵{item.oldPrice}</span>
-                  )}
+                  {item.oldPrice && <span className="old-price">GH₵{item.oldPrice}</span>}
                   GH₵{item.price}
                 </p>
 
-                {/* Description with toggle */}
                 {item.description && (
                   <p className="description">
                     {isExpanded ? item.description : shortDesc}
@@ -156,7 +144,6 @@ function ProductList({
                   </p>
                 )}
 
-                {/* Vendor Name with verification tick */}
                 {item.vendor && (
                   <p
                     className="vendor-name"

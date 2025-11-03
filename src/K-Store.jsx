@@ -1,11 +1,17 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import Header from "./assets/components/Header/Header.jsx";
 import Sidebar from "./assets/components/Sidebar/Sidebar.jsx";
 import Footer from "./assets/components/Footer/Footer.jsx";
 import Main from "./assets/pages/Body/Main-body.jsx";
 import LoginPage from "./assets/pages/Login.jsx";
-import ForgotPassword from "./ForgotPassword.jsx";
+import ForgotPassword from "./assets/pages/ForgotPassword.jsx";
 import SignUpCustomer from "./assets/pages/SignUpCustomer.jsx";
 import SignUpVendor from "./assets/pages/SignUpVendor.jsx";
 import CartPage from "./assets/pages/Body/CartPage.jsx";
@@ -16,7 +22,6 @@ import CheckoutPage from "./assets/pages/Body/CheckoutPage.jsx";
 import AdminLayout from "./assets/pages/admin/AdminLayout.jsx";
 import VendorOrders from "./assets/pages/Body/VendorOrders.jsx";
 import VendorProfile from "./assets/pages/Body/VendorProfile";
-
 
 function AppLayout({ cart, setCart, totalItems, logout, user }) {
   const location = useLocation();
@@ -31,13 +36,25 @@ function AppLayout({ cart, setCart, totalItems, logout, user }) {
 
       <Routes>
         <Route path="/" element={<Main cart={cart} setCart={setCart} />} />
-        <Route path="/allProducts" element={<AllProducts cart={cart} setCart={setCart} />} />
+        <Route
+          path="/allProducts"
+          element={<AllProducts cart={cart} setCart={setCart} />}
+        />
         <Route path="/addProduct" element={<VendorAddProduct />} />
         <Route path="/vendor-orders" element={<VendorOrders />} />
-        <Route path="/cartPage" element={<CartPage cart={cart} setCart={setCart} />} />
+        <Route
+          path="/cartPage"
+          element={<CartPage cart={cart} setCart={setCart} />}
+        />
         <Route path="/userProfile" element={<UserProfile user={user} />} />
-        <Route path="/checkout" element={<CheckoutPage cart={cart} setCart={setCart} />} />
-        <Route path="/vendor/:vendorId" element={<VendorProfile cart={cart} setCart={setCart} />} />
+        <Route
+          path="/checkout"
+          element={<CheckoutPage cart={cart} setCart={setCart} />}
+        />
+        <Route
+          path="/vendor/:vendorId"
+          element={<VendorProfile cart={cart} setCart={setCart} />}
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
@@ -57,7 +74,10 @@ function Store() {
     return savedCart ? JSON.parse(savedCart) : {};
   });
 
-  const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+  const totalItems = Object.values(cart).reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
 
   const logout = () => {
     sessionStorage.removeItem("token");
@@ -78,12 +98,21 @@ function Store() {
         <Route path="/login" element={<LoginPage setUser={setUser} />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/signup" element={<SignUpCustomer setUser={setUser} />} />
-        <Route path="/vendor-signup" element={<SignUpVendor setUser={setUser} />} />
+        <Route
+          path="/vendor-signup"
+          element={<SignUpVendor setUser={setUser} />}
+        />
 
         {/* Admin Routes */}
         <Route
           path="/admin/*"
-          element={user?.role === "admin" ? <AdminLayout user={user} logout={logout} /> : <Navigate to="/login" replace />}
+          element={
+            user?.role === "admin" ? (
+              <AdminLayout user={user} logout={logout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
         />
 
         {/* Authenticated user/vendor routes */}
@@ -94,7 +123,13 @@ function Store() {
               user.role === "admin" ? (
                 <Navigate to="/admin/dashboard" replace />
               ) : (
-                <AppLayout cart={cart} setCart={setCart} totalItems={totalItems} logout={logout} user={user} />
+                <AppLayout
+                  cart={cart}
+                  setCart={setCart}
+                  totalItems={totalItems}
+                  logout={logout}
+                  user={user}
+                />
               )
             ) : (
               <Navigate to="/login" replace />

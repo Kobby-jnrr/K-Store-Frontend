@@ -1,7 +1,7 @@
 /* AdminDashboard.css */
 .admin-dashboard {
   padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .admin-dashboard h1 {
@@ -25,7 +25,7 @@
   background-color: #fff;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
   transition: transform 0.2s;
 }
@@ -64,7 +64,7 @@
   background-color: #fff;
   border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
@@ -79,7 +79,7 @@
   background: #fff;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .recent-orders table {
@@ -87,7 +87,8 @@
   border-collapse: collapse;
 }
 
-.recent-orders th, .recent-orders td {
+.recent-orders th,
+.recent-orders td {
   padding: 0.8rem;
   text-align: left;
   border-bottom: 1px solid #eee;
@@ -134,7 +135,7 @@
     width: 65%;
     padding: 0.7rem;
     font-size: 0.8rem;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   }
 
   .card h3 {

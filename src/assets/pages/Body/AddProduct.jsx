@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import API from "../../../api/axios"; // ← centralized API
 import "./AddProduct.css";
 
 // -------------------- Reusable SearchableDropdown --------------------
@@ -17,9 +17,7 @@ const SearchableDropdown = ({ options, value, onChange }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  useEffect(() => {
-    setFilter(value || "");
-  }, [value]);
+  useEffect(() => setFilter(value || ""), [value]);
 
   const filteredOptions = options.filter((opt) =>
     opt.toLowerCase().includes(filter.toLowerCase())
@@ -93,37 +91,51 @@ const VendorProducts = () => {
   const [savingEdit, setSavingEdit] = useState(false);
 
   const categories = [
-    "food","fashion", "electronics", "home", "grocery", "baby", "beauty",
-    "sports", "gaming", "books", "toys", "automotive", "jewelry",
-    "health", "pets", "office", "tools", "garden", "music", "movies",
-    "appliances", "footwear", "accessories", "outdoor", "art", "other",
+    "food",
+    "fashion",
+    "electronics",
+    "home",
+    "grocery",
+    "baby",
+    "beauty",
+    "sports",
+    "gaming",
+    "books",
+    "toys",
+    "automotive",
+    "jewelry",
+    "health",
+    "pets",
+    "office",
+    "tools",
+    "garden",
+    "music",
+    "movies",
+    "appliances",
+    "footwear",
+    "accessories",
+    "outdoor",
+    "art",
+    "other",
   ];
-
-  const API_BASE = "https://k-store-backend.onrender.com/api/products";
 
   // -------------------- Load vendor & products --------------------
   useEffect(() => {
     const user = JSON.parse(sessionStorage.getItem("user"));
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-
     if (!user || user.role !== "vendor") {
       toast.error("❌ Access Denied! Only vendors can manage products.");
       navigate("/");
       return;
     }
 
-    setVendor({ ...user, token });
-    fetchProducts(token);
+    setVendor(user);
+    fetchProducts();
   }, [navigate]);
-  
 
-  const fetchProducts = async (token) => {
+  const fetchProducts = async () => {
     setLoadingProducts(true);
     try {
-      const res = await axios.get(`${API_BASE}/vendor`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await API.get("/products/vendor");
       setProducts(res.data.reverse());
     } catch {
       toast.error("Failed to load your products.");
@@ -162,37 +174,13 @@ const VendorProducts = () => {
       payload.append("description", formData.description || "");
       payload.append("image", selectedFile);
 
-       // 🔹 Log FormData being sent
-    console.log("=== FormData being sent ===");
-    for (let [key, value] of payload.entries()) {
-      console.log(key, ":", value);
-    }
-    console.log("==========================");
-
-      const res = await axios.post(API_BASE, payload, {
-        headers: {
-          Authorization: `Bearer ${vendor.token}`,
-          "Content-Type": "multipart/form-data",
-        },
+      const res = await API.post("/products", payload, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-
-       // 🔹 Log backend response in readable format
-    const product = res.data.product;
-    console.log("=== Backend stored product ===");
-    console.log(`Title: ${product.title}`);
-    console.log(`Price: GH₵${product.price}`);
-    if (product.oldPrice) console.log(`Old Price: GH₵${product.oldPrice}`);
-    console.log(`Category: ${product.category}`);
-    console.log(`Description: ${product.description}`);
-    console.log(`Image URL: ${product.image}`);
-    console.log("==============================");
-
-
       setFormData({ title: "", price: "", category: "", description: "" });
       setSelectedFile(null);
       setPreviewUrl("");
-      e.target.reset();
-      fetchProducts(vendor.token);
+      fetchProducts();
       setShowSuccessModal(true);
     } catch (err) {
       console.error(err);
@@ -226,17 +214,9 @@ const VendorProducts = () => {
       payload.append("description", editData.description || "");
       if (editFile) payload.append("image", editFile);
 
-      const res = await axios.put(
-        `${API_BASE}/${editingProduct._id}`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${vendor.token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
+      const res = await API.put(`/products/${editingProduct._id}`, payload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       setProducts(
         products.map((p) =>
           p._id === editingProduct._id ? res.data.product : p
@@ -255,9 +235,7 @@ const VendorProducts = () => {
   // -------------------- Inline Delete Confirmation --------------------
   const handleDeleteConfirm = async (id) => {
     try {
-      await axios.delete(`${API_BASE}/${id}`, {
-        headers: { Authorization: `Bearer ${vendor.token}` },
-      });
+      await API.delete(`/products/${id}`);
       setProducts(products.filter((p) => p._id !== id));
       setConfirmDelete(null);
       toast.success("🗑️ Product deleted!");
@@ -271,9 +249,7 @@ const VendorProducts = () => {
   return (
     <div className="vendor-products-page">
       <Toaster position="top-right" />
-      <h2 className="addhead">
-        Manage Products by {vendor.username} {vendor.verified && "✅"}
-      </h2>
+      <h2 className="addhead">Manage Products by {vendor.username}</h2>
 
       <div className="products-container">
         {/* ---------------- Add Product Form ---------------- */}
@@ -297,25 +273,30 @@ const VendorProducts = () => {
               }
               required
             />
-            <input
-              type="number"
-              placeholder="Old Price (optional)"
-              value={formData.oldPrice || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, oldPrice: e.target.value })
-              }
-            />
+            {vendor?.verified && (
+              <input
+                type="number"
+                placeholder="Old Price (optional)"
+                value={formData.oldPrice || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, oldPrice: e.target.value })
+                }
+              />
+            )}
             <SearchableDropdown
               options={categories}
               value={formData.category}
-              onChange={(val) =>
-                setFormData({ ...formData, category: val })
-              }
+              onChange={(val) => setFormData({ ...formData, category: val })}
             />
             {previewUrl && (
               <img src={previewUrl} alt="Preview" className="image-preview" />
             )}
-            <input type="file" accept="image/*" onChange={handleFileSelect} required />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              required
+            />
             <textarea
               placeholder="Description (optional)"
               value={formData.description}
@@ -332,7 +313,6 @@ const VendorProducts = () => {
         {/* ---------------- Products List ---------------- */}
         <div className="half-section edit-products">
           <h3>Your Products</h3>
-
           {loadingProducts ? (
             <div className="loader">Loading products...</div>
           ) : products.length === 0 ? (
@@ -367,7 +347,9 @@ const VendorProducts = () => {
                   ) : (
                     <div className="product-actions">
                       <button onClick={() => openEdit(p)}>Edit</button>
-                      <button onClick={() => setConfirmDelete(p._id)}>Delete</button>
+                      <button onClick={() => setConfirmDelete(p._id)}>
+                        Delete
+                      </button>
                     </div>
                   )}
                 </div>
@@ -392,23 +374,27 @@ const VendorProducts = () => {
                   setEditData({ ...editData, price: e.target.value })
                 }
               />
-              <input
-                type="number"
-                placeholder="Old Price (optional)"
-                value={editData.oldPrice || ""}
-                onChange={(e) =>
-                  setEditData({ ...editData, oldPrice: e.target.value })
-                }
-              />
+              {vendor?.verified && (
+                <input
+                  type="number"
+                  placeholder="Old Price (optional)"
+                  value={editData.oldPrice || ""}
+                  onChange={(e) =>
+                    setEditData({ ...editData, oldPrice: e.target.value })
+                  }
+                />
+              )}
               <SearchableDropdown
                 options={categories}
                 value={editData.category}
-                onChange={(val) =>
-                  setEditData({ ...editData, category: val })
-                }
+                onChange={(val) => setEditData({ ...editData, category: val })}
               />
               {editPreview && (
-                <img src={editPreview} alt="Preview" className="image-preview" />
+                <img
+                  src={editPreview}
+                  alt="Preview"
+                  className="image-preview"
+                />
               )}
               <input
                 type="file"
@@ -424,7 +410,10 @@ const VendorProducts = () => {
               <button onClick={saveEdit} disabled={savingEdit}>
                 {savingEdit ? "Saving..." : "Save"}
               </button>
-              <button onClick={() => setEditingProduct(null)} disabled={savingEdit}>
+              <button
+                onClick={() => setEditingProduct(null)}
+                disabled={savingEdit}
+              >
                 Cancel
               </button>
             </div>

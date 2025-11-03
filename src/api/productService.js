@@ -36,7 +36,10 @@ export const registerUser = async (userData) => {
 
 // Login user
 export const loginUser = async (email, password) => {
-  const res = await API.fallbackRequest("post", "/auth/login", { email, password });
+  const res = await API.fallbackRequest("post", "/auth/login", {
+    email,
+    password,
+  });
   return res.data;
 };
 
@@ -50,6 +53,10 @@ export const getUsers = async () => {
 
 // Update user role (customer <-> vendor)
 export const updateUserRole = async (userId, role) => {
-  const res = await API.fallbackRequest("put", `/admin/update-user-role/${userId}`, { role });
+  const res = await API.fallbackRequest(
+    "put",
+    `/admin/update-user-role/${userId}`,
+    { role }
+  );
   return res.data;
 };
