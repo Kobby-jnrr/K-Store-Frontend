@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaFacebookF,
   FaTwitter,
@@ -9,6 +10,7 @@ import {
 import "./Footer.css";
 
 function Footer() {
+  const navigate = useNavigate();
   const categories = [
     { id: "food", label: "Food", emoji: "🍔" },
     { id: "fashion", label: "Fashion", emoji: "👗" },
@@ -55,12 +57,10 @@ function Footer() {
         <div className="footer-links">
           <h4>Quick Links</h4>
           <ul>
-            <li onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-              Home
-            </li>
-            <li>All Products</li>
-            <li>Cart</li>
-            <li>Profile</li>
+            <li onClick={() => navigate("/")}>Home</li>
+            <li onClick={() => navigate("/allProducts")}>All Products</li>
+            <li onClick={() => navigate("/cartPage")}>Cart</li>
+            <li onClick={() => navigate("/userProfile")}>Profile</li>
           </ul>
         </div>
 
@@ -73,12 +73,16 @@ function Footer() {
                 key={cat.id}
                 className="footer-category"
                 onClick={() => {
-                  const section = document.getElementById(cat.id);
-                  if (section) {
-                    section.scrollIntoView({
-                      behavior: "smooth",
-                      block: "start",
-                    });
+                  if (window.location.pathname !== "/") {
+                    window.location.href = `/#${cat.id}`;
+                  } else {
+                    const section = document.getElementById(cat.id);
+                    if (section) {
+                      section.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                      });
+                    }
                   }
                 }}
               >

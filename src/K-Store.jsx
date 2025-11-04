@@ -22,6 +22,7 @@ import CheckoutPage from "./assets/pages/Body/CheckoutPage.jsx";
 import AdminLayout from "./assets/pages/admin/AdminLayout.jsx";
 import VendorOrders from "./assets/pages/Body/VendorOrders.jsx";
 import VendorProfile from "./assets/pages/Body/VendorProfile";
+import ScrollToTop from "./assets/pages/ScrollToTop.jsx";
 
 function AppLayout({ cart, setCart, totalItems, logout, user }) {
   const location = useLocation();
@@ -33,6 +34,8 @@ function AppLayout({ cart, setCart, totalItems, logout, user }) {
 
       {/* Sidebar always visible on desktop, hidden on mobile/tablet via CSS */}
       {showSidebar && <Sidebar />}
+
+      <ScrollToTop />
 
       <Routes>
         <Route path="/" element={<Main cart={cart} setCart={setCart} />} />
@@ -93,6 +96,7 @@ function Store() {
 
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage setUser={setUser} />} />

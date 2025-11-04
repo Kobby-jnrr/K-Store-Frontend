@@ -8,6 +8,7 @@
 /* Filters section */
 .filters {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   margin-bottom: 20px;
@@ -73,7 +74,7 @@
   .filters label,
   .filters select,
   .filters select option {
-    font-size: 0.6rem;
+    font-size: 0.9rem;
   }
 
   .product-card h4,
@@ -82,8 +83,10 @@
     font-size: 0.75rem; /* extra small text on mobile */
   }
 
-  .filters select {
+  .filters select,
+  .filters input {
     padding: 4px 6px;
+    max-width: 330px;
   }
 
   .product-actions button {

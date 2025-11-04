@@ -6,6 +6,8 @@ import { registerUser } from "../../api/authService";
 
 function SignUpVendor({ setUser }) {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const uccLocations = [
     "Amamoma - Sterner Hostel",
@@ -275,24 +277,40 @@ function SignUpVendor({ setUser }) {
               </ul>
             )}
           </div>
+          <div className="password-wrapper">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password* (At least 5 characters)"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+            <span
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </span>
+          </div>
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password* (At least 5 characters)"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="password"
-            name="confirmpassword"
-            placeholder="Confirm Password*"
-            value={form.confirmpassword}
-            onChange={handleChange}
-            required
-          />
-
+          {/* 👁️ Confirm Password with toggle */}
+          <div className="password-wrapper">
+            <input
+              type={showConfirm ? "text" : "password"}
+              name="confirmpassword"
+              placeholder="Confirm Password*"
+              value={form.confirmpassword}
+              onChange={handleChange}
+              required
+            />
+            <span
+              className="toggle-password"
+              onClick={() => setShowConfirm(!showConfirm)}
+            >
+              {showConfirm ? "🙈" : "👁️"}
+            </span>
+          </div>
           <button type="submit" disabled={loading} className="signup-button">
             {loading ? (
               <span className="spinner"></span>

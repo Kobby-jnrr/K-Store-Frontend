@@ -87,11 +87,13 @@ function Main({ cart, setCart }) {
     const newProducts = {};
     const fullCountObj = {};
 
+    const shuffleArray = (arr) => [...arr].sort(() => Math.random() - 0.5);
+
     if (viewType === "category") {
       categories.forEach((cat) => {
         const filtered = allProducts.filter((p) => p.category === cat);
         if (filtered.length) {
-          newProducts[cat] = filtered;
+          newProducts[cat] = shuffleArray(filtered);
           fullCountObj[cat] = filtered.length;
         }
       });
@@ -111,7 +113,7 @@ function Main({ cart, setCart }) {
 
       // Limit to 4 products per vendor for display
       Object.keys(tempVendorMap).forEach(
-        (v) => (tempVendorMap[v] = tempVendorMap[v].slice(0, 4))
+        (v) => (tempVendorMap[v] = shuffleArray(tempVendorMap[v]).slice(0, 8))
       );
       Object.assign(newProducts, tempVendorMap);
     }

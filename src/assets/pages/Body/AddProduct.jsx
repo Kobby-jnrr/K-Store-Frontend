@@ -129,6 +129,7 @@ const VendorProducts = () => {
     }
 
     setVendor(user);
+    console.log("🔍 Vendor data:", user);
     fetchProducts();
   }, [navigate]);
 

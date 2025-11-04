@@ -99,7 +99,9 @@ function ProductList({
       : true;
 
     const matchesLocation = locationFilter
-      ? (p.location || "Unknown").startsWith(locationFilter)
+      ? (p.vendor?.location || "Unknown")
+          .toLowerCase()
+          .includes(locationFilter.toLowerCase())
       : true;
 
     return matchesSearch && matchesPrice && matchesVendor && matchesLocation;

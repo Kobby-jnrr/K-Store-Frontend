@@ -72,7 +72,7 @@ function AllProducts({ cart, setCart }) {
           ...new Set(res.data.map((p) => p.vendor?.username).filter(Boolean)),
         ];
         const uniqueLocations = [
-          ...new Set(res.data.map((p) => p.location || "Unknown")),
+          ...new Set(res.data.map((p) => p.vendor?.location || "Unknown")),
         ];
         setVendors(uniqueVendors);
         setLocations(uniqueLocations);
