@@ -25,6 +25,7 @@ const UserProfile = () => {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [activeOrder, setActiveOrder] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [confirmAccountDelete, setConfirmAccountDelete] = useState(false);
 
   // --- Notifications for order status changes ---
   const [notifications, setNotifications] = useState([]);
@@ -174,6 +175,32 @@ const UserProfile = () => {
       toast.error("Failed to delete product.");
     } finally {
       setConfirmDelete(null);
+    }
+  };
+
+  const handleAccountDelete = async () => {
+    if (!user || !user.token) return;
+    const token = user.token;
+    const userId = user._id || user.id;
+
+    try {
+      for (let base of API_BASES) {
+        try {
+          await API.delete(`${base}/auth/delete/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          break;
+        } catch {}
+      }
+
+      toast.success("Account deleted successfully!");
+      sessionStorage.clear();
+      localStorage.clear();
+      setTimeout(() => (window.location.href = "/login"), 1500);
+    } catch (err) {
+      toast.error("Failed to delete account.");
+    } finally {
+      setConfirmAccountDelete(false);
     }
   };
 
@@ -369,6 +396,13 @@ const UserProfile = () => {
               onClick={() => openEditModal(user, "vendor")}
             >
               Edit Info
+            </button>
+            <button
+              className="btn-primary"
+              onClick={() => setConfirmAccountDelete(true)}
+              style={{ background: "red" }}
+            >
+              Delete Account
             </button>
           </div>
         </div>
@@ -621,6 +655,27 @@ const UserProfile = () => {
                 onClick={() => setActiveOrder(null)}
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {confirmAccountDelete && (
+        <div className="confirm-modal fade-in">
+          <div className="confirm-modal-content">
+            <p>
+              Are you sure you want to permanently delete your account? This
+              action cannot be undone
+            </p>
+            <div className="confirm-buttons">
+              <button className="btn-danger" onClick={handleAccountDelete}>
+                Yes, Delete
+              </button>
+              <button
+                className="btn-cancel"
+                onClick={() => setConfirmAccountDelete(false)}
+              >
+                Cancel
               </button>
             </div>
           </div>

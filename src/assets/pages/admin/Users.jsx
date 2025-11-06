@@ -211,6 +211,7 @@ function Users() {
         >
           <option value="customer">Customer</option>
           <option value="vendor">Vendor</option>
+          <option value="admin">Admin</option>
         </select>
         <button className="add-btn" onClick={handleAddUser}>
           Add User
