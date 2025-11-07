@@ -217,6 +217,7 @@ const UserProfile = () => {
     } else {
       setFormData({
         phone: item.phone || "",
+        school: item.school || "",
         location: item.location || "",
         businessName: item.businessName || "",
       });
@@ -380,7 +381,16 @@ const UserProfile = () => {
               <strong>Phone:</strong> {user.phone || "Phone Not Added"}
             </p>
             <p>
-              <strong>Location:</strong> {user.location || "No location set"}
+              <strong>School:</strong>{" "}
+              <i>{user.school ? user.school.toUpperCase() : "No school set"}</i>
+            </p>
+            <p>
+              <strong>Location: </strong>
+              <i>
+                {user.location
+                  ? user.location.toUpperCase()
+                  : "No location set"}
+              </i>
             </p>
             {isVendor && (
               <p>
@@ -389,7 +399,7 @@ const UserProfile = () => {
               </p>
             )}
             <p>
-              <strong>Role:</strong> {user.role}
+              <strong>Role:</strong> {user.role.toUpperCase()}
             </p>
             <button
               className="btn-primary"
@@ -545,6 +555,25 @@ const UserProfile = () => {
                   value={formData.phone}
                   onChange={handleChange}
                 />
+                <select
+                  name="school"
+                  value={formData.school}
+                  onChange={handleChange}
+                  required
+                  className="school-select"
+                >
+                  <option value="">Select School</option>
+                  <option value="University of Cape Coast">
+                    University of Cape Coast
+                  </option>
+                  <option value="University of Ghana">
+                    University of Ghana
+                  </option>
+                  <option value="Kwame Nkrumah University Of Science and Technology">
+                    Kwame Nkrumah University Of Science and Technology
+                  </option>
+                </select>
+
                 <input
                   type="text"
                   name="location"

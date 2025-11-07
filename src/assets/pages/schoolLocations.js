@@ -16,12 +16,25 @@ const schoolLocations = {
     "Apewosika",
   ],
 
-  "University of Ghana": ["Legon Hall", "Mensah Sarbah Hall", "Pent Hostel"],
+  "University of Ghana": [
+    "Legon Hall",
+    "Mensah Sarbah Hall",
+    "Pent Hall",
+    "Volta Hall",
+    "Jean Nelson Aka Hall",
+    "Elizabeth Frances Sey Hall",
+  ],
 
   "Kwame Nkrumah University Of Science and Technology": [
+    "Unity Hall",
+    "Africa Hall",
     "GUSSS Hostel",
     "Brunei Complex",
   ],
+
+  "University of Education, Winneba": ["Ghartey Hall"],
+
+  "University Of Professional Studies, Accra": ["Opoku Ampomah Hal"],
 };
 
 export default schoolLocations;

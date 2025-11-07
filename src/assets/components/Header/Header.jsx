@@ -17,7 +17,8 @@ function Header({ totalItems, logout, user }) {
   const [showFilter, setShowFilter] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedPrice, setSelectedPrice] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
 
   const filterRef = useRef(null);
 
@@ -62,11 +63,18 @@ function Header({ totalItems, logout, user }) {
 
   const handleInputChange = (e) => setSearchInput(e.target.value);
 
-  const applyFilters = (category = selectedCategory, price = selectedPrice) => {
+  const applyFilters = (
+    category = selectedCategory,
+    min = minPrice,
+    max = maxPrice
+  ) => {
     let query = `/allProducts?`;
-    if (searchInput.trim() !== "") query += `search=${encodeURIComponent(searchInput)}&`;
+    if (searchInput.trim() !== "")
+      query += `search=${encodeURIComponent(searchInput)}&`;
     if (category) query += `category=${category}&`;
-    if (price) query += `price=${price}&`;
+    if (min || max) {
+      query += `price=${min || 0}-${max || ""}&`;
+    }
     navigate(query.slice(0, -1));
   };
 
@@ -117,33 +125,43 @@ function Header({ totalItems, logout, user }) {
                 value={selectedCategory}
                 onChange={(e) => {
                   setSelectedCategory(e.target.value);
-                  applyFilters(e.target.value, selectedPrice);
+                  applyFilters(e.target.value, minPrice, maxPrice);
                 }}
               >
                 <option value="">All</option>
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
-                    {cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}
+                    {cat.charAt(0).toUpperCase() +
+                      cat.slice(1).replace("-", " ")}
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="filter-group">
-              <label>Price:</label>
-              <select
-                value={selectedPrice}
+              <label>Min Price:</label>
+              <input
+                type="number"
+                placeholder="₵0"
+                value={minPrice}
                 onChange={(e) => {
-                  setSelectedPrice(e.target.value);
-                  applyFilters(selectedCategory, e.target.value);
+                  setMinPrice(e.target.value);
+                  applyFilters(selectedCategory, e.target.value, maxPrice);
                 }}
-              >
-                <option value="">All</option>
-                <option value="0-500">₵0 - ₵500</option>
-                <option value="500-1000">₵500 - ₵1000</option>
-                <option value="1000-2000">₵1000 - ₵2000</option>
-                <option value="2000+">₵2000+</option>
-              </select>
+              />
+            </div>
+
+            <div className="filter-group">
+              <label>Max Price:</label>
+              <input
+                type="number"
+                placeholder="₵2000+"
+                value={maxPrice}
+                onChange={(e) => {
+                  setMaxPrice(e.target.value);
+                  applyFilters(selectedCategory, minPrice, e.target.value);
+                }}
+              />
             </div>
           </div>
         )}
@@ -184,7 +202,7 @@ function Header({ totalItems, logout, user }) {
           </button>
         </Link>
 
-        < NotificationPopup user={user}/>
+        <NotificationPopup user={user} />
 
         <button className="exit-button" onClick={logout}>
           <img src={exit} className="exit" alt="Logout" />

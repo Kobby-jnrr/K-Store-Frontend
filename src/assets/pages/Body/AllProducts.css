@@ -6,7 +6,7 @@
 }
 
 /* Filters section */
-.filters {
+.allFilters {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -14,7 +14,16 @@
   margin-bottom: 20px;
 }
 
-.filters select {
+.allFilters input {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  outline: none;
+  width: 200px;
+}
+
+.allFilters select {
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
@@ -22,9 +31,23 @@
   outline: none;
 }
 
-.filters label {
+.allFilters label {
   font-weight: bold;
   font-size: 1.1rem;
+}
+
+/* Price filter inputs */
+.price-filter input {
+  width: 80px; /* small but readable */
+  padding: 6px 8px; /* adjust padding */
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+/* Add spacing between min and max */
+.price-filter input + input {
+  margin-left: 2px;
 }
 
 /* Responsive adjustments */
@@ -46,17 +69,32 @@
   }
   .all-products-main,
   .all-products-main h1,
-  .filters label,
-  .filters select,
-  .filters select option,
+  .allFilters input,
+  .allFilters label,
+  .allFilters select,
+  .allFilters select option,
   .product-card h4,
   .product-card p,
   .product-actions button {
     font-size: 0.85rem; /* smaller text */
   }
 
-  .filters select {
+  .allFilters select {
     padding: 6px 8px;
+  }
+
+  .allFilters input {
+    width: 300px;
+  }
+
+  .price-filter input {
+    width: 60px;
+    padding: 4px 6px;
+    font-size: 0.8rem;
+  }
+
+  .price-filter input + input {
+    margin-left: 5px;
   }
 
   .product-actions button {
@@ -71,9 +109,9 @@
 
   .all-products-main,
   .all-products-main h1,
-  .filters label,
-  .filters select,
-  .filters select option {
+  .allFilters label,
+  .allFilters select,
+  .allFilters select option {
     font-size: 0.9rem;
   }
 
@@ -83,10 +121,16 @@
     font-size: 0.75rem; /* extra small text on mobile */
   }
 
-  .filters select,
-  .filters input {
+  .allFilters select,
+  .allFilters input {
     padding: 4px 6px;
     max-width: 330px;
+  }
+
+  .price-filter input {
+    width: 60px; /* smaller on mobile */
+    padding: 4px 6px;
+    font-size: 0.8rem;
   }
 
   .product-actions button {

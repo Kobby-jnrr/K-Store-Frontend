@@ -7,8 +7,10 @@ import "./ProductList.css";
 function ProductList({
   category,
   searchQuery = "",
-  priceRange = "",
+  minPrice = "",
+  maxPrice = "",
   vendor = "",
+  school = "",
   location: locationFilter = "",
   cart,
   setCart,
@@ -87,15 +89,22 @@ function ProductList({
       ? p.title.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
 
-    const matchesPrice = priceRange
-      ? priceRange === "200+"
-        ? p.price >= 200
-        : p.price >= parseInt(priceRange.split("-")[0]) &&
-          p.price <= parseInt(priceRange.split("-")[1])
-      : true;
+    const min = parseFloat(minPrice);
+    const max = parseFloat(maxPrice);
+
+    const matchesPrice = (() => {
+      if (!min && !max) return true; // no filter
+      if (min && max) return p.price >= min && p.price <= max;
+      if (min) return p.price >= min;
+      if (max) return p.price <= max;
+    })();
 
     const matchesVendor = vendor
       ? p.vendor?.username === vendor || p.vendor?.businessName === vendor
+      : true;
+
+    const matchesSchool = school
+      ? (p.vendor?.school || "").toLowerCase() === school.toLowerCase()
       : true;
 
     const matchesLocation = locationFilter
@@ -104,7 +113,13 @@ function ProductList({
           .includes(locationFilter.toLowerCase())
       : true;
 
-    return matchesSearch && matchesPrice && matchesVendor && matchesLocation;
+    return (
+      matchesSearch &&
+      matchesPrice &&
+      matchesVendor &&
+      matchesSchool &&
+      matchesLocation
+    );
   });
 
   return (
@@ -114,12 +129,6 @@ function ProductList({
           <p>No products found.</p>
         ) : (
           filteredProducts.map((item) => {
-            const isExpanded = expanded[item._id];
-            const shortDesc =
-              item.description && item.description.length > 100
-                ? item.description.substring(0, 100) + "…"
-                : item.description;
-
             const isVerified = item.vendor?.verified ?? false;
             const discount =
               item.oldPrice && item.oldPrice > item.price

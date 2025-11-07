@@ -5,6 +5,12 @@ import logo from "../components/Header/head-image/Web-logo.png";
 import schoolLocations from "./schoolLocations";
 import { registerUser } from "../../api/authService";
 
+function toTitleCase(str) {
+  return str.replace(/\w\S*/g, (txt) => {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}
+
 function SignUpVendor({ setUser }) {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -199,7 +205,7 @@ function SignUpVendor({ setUser }) {
               type="text"
               name="location"
               placeholder="Location - Hostel Name. Eg. Amamoma-A hostel"
-              value={form.location}
+              value={toTitleCase(form.location)}
               onChange={(e) => {
                 setForm({ ...form, location: e.target.value });
                 setShowDropdown(true);
@@ -216,7 +222,7 @@ function SignUpVendor({ setUser }) {
                   : filteredLocations
                 ).map((loc) => (
                   <li key={loc} onClick={() => handleLocationSelect(loc)}>
-                    {loc}
+                    {toTitleCase(loc)}
                   </li>
                 ))}
                 {form.location.trim() && filteredLocations.length === 0 && (

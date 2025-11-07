@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import ProductList from "../../components/Categories/ProductList";
 import "./AllProducts.css";
 import { useLocation } from "react-router-dom";
+import schoolLocations from "../schoolLocations";
 import axios from "axios";
 
 function AllProducts({ cart, setCart }) {
@@ -10,16 +11,26 @@ function AllProducts({ cart, setCart }) {
   const [category, setCategory] = useState("");
   const [vendor, setVendor] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
-  const [priceRange, setPriceRange] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [vendors, setVendors] = useState([]);
   const [locations, setLocations] = useState([]);
+  const [schoolFilter, setSchoolFilter] = useState("");
+  const schools = [
+    "University of Cape Coast",
+    "University of Ghana",
+    "Kwame Nkrumah University Of Science and Technology",
+    "University of Education, Winneba",
+    "University Of Professional Studies, Accra",
+  ];
 
   const categories = [
     "fashion",
     "electronics",
     "home",
+    "accessories",
     "grocery",
-    "baby",
+    "shoes",
     "beauty",
     "sports",
     "gaming",
@@ -28,27 +39,14 @@ function AllProducts({ cart, setCart }) {
     "automotive",
     "jewelry",
     "office",
-    "pet",
     "tools",
     "music",
     "health",
     "outdoors",
     "kitchen",
-    "shoes",
-    "accessories",
+    "baby",
+    "pet",
     "other",
-  ];
-
-  const mainAreas = [
-    "Amamoma",
-    "Ayensu",
-    "Old Site",
-    "New Site",
-    "UCC Campus",
-    "Science",
-    "Kwaprow",
-    "School Bus Rd.",
-    "Apewosika",
   ];
 
   // Get filters from URL
@@ -58,7 +56,15 @@ function AllProducts({ cart, setCart }) {
     setCategory(params.get("category") || "");
     setVendor(params.get("vendor") || "");
     setLocationFilter(params.get("location") || "");
-    setPriceRange(params.get("price") || "");
+    const price = params.get("price");
+    if (price) {
+      const [min, max] = price.split("-");
+      setMinPrice(min || "");
+      setMaxPrice(max || "");
+    } else {
+      setMinPrice("");
+      setMaxPrice("");
+    }
   }, [location.search]);
 
   // Fetch all products to populate dynamic vendors and locations
@@ -88,7 +94,7 @@ function AllProducts({ cart, setCart }) {
       <h1 className="h1head">All Products</h1>
 
       {/* Filters */}
-      <div className="filters">
+      <div className="allFilters">
         {/* Search */}
         <input
           type="text"
@@ -117,44 +123,76 @@ function AllProducts({ cart, setCart }) {
           ))}
         </select>
 
+        {/* School */}
+        <select
+          value={schoolFilter}
+          onChange={(e) => setSchoolFilter(e.target.value)}
+        >
+          <option value="">All Schools</option>
+          {schools.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+
         {/* Location */}
         <select
           value={locationFilter}
           onChange={(e) => setLocationFilter(e.target.value)}
         >
           <option value="">All Locations</option>
-          {[
-            ...mainAreas,
-            ...locations.filter((loc) => !mainAreas.includes(loc)),
-          ].map((area) => (
-            <option key={area} value={area}>
-              {area}
-            </option>
-          ))}
+          {(() => {
+            // Determine which locations to show
+            let filteredLocations = [];
+
+            if (schoolFilter) {
+              // Specific school selected → show only its locations
+              filteredLocations = schoolLocations[schoolFilter] || [];
+            } else {
+              // All schools → merge all locations
+              filteredLocations = Object.values(schoolLocations).flat();
+            }
+
+            // Make sure locations are unique
+            filteredLocations = [...new Set(filteredLocations)];
+
+            return filteredLocations.map((loc) => (
+              <option key={loc} value={loc}>
+                {loc}
+              </option>
+            ));
+          })()}
         </select>
 
-        {/* Price */}
-        <select
-          value={priceRange}
-          onChange={(e) => setPriceRange(e.target.value)}
-        >
-          <option value="">All Prices</option>
-          <option value="0-50">GH₵0 - GH₵50</option>
-          <option value="50-100">GH₵50 - GH₵100</option>
-          <option value="100-200">GH₵100 - GH₵200</option>
-          <option value="200+">GH₵200+</option>
-        </select>
+        {/* Price Range */}
+        <div className="price-filter">
+          <input
+            type="number"
+            placeholder="Min Price"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+          />
+          <input
+            type="number"
+            placeholder="Max Price"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+          />
+        </div>
       </div>
 
       {/* Products */}
       <ProductList
         category={category}
         vendor={vendor}
+        school={schoolFilter}
         location={locationFilter}
         cart={cart}
         setCart={setCart}
         searchQuery={searchQuery}
-        priceRange={priceRange}
+        minPrice={minPrice}
+        maxPrice={maxPrice}
       />
     </main>
   );
