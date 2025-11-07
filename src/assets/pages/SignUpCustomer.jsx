@@ -71,7 +71,6 @@ function SignUpCustomer({ setUser }) {
         phone: form.phone,
         school: form.school,
         location: form.location.trim(),
-        businessName: null,
       };
 
       const data = await registerUser(userData);
@@ -186,7 +185,7 @@ function SignUpCustomer({ setUser }) {
               className="location-input"
               type="text"
               name="location"
-              placeholder="Location - Hostel Name. Eg. Amamoma-A hostel"
+              placeholder="Location. Eg. Amamoma, New Site..."
               value={toTitleCase(form.location)}
               onChange={(e) => {
                 setForm({ ...form, location: e.target.value });

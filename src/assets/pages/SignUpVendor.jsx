@@ -204,7 +204,7 @@ function SignUpVendor({ setUser }) {
               className="location-input"
               type="text"
               name="location"
-              placeholder="Location - Hostel Name. Eg. Amamoma-A hostel"
+              placeholder="Location - Hostel Name. Eg. Amamoma, New Site..."
               value={toTitleCase(form.location)}
               onChange={(e) => {
                 setForm({ ...form, location: e.target.value });
