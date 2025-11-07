@@ -79,7 +79,8 @@ function SignUpVendor({ setUser }) {
         password: form.password,
         role: form.role,
         phone: form.phone,
-        businessName: form.businessName || "",
+        businessName:
+          form.businessName.trim() !== "" ? form.businessName.trim() : null,
         school: form.school,
         location: form.location.trim(),
       };
