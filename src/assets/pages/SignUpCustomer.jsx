@@ -71,6 +71,7 @@ function SignUpCustomer({ setUser }) {
         phone: form.phone,
         school: form.school,
         location: form.location.trim(),
+        businessName: null,
       };
 
       const data = await registerUser(userData);
