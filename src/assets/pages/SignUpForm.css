@@ -113,6 +113,20 @@
   text-align: left;
 }
 
+.school-select {
+  padding: 0.9em;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+  transition: 0.3s;
+  width: 100%;
+}
+.school-select:focus {
+  border-color: #8a6bcc;
+  box-shadow: 0 0 8px rgba(138, 108, 204, 0.5);
+  outline: none;
+}
+
 .location-input {
   width: 93%;
   max-width: 390px; /* or any fixed size you want */
